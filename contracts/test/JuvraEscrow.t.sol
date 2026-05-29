@@ -8,143 +8,137 @@ contract JuvraEscrowTest is Test {
     JuvraEscrow private escrow;
 
     address private owner = address(0xA11CE);
-    address private client = address(0xC11E17);
-    address private freelancer = address(0xF33);
-    address private secondFreelancer = address(0xF44);
-    address private arbitrator = address(0xA4817);
+    address private client = address(0xC11E47);
+    address private freelancer = address(0xF2EE);
+    address private otherFreelancer = address(0xB0B);
+    address private arbitrator = address(0xA2B);
 
-    uint256 private constant PAYMENT = 10 ether;
+    uint256 private constant AMOUNT = 5 ether;
+
+    event FreelancerApplied(uint256 indexed jobId, address indexed freelancer);
+    event FreelancerSelected(uint256 indexed jobId, address indexed freelancer);
+    event WorkSubmitted(uint256 indexed jobId, string submissionURI);
+    event PaymentReleased(uint256 indexed jobId, address indexed freelancer, uint256 amount);
+    event DisputeRaised(uint256 indexed jobId, address indexed raisedBy);
+    event DisputeResolved(uint256 indexed jobId, bool clientWins, uint256 amount);
+    event JobCancelled(uint256 indexed jobId, uint256 refundAmount);
 
     function setUp() public {
         vm.prank(owner);
-        escrow = new JuvraEscrow(arbitrator, 0);
+        escrow = new JuvraEscrow(arbitrator);
 
         vm.deal(client, 100 ether);
         vm.deal(freelancer, 1 ether);
-        vm.deal(secondFreelancer, 1 ether);
+        vm.deal(otherFreelancer, 1 ether);
+        vm.deal(arbitrator, 1 ether);
     }
 
-    function testPostJob() public {
+    function testPostJobAndGetJobCount() public {
         uint256 jobId = _postJob();
+
+        assertEq(jobId, 1);
+        assertEq(escrow.getJobCount(), 1);
 
         JuvraEscrow.Job memory job = escrow.getJob(jobId);
-
-        assertEq(escrow.getJobCount(), 1);
-        assertEq(job.id, jobId);
         assertEq(job.client, client);
-        assertEq(job.freelancer, address(0));
-        assertEq(job.title, "Build Juvra landing page");
-        assertEq(job.descriptionURI, "ipfs://description");
-        assertEq(job.category, "Design");
-        assertEq(job.amount, PAYMENT);
-        assertEq(uint256(job.status), uint256(JuvraEscrow.Status.Open));
-        assertEq(address(escrow).balance, PAYMENT);
+        assertEq(job.amount, AMOUNT);
+        assertEq(job.title, "Build UI");
+        assertEq(uint8(job.status), uint8(JuvraEscrow.Status.Open));
     }
 
-    function testZeroPaymentReverts() public {
-        vm.prank(client);
-        vm.expectRevert(bytes("NO_FUNDS_SENT"));
-        escrow.postJob("Build Juvra landing page", "Design", "ipfs://description", _deadline());
-    }
-
-    function testFreelancerApplies() public {
+    function testApplyForJob() public {
         uint256 jobId = _postJob();
+
+        vm.expectEmit(true, true, false, false);
+        emit FreelancerApplied(jobId, freelancer);
 
         vm.prank(freelancer);
         escrow.applyForJob(jobId);
 
-        address[] memory jobApplicants = escrow.getApplicants(jobId);
-
-        assertEq(jobApplicants.length, 1);
-        assertEq(jobApplicants[0], freelancer);
+        address[] memory applicants = escrow.getApplicants(jobId);
+        assertEq(applicants.length, 1);
+        assertEq(applicants[0], freelancer);
         assertTrue(escrow.hasApplied(jobId, freelancer));
     }
 
-    function testDuplicateApplicationReverts() public {
-        uint256 jobId = _postJob();
-
-        vm.startPrank(freelancer);
-        escrow.applyForJob(jobId);
-
-        vm.expectRevert(bytes("ALREADY_APPLIED"));
-        escrow.applyForJob(jobId);
-        vm.stopPrank();
-    }
-
-    function testClientSelectsFreelancer() public {
+    function testSelectFreelancer() public {
         uint256 jobId = _postAndApply();
+
+        vm.expectEmit(true, true, false, false);
+        emit FreelancerSelected(jobId, freelancer);
 
         vm.prank(client);
         escrow.selectFreelancer(jobId, freelancer);
 
         JuvraEscrow.Job memory job = escrow.getJob(jobId);
-
         assertEq(job.freelancer, freelancer);
-        assertEq(uint256(job.status), uint256(JuvraEscrow.Status.Assigned));
+        assertEq(uint8(job.status), uint8(JuvraEscrow.Status.Assigned));
     }
 
-    function testNonClientCannotSelect() public {
-        uint256 jobId = _postAndApply();
-
-        vm.prank(secondFreelancer);
-        vm.expectRevert(bytes("NOT_CLIENT"));
-        escrow.selectFreelancer(jobId, freelancer);
-    }
-
-    function testSelectedFreelancerSubmitsWork() public {
+    function testSubmitWork() public {
         uint256 jobId = _postApplyAndSelect();
+
+        vm.expectEmit(true, false, false, true);
+        emit WorkSubmitted(jobId, "ipfs://work");
 
         vm.prank(freelancer);
-        escrow.submitWork(jobId, "ipfs://submission");
+        escrow.submitWork(jobId, "ipfs://work");
 
         JuvraEscrow.Job memory job = escrow.getJob(jobId);
-
-        assertEq(job.submissionURI, "ipfs://submission");
-        assertEq(uint256(job.status), uint256(JuvraEscrow.Status.Submitted));
+        assertEq(job.submissionURI, "ipfs://work");
+        assertEq(uint8(job.status), uint8(JuvraEscrow.Status.Submitted));
     }
 
-    function testNonSelectedFreelancerCannotSubmit() public {
-        uint256 jobId = _postApplyAndSelect();
+    function testApproveWorkPaysFreelancerAndPreventsDoublePayout() public {
+        uint256 jobId = _submittedJob();
+        uint256 beforeBalance = freelancer.balance;
 
-        vm.prank(secondFreelancer);
-        vm.expectRevert(bytes("NOT_FREELANCER"));
-        escrow.submitWork(jobId, "ipfs://submission");
-    }
-
-    function testClientApprovesWorkAndPaymentReleases() public {
-        uint256 jobId = _postSelectAndSubmit();
-        uint256 freelancerBalanceBefore = freelancer.balance;
+        vm.expectEmit(true, true, false, true);
+        emit PaymentReleased(jobId, freelancer, AMOUNT);
 
         vm.prank(client);
         escrow.approveWork(jobId);
 
-        JuvraEscrow.Job memory job = escrow.getJob(jobId);
+        assertEq(freelancer.balance, beforeBalance + AMOUNT);
 
-        assertEq(uint256(job.status), uint256(JuvraEscrow.Status.Approved));
-        assertEq(freelancer.balance, freelancerBalanceBefore + PAYMENT);
-        assertEq(address(escrow).balance, 0);
+        JuvraEscrow.Job memory job = escrow.getJob(jobId);
+        assertEq(job.amount, 0);
+        assertEq(uint8(job.status), uint8(JuvraEscrow.Status.Approved));
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                JuvraEscrow.InvalidStatus.selector,
+                JuvraEscrow.Status.Approved,
+                JuvraEscrow.Status.Submitted
+            )
+        );
+        vm.prank(client);
+        escrow.approveWork(jobId);
     }
 
-    function testDisputeWhereClientWins() public {
-        uint256 jobId = _postApplyAndSelect();
-        uint256 clientBalanceBefore = client.balance;
+    function testDisputeResolutionPaysClientWhenClientWins() public {
+        uint256 jobId = _submittedJob();
+        uint256 beforeBalance = client.balance;
 
         vm.prank(client);
         escrow.raiseDispute(jobId);
 
+        vm.expectEmit(true, false, false, true);
+        emit DisputeResolved(jobId, true, AMOUNT);
+
         vm.prank(arbitrator);
         escrow.resolveDispute(jobId, true);
 
-        JuvraEscrow.Job memory job = escrow.getJob(jobId);
+        assertEq(client.balance, beforeBalance + AMOUNT);
 
-        assertEq(uint256(job.status), uint256(JuvraEscrow.Status.Refunded));
-        assertEq(client.balance, clientBalanceBefore + PAYMENT);
-        assertEq(address(escrow).balance, 0);
+        JuvraEscrow.Job memory job = escrow.getJob(jobId);
+        assertEq(job.amount, 0);
+        assertEq(uint8(job.status), uint8(JuvraEscrow.Status.Refunded));
     }
 
-    function testDisputeWhereFreelancerWins() public {
-        uint256 jobId = _postApplyAndSelect();
-        uint256 freelancerBalanceBefore = freelancer.balance;
+    function testDisputeResolutionPaysFreelancerWhenFreelancerWins() public {
+        uint256 jobId = _submittedJob();
+        uint256 beforeBalance = freelancer.balance;
 
         vm.prank(freelancer);
         escrow.raiseDispute(jobId);
@@ -152,45 +146,141 @@ contract JuvraEscrowTest is Test {
         vm.prank(arbitrator);
         escrow.resolveDispute(jobId, false);
 
-        JuvraEscrow.Job memory job = escrow.getJob(jobId);
+        assertEq(freelancer.balance, beforeBalance + AMOUNT);
 
-        assertEq(uint256(job.status), uint256(JuvraEscrow.Status.Approved));
-        assertEq(freelancer.balance, freelancerBalanceBefore + PAYMENT);
-        assertEq(address(escrow).balance, 0);
+        JuvraEscrow.Job memory job = escrow.getJob(jobId);
+        assertEq(job.amount, 0);
+        assertEq(uint8(job.status), uint8(JuvraEscrow.Status.Approved));
     }
 
-    function testCancelOpenJob() public {
+    function testCancelJobRefundsClient() public {
         uint256 jobId = _postJob();
-        uint256 clientBalanceBefore = client.balance;
+        uint256 beforeBalance = client.balance;
+
+        vm.expectEmit(true, false, false, true);
+        emit JobCancelled(jobId, AMOUNT);
 
         vm.prank(client);
         escrow.cancelJob(jobId);
+
+        assertEq(client.balance, beforeBalance + AMOUNT);
 
         JuvraEscrow.Job memory job = escrow.getJob(jobId);
-
-        assertEq(uint256(job.status), uint256(JuvraEscrow.Status.Cancelled));
-        assertEq(client.balance, clientBalanceBefore + PAYMENT);
-        assertEq(address(escrow).balance, 0);
+        assertEq(job.amount, 0);
+        assertEq(uint8(job.status), uint8(JuvraEscrow.Status.Cancelled));
     }
 
-    function testCannotCancelAssignedJob() public {
-        uint256 jobId = _postApplyAndSelect();
+    function testRaiseDisputeFromAssignedOrSubmitted() public {
+        uint256 assignedJobId = _postApplyAndSelect();
+
+        vm.expectEmit(true, true, false, false);
+        emit DisputeRaised(assignedJobId, client);
 
         vm.prank(client);
-        vm.expectRevert(bytes("INVALID_STATUS"));
+        escrow.raiseDispute(assignedJobId);
+
+        uint256 submittedJobId = _submittedJob();
+        vm.prank(freelancer);
+        escrow.raiseDispute(submittedJobId);
+
+        JuvraEscrow.Job memory job = escrow.getJob(submittedJobId);
+        assertEq(uint8(job.status), uint8(JuvraEscrow.Status.Disputed));
+    }
+
+    function testReverts() public {
+        uint256 jobId = _postJob();
+
+        vm.expectRevert(JuvraEscrow.ClientCannotApply.selector);
+        vm.prank(client);
+        escrow.applyForJob(jobId);
+
+        vm.prank(freelancer);
+        escrow.applyForJob(jobId);
+
+        vm.expectRevert(JuvraEscrow.AlreadyApplied.selector);
+        vm.prank(freelancer);
+        escrow.applyForJob(jobId);
+
+        vm.expectRevert(JuvraEscrow.FreelancerDidNotApply.selector);
+        vm.prank(client);
+        escrow.selectFreelancer(jobId, otherFreelancer);
+
+        vm.expectRevert(JuvraEscrow.Unauthorized.selector);
+        vm.prank(otherFreelancer);
+        escrow.selectFreelancer(jobId, freelancer);
+
+        vm.prank(client);
+        escrow.selectFreelancer(jobId, freelancer);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                JuvraEscrow.InvalidStatus.selector,
+                JuvraEscrow.Status.Assigned,
+                JuvraEscrow.Status.Open
+            )
+        );
+        vm.prank(client);
         escrow.cancelJob(jobId);
+
+        vm.expectRevert(JuvraEscrow.Unauthorized.selector);
+        vm.prank(otherFreelancer);
+        escrow.submitWork(jobId, "ipfs://work");
+
+        vm.expectRevert(JuvraEscrow.EmptySubmissionURI.selector);
+        vm.prank(freelancer);
+        escrow.submitWork(jobId, "");
+
+        vm.prank(freelancer);
+        escrow.submitWork(jobId, "ipfs://work");
+
+        vm.expectRevert(JuvraEscrow.Unauthorized.selector);
+        vm.prank(otherFreelancer);
+        escrow.approveWork(jobId);
+    }
+
+    function testOnlyArbitratorCanResolveDispute() public {
+        uint256 jobId = _submittedJob();
+
+        vm.prank(client);
+        escrow.raiseDispute(jobId);
+
+        vm.expectRevert(JuvraEscrow.Unauthorized.selector);
+        vm.prank(client);
+        escrow.resolveDispute(jobId, true);
+    }
+
+    function testPostJobRevertsForInvalidInputs() public {
+        vm.expectRevert(JuvraEscrow.InvalidAmount.selector);
+        vm.prank(client);
+        escrow.postJob{value: 0}("Build UI", "Frontend", "ipfs://job", block.timestamp + 1 days);
+
+        vm.expectRevert(JuvraEscrow.EmptyTitle.selector);
+        vm.prank(client);
+        escrow.postJob{value: AMOUNT}("", "Frontend", "ipfs://job", block.timestamp + 1 days);
+
+        vm.expectRevert(JuvraEscrow.EmptyCategory.selector);
+        vm.prank(client);
+        escrow.postJob{value: AMOUNT}("Build UI", "", "ipfs://job", block.timestamp + 1 days);
+
+        vm.expectRevert(JuvraEscrow.EmptyDescriptionURI.selector);
+        vm.prank(client);
+        escrow.postJob{value: AMOUNT}("Build UI", "Frontend", "", block.timestamp + 1 days);
+
+        vm.expectRevert(JuvraEscrow.InvalidDeadline.selector);
+        vm.prank(client);
+        escrow.postJob{value: AMOUNT}("Build UI", "Frontend", "ipfs://job", block.timestamp);
     }
 
     function _postJob() private returns (uint256) {
         vm.prank(client);
-        escrow.postJob{value: PAYMENT}(
-            "Build Juvra landing page",
-            "Design",
-            "ipfs://description",
-            _deadline()
+        escrow.postJob{value: AMOUNT}(
+            "Build UI",
+            "Frontend",
+            "ipfs://job",
+            block.timestamp + 7 days
         );
 
-        return escrow.getJobCount() - 1;
+        return escrow.getJobCount();
     }
 
     function _postAndApply() private returns (uint256 jobId) {
@@ -207,14 +297,10 @@ contract JuvraEscrowTest is Test {
         escrow.selectFreelancer(jobId, freelancer);
     }
 
-    function _postSelectAndSubmit() private returns (uint256 jobId) {
+    function _submittedJob() private returns (uint256 jobId) {
         jobId = _postApplyAndSelect();
 
         vm.prank(freelancer);
-        escrow.submitWork(jobId, "ipfs://submission");
-    }
-
-    function _deadline() private view returns (uint64) {
-        return uint64(block.timestamp + 7 days);
+        escrow.submitWork(jobId, "ipfs://work");
     }
 }

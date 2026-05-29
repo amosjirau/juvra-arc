@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 contract JuvraEscrow is Ownable, ReentrancyGuard {
     enum Status {
@@ -24,81 +24,125 @@ contract JuvraEscrow is Ownable, ReentrancyGuard {
         string descriptionURI;
         string submissionURI;
         uint256 amount;
-        uint64 createdAt;
-        uint64 deadline;
+        uint256 createdAt;
+        uint256 deadline;
         Status status;
     }
 
     uint256 public jobCount;
     address public arbitrator;
-    uint256 public platformFee;
 
-    uint256 public constant MAX_FEE = 1000;
-
-    mapping(uint256 => Job) private jobs;
+    mapping(uint256 => Job) public jobs;
     mapping(uint256 => address[]) private applicants;
     mapping(uint256 => mapping(address => bool)) public hasApplied;
 
-    event JobPosted(uint256 indexed jobId, address indexed client, uint256 amount);
+    event JobPosted(
+        uint256 indexed jobId,
+        address indexed client,
+        uint256 amount,
+        string title
+    );
     event FreelancerApplied(uint256 indexed jobId, address indexed freelancer);
     event FreelancerSelected(uint256 indexed jobId, address indexed freelancer);
-    event WorkSubmitted(uint256 indexed jobId, address indexed freelancer, string submissionURI);
+    event WorkSubmitted(uint256 indexed jobId, string submissionURI);
     event PaymentReleased(uint256 indexed jobId, address indexed freelancer, uint256 amount);
     event DisputeRaised(uint256 indexed jobId, address indexed raisedBy);
-    event DisputeResolved(uint256 indexed jobId, bool clientWon, address paidTo);
-    event JobCancelled(uint256 indexed jobId);
-    event ArbitratorUpdated(address indexed oldArbitrator, address indexed newArbitrator);
-    event PlatformFeeUpdated(uint256 oldPlatformFee, uint256 newPlatformFee);
+    event DisputeResolved(uint256 indexed jobId, bool clientWins, uint256 amount);
+    event JobCancelled(uint256 indexed jobId, uint256 refundAmount);
 
-    constructor(address _arbitrator, uint256 _platformFee) Ownable(msg.sender) {
-        require(_arbitrator != address(0), "INVALID_ARBITRATOR");
-        require(_platformFee <= MAX_FEE, "FEE_TOO_HIGH");
-
-        arbitrator = _arbitrator;
-        platformFee = _platformFee;
-    }
+    error InvalidJob();
+    error InvalidAddress();
+    error InvalidAmount();
+    error InvalidDeadline();
+    error EmptyTitle();
+    error EmptyCategory();
+    error EmptyDescriptionURI();
+    error EmptySubmissionURI();
+    error Unauthorized();
+    error InvalidStatus(Status current, Status expected);
+    error AlreadyApplied();
+    error ClientCannotApply();
+    error FreelancerDidNotApply();
+    error TransferFailed();
 
     modifier onlyClient(uint256 jobId) {
-        require(jobs[jobId].client == msg.sender, "NOT_CLIENT");
+        if (jobs[jobId].client != msg.sender) {
+            revert Unauthorized();
+        }
         _;
     }
 
     modifier onlyFreelancer(uint256 jobId) {
-        require(jobs[jobId].freelancer == msg.sender, "NOT_FREELANCER");
+        if (jobs[jobId].freelancer != msg.sender) {
+            revert Unauthorized();
+        }
         _;
     }
 
     modifier onlyArbitrator() {
-        require(msg.sender == arbitrator, "NOT_ARBITRATOR");
-        _;
-    }
-
-    modifier jobExists(uint256 jobId) {
-        require(jobId < jobCount, "JOB_NOT_FOUND");
+        if (msg.sender != arbitrator) {
+            revert Unauthorized();
+        }
         _;
     }
 
     modifier inStatus(uint256 jobId, Status expected) {
-        require(jobs[jobId].status == expected, "INVALID_STATUS");
+        Status current = jobs[jobId].status;
+        if (current != expected) {
+            revert InvalidStatus(current, expected);
+        }
         _;
+    }
+
+    modifier jobExists(uint256 jobId) {
+        if (jobId == 0 || jobId > jobCount || jobs[jobId].client == address(0)) {
+            revert InvalidJob();
+        }
+        _;
+    }
+
+    constructor(address initialArbitrator) Ownable(msg.sender) {
+        if (initialArbitrator == address(0)) {
+            revert InvalidAddress();
+        }
+
+        arbitrator = initialArbitrator;
+    }
+
+    function setArbitrator(address newArbitrator) external onlyOwner {
+        if (newArbitrator == address(0)) {
+            revert InvalidAddress();
+        }
+
+        arbitrator = newArbitrator;
     }
 
     function postJob(
         string calldata title,
         string calldata category,
         string calldata descriptionURI,
-        uint64 deadline
+        uint256 deadline
     ) external payable {
-        require(msg.value > 0, "NO_FUNDS_SENT");
-        require(bytes(title).length > 0, "EMPTY_TITLE");
-        require(bytes(category).length > 0, "EMPTY_CATEGORY");
-        require(bytes(descriptionURI).length > 0, "EMPTY_DESCRIPTION");
-        require(deadline > block.timestamp, "DEADLINE_IN_PAST");
+        if (msg.value == 0) {
+            revert InvalidAmount();
+        }
+        if (bytes(title).length == 0) {
+            revert EmptyTitle();
+        }
+        if (bytes(category).length == 0) {
+            revert EmptyCategory();
+        }
+        if (bytes(descriptionURI).length == 0) {
+            revert EmptyDescriptionURI();
+        }
+        if (deadline <= block.timestamp) {
+            revert InvalidDeadline();
+        }
 
-        uint256 jobId = jobCount;
+        jobCount++;
 
-        jobs[jobId] = Job({
-            id: jobId,
+        jobs[jobCount] = Job({
+            id: jobCount,
             client: msg.sender,
             freelancer: address(0),
             title: title,
@@ -106,14 +150,12 @@ contract JuvraEscrow is Ownable, ReentrancyGuard {
             descriptionURI: descriptionURI,
             submissionURI: "",
             amount: msg.value,
-            createdAt: uint64(block.timestamp),
+            createdAt: block.timestamp,
             deadline: deadline,
             status: Status.Open
         });
 
-        jobCount++;
-
-        emit JobPosted(jobId, msg.sender, msg.value);
+        emit JobPosted(jobCount, msg.sender, msg.value, title);
     }
 
     function applyForJob(uint256 jobId)
@@ -123,11 +165,15 @@ contract JuvraEscrow is Ownable, ReentrancyGuard {
     {
         Job storage job = jobs[jobId];
 
-        require(msg.sender != job.client, "CLIENT_CANNOT_APPLY");
-        require(!hasApplied[jobId][msg.sender], "ALREADY_APPLIED");
+        if (msg.sender == job.client) {
+            revert ClientCannotApply();
+        }
+        if (hasApplied[jobId][msg.sender]) {
+            revert AlreadyApplied();
+        }
 
-        applicants[jobId].push(msg.sender);
         hasApplied[jobId][msg.sender] = true;
+        applicants[jobId].push(msg.sender);
 
         emit FreelancerApplied(jobId, msg.sender);
     }
@@ -138,11 +184,16 @@ contract JuvraEscrow is Ownable, ReentrancyGuard {
         onlyClient(jobId)
         inStatus(jobId, Status.Open)
     {
-        require(freelancer != address(0), "INVALID_FREELANCER");
-        require(hasApplied[jobId][freelancer], "FREELANCER_NOT_APPLIED");
+        if (freelancer == address(0)) {
+            revert InvalidAddress();
+        }
+        if (!hasApplied[jobId][freelancer]) {
+            revert FreelancerDidNotApply();
+        }
 
-        jobs[jobId].freelancer = freelancer;
-        jobs[jobId].status = Status.Assigned;
+        Job storage job = jobs[jobId];
+        job.freelancer = freelancer;
+        job.status = Status.Assigned;
 
         emit FreelancerSelected(jobId, freelancer);
     }
@@ -153,12 +204,15 @@ contract JuvraEscrow is Ownable, ReentrancyGuard {
         onlyFreelancer(jobId)
         inStatus(jobId, Status.Assigned)
     {
-        require(bytes(submissionURI).length > 0, "EMPTY_SUBMISSION");
+        if (bytes(submissionURI).length == 0) {
+            revert EmptySubmissionURI();
+        }
 
-        jobs[jobId].submissionURI = submissionURI;
-        jobs[jobId].status = Status.Submitted;
+        Job storage job = jobs[jobId];
+        job.submissionURI = submissionURI;
+        job.status = Status.Submitted;
 
-        emit WorkSubmitted(jobId, msg.sender, submissionURI);
+        emit WorkSubmitted(jobId, submissionURI);
     }
 
     function approveWork(uint256 jobId)
@@ -169,21 +223,15 @@ contract JuvraEscrow is Ownable, ReentrancyGuard {
         inStatus(jobId, Status.Submitted)
     {
         Job storage job = jobs[jobId];
+        uint256 amount = job.amount;
+        address freelancer = job.freelancer;
 
+        job.amount = 0;
         job.status = Status.Approved;
 
-        uint256 fee = (job.amount * platformFee) / 10000;
-        uint256 payout = job.amount - fee;
+        _sendValue(freelancer, amount);
 
-        (bool paidFreelancer, ) = job.freelancer.call{value: payout}("");
-        require(paidFreelancer, "FREELANCER_PAYMENT_FAILED");
-
-        if (fee > 0) {
-            (bool paidOwner, ) = owner().call{value: fee}("");
-            require(paidOwner, "FEE_PAYMENT_FAILED");
-        }
-
-        emit PaymentReleased(jobId, job.freelancer, payout);
+        emit PaymentReleased(jobId, freelancer, amount);
     }
 
     function raiseDispute(uint256 jobId)
@@ -191,16 +239,12 @@ contract JuvraEscrow is Ownable, ReentrancyGuard {
         jobExists(jobId)
     {
         Job storage job = jobs[jobId];
-
-        require(
-            job.status == Status.Assigned || job.status == Status.Submitted,
-            "DISPUTE_NOT_ALLOWED"
-        );
-
-        require(
-            msg.sender == job.client || msg.sender == job.freelancer,
-            "NOT_JOB_PARTY"
-        );
+        if (msg.sender != job.client && msg.sender != job.freelancer) {
+            revert Unauthorized();
+        }
+        if (job.status != Status.Assigned && job.status != Status.Submitted) {
+            revert InvalidStatus(job.status, Status.Assigned);
+        }
 
         job.status = Status.Disputed;
 
@@ -215,21 +259,15 @@ contract JuvraEscrow is Ownable, ReentrancyGuard {
         inStatus(jobId, Status.Disputed)
     {
         Job storage job = jobs[jobId];
+        uint256 amount = job.amount;
+        address recipient = clientWins ? job.client : job.freelancer;
 
-        address receiver;
+        job.amount = 0;
+        job.status = clientWins ? Status.Refunded : Status.Approved;
 
-        if (clientWins) {
-            job.status = Status.Refunded;
-            receiver = job.client;
-        } else {
-            job.status = Status.Approved;
-            receiver = job.freelancer;
-        }
+        _sendValue(recipient, amount);
 
-        (bool sent, ) = receiver.call{value: job.amount}("");
-        require(sent, "DISPUTE_PAYMENT_FAILED");
-
-        emit DisputeResolved(jobId, clientWins, receiver);
+        emit DisputeResolved(jobId, clientWins, amount);
     }
 
     function cancelJob(uint256 jobId)
@@ -240,22 +278,22 @@ contract JuvraEscrow is Ownable, ReentrancyGuard {
         inStatus(jobId, Status.Open)
     {
         Job storage job = jobs[jobId];
+        uint256 amount = job.amount;
 
+        job.amount = 0;
         job.status = Status.Cancelled;
 
-        (bool refunded, ) = job.client.call{value: job.amount}("");
-        require(refunded, "REFUND_FAILED");
+        _sendValue(job.client, amount);
 
-        emit JobCancelled(jobId);
+        emit JobCancelled(jobId, amount);
     }
 
-    function getJob(uint256 jobId)
-        external
-        view
-        jobExists(jobId)
-        returns (Job memory)
-    {
+    function getJob(uint256 jobId) external view jobExists(jobId) returns (Job memory) {
         return jobs[jobId];
+    }
+
+    function getJobCount() external view returns (uint256) {
+        return jobCount;
     }
 
     function getApplicants(uint256 jobId)
@@ -267,23 +305,17 @@ contract JuvraEscrow is Ownable, ReentrancyGuard {
         return applicants[jobId];
     }
 
-    function getJobCount() external view returns (uint256) {
-        return jobCount;
-    }
+    function _sendValue(address recipient, uint256 amount) private {
+        if (recipient == address(0)) {
+            revert InvalidAddress();
+        }
+        if (amount == 0) {
+            revert InvalidAmount();
+        }
 
-    function setArbitrator(address _arbitrator) external onlyOwner {
-        require(_arbitrator != address(0), "INVALID_ARBITRATOR");
-        address oldArbitrator = arbitrator;
-        arbitrator = _arbitrator;
-
-        emit ArbitratorUpdated(oldArbitrator, _arbitrator);
-    }
-
-    function setPlatformFee(uint256 _platformFee) external onlyOwner {
-        require(_platformFee <= MAX_FEE, "FEE_TOO_HIGH");
-        uint256 oldPlatformFee = platformFee;
-        platformFee = _platformFee;
-
-        emit PlatformFeeUpdated(oldPlatformFee, _platformFee);
+        (bool success, ) = recipient.call{value: amount}("");
+        if (!success) {
+            revert TransferFailed();
+        }
     }
 }

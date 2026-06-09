@@ -7,7 +7,7 @@ import Link from "next/link";
 
 import { formatDate, formatUsdc } from "@/lib/format";
 import type { JuvraJob } from "@/lib/juvraEscrow";
-import { DEMO_LANDING_JOBS, type DemoLandingJob } from "@/lib/landing-demo-data";
+import { DEMO_JOBS, type DemoJob } from "@/lib/landing-demo-data";
 
 type Opportunity = {
   accent: string;
@@ -74,7 +74,7 @@ function toOpportunity(job: JuvraJob, index: number): Opportunity {
   };
 }
 
-function toDemoOpportunity(job: DemoLandingJob, index: number): Opportunity {
+function toDemoOpportunity(job: DemoJob, index: number): Opportunity {
   const visual = cardVisuals[index % cardVisuals.length];
 
   return {
@@ -132,7 +132,7 @@ function OpportunityCard({ opp, index, activeIndex }: { opp: Opportunity; index:
           {/* Verified badge */}
           <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/30">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-            <span className="text-emerald-400 text-xs">{opp.isDemo ? "Preview data" : "Escrow Verified"}</span>
+            <span className="text-emerald-400 text-xs">{opp.isDemo ? "Preview Data" : "Escrow Verified"}</span>
           </div>
         </div>
 
@@ -193,7 +193,7 @@ export function OpportunitiesSection({
       return jobs.slice(0, 5).map(toOpportunity);
     }
 
-    return DEMO_LANDING_JOBS.map(toDemoOpportunity);
+    return DEMO_JOBS.map(toDemoOpportunity);
   }, [isDemo, jobs]);
   const currentIndex = Math.min(activeIndex, opportunities.length - 1);
 

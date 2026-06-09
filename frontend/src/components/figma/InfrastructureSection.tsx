@@ -27,14 +27,14 @@ const partners = [
     description: "Infrastructure",
     icon: Shield,
     accent: "#34d399",
-    detail: "Regulated, licensed, trusted by institutions.",
+    detail: "Regulated digital dollar infrastructure.",
   },
   {
     name: "Smart Contracts",
     description: "Execution Layer",
     icon: Code2,
     accent: "#B46CFF",
-    detail: "Audited, open-source, deterministic execution.",
+    detail: "Transparent, deterministic execution.",
   },
 ];
 
@@ -74,14 +74,14 @@ export function InfrastructureSection() {
             style={{ fontFamily: "var(--font-display)" }}
             className="text-4xl md:text-5xl text-white mb-6"
           >
-            Powered by institutions.
+            Built on proven rails.
             <br />
             <em className="not-italic text-transparent bg-clip-text bg-gradient-to-r from-[#FF7A18] to-[#FFB347]">
               Settled in USDC.
             </em>
           </h2>
           <p className="text-[#8892a4] text-lg max-w-2xl mx-auto">
-            Juvra is built on the same infrastructure trusted by the world&apos;s largest financial institutions.
+            Settled on infrastructure trusted by leading financial institutions.
           </p>
         </motion.div>
 

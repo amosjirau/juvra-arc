@@ -8,7 +8,7 @@ import { formatEther } from "viem";
 
 import { formatDate, formatUsdc } from "@/lib/format";
 import type { JuvraJob } from "@/lib/juvraEscrow";
-import { DEMO_DASHBOARD_ACTIVITY, DEMO_LANDING_STATS } from "@/lib/landing-demo-data";
+import { DEMO_DASHBOARD, DEMO_STATS } from "@/lib/landing-demo-data";
 
 function shortMoney(value: number) {
   if (value >= 1_000_000) {
@@ -16,7 +16,7 @@ function shortMoney(value: number) {
   }
 
   if (value >= 1_000) {
-    return `$${(value / 1_000).toFixed(1)}k`;
+    return `$${(value / 1_000).toFixed(1)}K`;
   }
 
   return `$${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
@@ -33,25 +33,20 @@ export function DashboardSection({ isDemo, jobs }: { isDemo?: boolean; jobs: Juv
   const escrowedVolume = useMemo(
     () =>
       useDemo
-        ? DEMO_LANDING_STATS.escrowedVolume
+        ? DEMO_STATS.escrowedVolume
         : jobs.reduce((total, job) => total + Number(formatEther(job.amount)), 0),
     [jobs, useDemo],
   );
   const activeContracts = useDemo
-    ? DEMO_LANDING_STATS.activeContracts
+    ? DEMO_STATS.activeContracts
     : jobs.filter((job) => ![3, 5, 6].includes(job.status)).length;
-  const pendingReleases = useDemo ? 2 : jobs.filter((job) => job.status === 2).length;
+  const pendingReleases = useDemo ? DEMO_STATS.pendingReleases : jobs.filter((job) => job.status === 2).length;
   const trustScore = useDemo
-    ? DEMO_LANDING_STATS.trustScore
+    ? DEMO_STATS.trustScore
     : Math.min(9.8, 8.6 + jobs.length * 0.08).toFixed(1);
   const chartData = useMemo(() => {
     if (useDemo) {
-      return [
-        { month: "Mar", volume: 3200 },
-        { month: "Apr", volume: 7600 },
-        { month: "May", volume: 9800 },
-        { month: "Jun", volume: DEMO_LANDING_STATS.escrowedVolume },
-      ];
+      return DEMO_DASHBOARD.chart;
     }
 
     const buckets = new Map<string, number>();
@@ -66,7 +61,7 @@ export function DashboardSection({ isDemo, jobs }: { isDemo?: boolean; jobs: Juv
     return entries;
   }, [jobs, useDemo]);
   const activityFeed = useDemo
-    ? DEMO_DASHBOARD_ACTIVITY
+    ? DEMO_DASHBOARD.activity
     : jobs.slice(0, 4).map((job, index) => ({
         action:
           job.status === 2
@@ -83,7 +78,7 @@ export function DashboardSection({ isDemo, jobs }: { isDemo?: boolean; jobs: Juv
       }));
   const recommendation =
     useDemo
-      ? "Preview activity shows two contracts ready for human review. The agent can summarize evidence, but every escrow action still requires wallet confirmation."
+      ? DEMO_DASHBOARD.recommendation
       : pendingReleases > 0
       ? `${pendingReleases} submitted contract${pendingReleases === 1 ? "" : "s"} ready for milestone review. Recommend checking evidence coverage before release.`
       : jobs.length > 0
@@ -110,7 +105,7 @@ export function DashboardSection({ isDemo, jobs }: { isDemo?: boolean; jobs: Juv
           className="text-center mb-16"
         >
           <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#34d399]/10 border border-[#34d399]/20 text-[#34d399] text-xs uppercase tracking-widest mb-6">
-            {useDemo ? "Demo dashboard preview" : "Dashboard Preview"}
+            {useDemo ? "Demo Dashboard Preview" : "Dashboard Preview"}
           </span>
           <h2
             style={{ fontFamily: "var(--font-display)" }}
@@ -143,7 +138,7 @@ export function DashboardSection({ isDemo, jobs }: { isDemo?: boolean; jobs: Juv
             </div>
             <div className="flex items-center gap-2 text-xs text-[#8892a4]">
               <div className="w-1.5 h-1.5 rounded-full bg-[#34d399] animate-pulse" />
-              {useDemo ? "Demo dashboard preview" : "Live · Arc Testnet"}
+              {useDemo ? "Demo Dashboard Preview" : "Live · Arc Testnet"}
             </div>
           </div>
 
@@ -180,7 +175,7 @@ export function DashboardSection({ isDemo, jobs }: { isDemo?: boolean; jobs: Juv
                 <div className="flex items-center justify-between mb-4">
                   <p className="text-white text-sm">Escrow Volume</p>
                   <span className="text-[#34d399] text-xs bg-[#34d399]/10 px-2 py-0.5 rounded">
-                    {useDemo ? "Demo dashboard preview" : "Live contract data"}
+                    {useDemo ? "Demo Dashboard Preview" : "Live contract data"}
                   </span>
                 </div>
                 <div className="h-36">

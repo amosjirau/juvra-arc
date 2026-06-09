@@ -7,7 +7,7 @@ import Link from "next/link";
 
 import { formatUsdc, shortAddress } from "@/lib/format";
 import type { JuvraJob } from "@/lib/juvraEscrow";
-import { DEMO_LANDING_JOBS, DEMO_LANDING_STATS, type DemoLandingJob } from "@/lib/landing-demo-data";
+import { DEMO_ESCROW_FLOW, DEMO_STATS } from "@/lib/landing-demo-data";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 32 },
@@ -19,33 +19,30 @@ const fadeUp = {
 };
 
 const defaultHeroStats = [
-  { label: "Escrowed Volume", value: `$${DEMO_LANDING_STATS.escrowedVolume.toLocaleString()}` },
-  { label: "Active Contracts", value: DEMO_LANDING_STATS.activeContracts.toLocaleString() },
-  { label: "Avg Trust Score", value: DEMO_LANDING_STATS.trustScore },
+  { label: "Escrowed", value: `$${(DEMO_STATS.escrowedVolume / 1_000).toFixed(1)}K` },
+  { label: "Active Contracts", value: DEMO_STATS.activeContracts.toLocaleString() },
+  { label: "Avg Trust Score", value: DEMO_STATS.trustScore },
 ];
 
-function EscrowViz({ demoJob, job }: { demoJob?: DemoLandingJob; job?: JuvraJob }) {
-  const previewJob = demoJob ?? DEMO_LANDING_JOBS[0];
-  const client = job ? shortAddress(job.client) : previewJob.client;
+function EscrowViz({ job }: { job?: JuvraJob }) {
+  const client = job ? shortAddress(job.client) : DEMO_ESCROW_FLOW.clientWallet;
   const freelancer =
     job && job.freelancer !== "0x0000000000000000000000000000000000000000"
       ? shortAddress(job.freelancer)
-      : previewJob.freelancer;
-  const lockedAmount = job ? formatUsdc(job.amount) : previewJob.amount;
+      : DEMO_ESCROW_FLOW.freelancerWallet;
+  const lockedAmount = job ? formatUsdc(job.amount) : DEMO_ESCROW_FLOW.lockedAmount;
   const earnedAmount = job
     ? job.status === 3
       ? lockedAmount
       : "Pending"
-    : previewJob.status === "Submitted"
-      ? "Pending review"
-      : "In escrow";
+    : "In escrow";
   const milestoneAmounts = job
     ? [
-        formatUsdc(job.amount / 4n),
-        formatUsdc(job.amount / 2n),
-        formatUsdc(job.amount - job.amount / 4n - job.amount / 2n),
+        { label: "Start", amount: formatUsdc(job.amount / 4n), status: "done" },
+        { label: "Build", amount: formatUsdc(job.amount / 2n), status: "active" },
+        { label: "Review", amount: formatUsdc(job.amount - job.amount / 4n - job.amount / 2n), status: "pending" },
       ]
-    : previewJob.milestoneAmounts;
+    : DEMO_ESCROW_FLOW.milestones;
 
   return (
     <div className="relative w-full max-w-sm mx-auto">
@@ -116,7 +113,9 @@ function EscrowViz({ demoJob, job }: { demoJob?: DemoLandingJob; job?: JuvraJob 
                   <p className="text-white text-sm">Funds Locked</p>
                 </div>
                 <div className="ml-auto">
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 text-xs border border-emerald-500/20">Active</span>
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 text-xs border border-emerald-500/20">
+                    {job ? "Active" : DEMO_ESCROW_FLOW.status}
+                  </span>
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-2">
@@ -157,13 +156,9 @@ function EscrowViz({ demoJob, job }: { demoJob?: DemoLandingJob; job?: JuvraJob 
           transition={{ delay: 0.85, duration: 0.6 }}
           className="w-full flex gap-2"
         >
-        {[
-            { label: "Start", amount: milestoneAmounts[0], status: "done" },
-            { label: "Build", amount: milestoneAmounts[1], status: "active" },
-            { label: "Review", amount: milestoneAmounts[2], status: "pending" },
-          ].map((m, i) => (
+        {milestoneAmounts.map((m) => (
             <div
-              key={i}
+              key={m.label}
               className={`flex-1 rounded-xl p-2 border text-center ${
                 m.status === "done"
                   ? "bg-emerald-500/10 border-emerald-500/25 text-emerald-400"
@@ -218,11 +213,9 @@ function EscrowViz({ demoJob, job }: { demoJob?: DemoLandingJob; job?: JuvraJob 
 }
 
 export function HeroSection({
-  demoJob,
   job,
   stats = defaultHeroStats,
 }: {
-  demoJob?: DemoLandingJob;
   job?: JuvraJob;
   stats?: Array<{ label: string; value: string }>;
 }) {
@@ -342,7 +335,7 @@ export function HeroSection({
             animate="visible"
             className="relative"
           >
-            <EscrowViz demoJob={demoJob} job={job} />
+            <EscrowViz job={job} />
           </motion.div>
         </div>
       </motion.div>

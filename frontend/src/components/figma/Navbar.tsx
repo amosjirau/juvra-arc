@@ -28,6 +28,24 @@ type NavItem = {
   section: string;
 };
 
+const testnetTooltip =
+  "Juvra is currently operating on Arc Testnet while agentic escrow workflows are being finalized.";
+
+function TestnetBadge({ compact = false }: { compact?: boolean }) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-2 rounded-full border border-[#60a5fa]/20 bg-[#60a5fa]/10 font-medium text-[#93c5fd]",
+        compact ? "px-3 py-2 text-xs" : "hidden px-3 py-1.5 text-[11px] uppercase tracking-widest xl:inline-flex",
+      )}
+      title={testnetTooltip}
+    >
+      <span className="size-1.5 rounded-full bg-[#60a5fa] shadow-[0_0_12px_rgba(96,165,250,0.72)]" />
+      Live on Arc Testnet
+    </span>
+  );
+}
+
 function WalletButton({ compact = false }: { compact?: boolean }) {
   return (
     <ConnectButton.Custom>
@@ -123,17 +141,20 @@ export function Navbar() {
         className="grid h-[68px] grid-cols-[1fr_auto] items-center gap-2 rounded-full border border-white/[0.09] px-3 shadow-[0_18px_60px_rgba(0,0,0,0.34),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-[24px] backdrop-saturate-[1.35] sm:h-20 sm:px-6 lg:grid-cols-[1fr_auto_1fr]"
         style={{ background: "rgba(10, 13, 24, 0.72)" }}
       >
-        <Link className="group flex min-w-0 items-center gap-3.5 justify-self-start" href="/">
-          <div className="flex size-11 shrink-0 items-center justify-center rounded-[15px] border border-white/10 bg-gradient-to-br from-[#1E293B] via-[#312E81] to-[#0A0D18] text-base font-bold text-slate-50 shadow-[0_14px_34px_rgba(49,46,129,0.26)] transition-all duration-200 group-hover:-translate-y-px group-hover:shadow-[0_18px_42px_rgba(49,46,129,0.32)]">
-            J
-          </div>
-          <div className="min-w-0 font-ui">
-            <p className="text-[17px] font-bold leading-tight text-slate-50">Juvra</p>
-            <p className="hidden text-xs font-medium leading-tight text-slate-500 sm:block">
-              Settlement layer
-            </p>
-          </div>
-        </Link>
+        <div className="flex min-w-0 items-center gap-3 justify-self-start">
+          <Link className="group flex min-w-0 items-center gap-3.5" href="/">
+            <div className="flex size-11 shrink-0 items-center justify-center rounded-[15px] border border-white/10 bg-gradient-to-br from-[#1E293B] via-[#312E81] to-[#0A0D18] text-base font-bold text-slate-50 shadow-[0_14px_34px_rgba(49,46,129,0.26)] transition-all duration-200 group-hover:-translate-y-px group-hover:shadow-[0_18px_42px_rgba(49,46,129,0.32)]">
+              J
+            </div>
+            <div className="min-w-0 font-ui">
+              <p className="text-[17px] font-bold leading-tight text-slate-50">Juvra</p>
+              <p className="hidden text-xs font-medium leading-tight text-slate-500 sm:block">
+                Settlement layer
+              </p>
+            </div>
+          </Link>
+          <TestnetBadge />
+        </div>
 
         <nav className="hidden items-center gap-1 rounded-full border border-white/[0.08] bg-white/[0.045] p-1.5 md:flex">
           {navItems.map((item) => {
@@ -181,6 +202,9 @@ export function Navbar() {
 
       {mobileOpen && (
         <div className="mt-3 overflow-hidden rounded-[24px] border border-white/10 bg-[#0A0D18]/94 p-2 shadow-[0_18px_60px_rgba(0,0,0,0.34)] backdrop-blur-[24px] md:hidden">
+          <div className="px-2 pb-2">
+            <TestnetBadge compact />
+          </div>
           <nav className="grid gap-1">
             {navItems.map((item) => {
               const Icon = item.icon;

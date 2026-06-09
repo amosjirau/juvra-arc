@@ -7,10 +7,10 @@ export function Footer() {
     { href: "/jobs", label: "Jobs" },
     { href: "/post", label: "Post a Job" },
     { href: "/dashboard", label: "Dashboard" },
-    { href: "/#about", label: "About" },
-    { href: "/#how-it-works", label: "Docs" },
-    { href: "/#about", label: "Privacy" },
-    { href: "/#about", label: "Terms" },
+    { href: "/about", label: "About" },
+    { href: "/docs", label: "Docs" },
+    { href: "/privacy", label: "Privacy" },
+    { href: "/terms", label: "Terms" },
   ];
 
   return (

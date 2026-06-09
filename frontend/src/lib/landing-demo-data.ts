@@ -1,15 +1,19 @@
-export type DemoLandingJob = {
+export type DemoStats = {
+  activeContracts: number;
+  averageCompletionTime: string;
+  escrowedVolume: number;
+  pendingReleases: number;
+  trustScore: string;
+};
+
+export type DemoJob = {
   amount: string;
   category: string;
-  client: string;
   clientRep: string;
-  contractId: string;
   deadline: string;
-  freelancer: string;
   href: string;
   image: string;
   milestone: string;
-  milestoneAmounts: [string, string, string];
   progress: number;
   status: string;
   title: string;
@@ -24,110 +28,154 @@ export type DemoDashboardActivity = {
   time: string;
 };
 
-export const DEMO_LANDING_STATS = {
-  escrowedVolume: 12400,
-  activeContracts: 7,
-  trustScore: "4.8",
-} as const;
+export type DemoDashboard = {
+  activity: DemoDashboardActivity[];
+  chart: Array<{ month: string; volume: number }>;
+  recommendation: string;
+};
 
-export const DEMO_LANDING_JOBS: [DemoLandingJob, DemoLandingJob, DemoLandingJob, DemoLandingJob] = [
+export type DemoAgent = {
+  contract: string;
+  confidence: string;
+  recommendation: string;
+  reason: string;
+  risk: string;
+  status: string;
+};
+
+export type DemoEscrowFlow = {
+  clientWallet: string;
+  freelancerWallet: string;
+  lockedAmount: string;
+  milestones: [
+    { label: "Start"; amount: string; status: "done" },
+    { label: "Build"; amount: string; status: "active" },
+    { label: "Review"; amount: string; status: "pending" },
+  ];
+  status: string;
+};
+
+export const DEMO_STATS: DemoStats = {
+  activeContracts: 7,
+  averageCompletionTime: "2.4 days",
+  escrowedVolume: 12400,
+  pendingReleases: 3,
+  trustScore: "4.8",
+};
+
+export const DEMO_JOBS: [DemoJob, DemoJob, DemoJob, DemoJob] = [
   {
     amount: "1,200 USDC",
     category: "Design",
-    client: "0xA1f2...B7e2",
     clientRep: "Verified",
-    contractId: "ESC-DEMO-01",
     deadline: "12 Jun 2026",
-    freelancer: "0xD31a...9A41",
     href: "/jobs",
     image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop&auto=format",
     milestone: "UI + wallet flow",
-    milestoneAmounts: ["300 USDC", "600 USDC", "300 USDC"],
     progress: 62,
     status: "In progress",
-    title: "Build an Arc escrow dashboard",
+    title: "Build Arc Escrow Dashboard",
     trustScore: 4.8,
   },
   {
     amount: "2,500 USDC",
     category: "Security",
-    client: "0x44c8...F109",
     clientRep: "Verified Elite",
-    contractId: "ESC-DEMO-02",
     deadline: "18 Jun 2026",
-    freelancer: "Awaiting match",
     href: "/jobs",
     image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=400&fit=crop&auto=format",
     milestone: "Review scope",
-    milestoneAmounts: ["500 USDC", "1,250 USDC", "750 USDC"],
     progress: 24,
     status: "Open",
-    title: "Create smart contract audit checklist",
+    title: "Create Smart Contract Audit Checklist",
     trustScore: 4.9,
   },
   {
     amount: "3,800 USDC",
     category: "AI / Automation",
-    client: "0x9B21...C774",
     clientRep: "Verified",
-    contractId: "ESC-DEMO-03",
     deadline: "21 Jun 2026",
-    freelancer: "0x81c0...4F2d",
     href: "/jobs",
     image: "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&h=400&fit=crop&auto=format",
     milestone: "Agent review",
-    milestoneAmounts: ["950 USDC", "1,900 USDC", "950 USDC"],
     progress: 86,
     status: "Submitted",
-    title: "Develop agentic dispute summary module",
+    title: "Develop Agentic Dispute Summary Module",
     trustScore: 4.7,
   },
   {
     amount: "900 USDC",
     category: "Frontend",
-    client: "0x63E5...10bC",
     clientRep: "Verified",
-    contractId: "ESC-DEMO-04",
     deadline: "25 Jun 2026",
-    freelancer: "Awaiting match",
     href: "/jobs",
     image: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=600&h=400&fit=crop&auto=format",
     milestone: "Figma to Next.js",
-    milestoneAmounts: ["225 USDC", "450 USDC", "225 USDC"],
     progress: 18,
     status: "Open",
-    title: "Design creator marketplace landing page",
+    title: "Design Creator Marketplace Landing Page",
     trustScore: 4.8,
   },
 ];
 
-export const DEMO_DASHBOARD_ACTIVITY: DemoDashboardActivity[] = [
-  {
-    action: "Escrow funded",
-    amount: "1,200 USDC",
-    color: "#34d399",
-    contract: "ESC-DEMO-01",
-    time: "2h ago",
-  },
-  {
-    action: "Delivery submitted",
-    amount: "3,800 USDC",
-    color: "#60a5fa",
-    contract: "ESC-DEMO-03",
-    time: "4h ago",
-  },
-  {
-    action: "Agent reviewed job risk",
-    amount: "2,500 USDC",
-    color: "#B46CFF",
-    contract: "ESC-DEMO-02",
-    time: "Today",
-  },
-  {
-    action: "Dispute summary prepared",
-    amount: "900 USDC",
-    color: "#FF7A18",
-    contract: "ESC-DEMO-04",
-    time: "Yesterday",
-  },
-];
+export const DEMO_DASHBOARD: DemoDashboard = {
+  activity: [
+    {
+      action: "Escrow funded",
+      amount: "1,200 USDC",
+      color: "#34d399",
+      contract: "ESC-1048",
+      time: "2h ago",
+    },
+    {
+      action: "Milestone submitted",
+      amount: "500 USDC",
+      color: "#60a5fa",
+      contract: "ESC-1048",
+      time: "5h ago",
+    },
+    {
+      action: "Agent reviewed dispute",
+      amount: "3,800 USDC",
+      color: "#B46CFF",
+      contract: "ESC-1046",
+      time: "Yesterday",
+    },
+    {
+      action: "Funds released",
+      amount: "500 USDC",
+      color: "#FF7A18",
+      contract: "ESC-1048",
+      time: "Yesterday",
+    },
+  ],
+  chart: [
+    { month: "Mar", volume: 3200 },
+    { month: "Apr", volume: 7600 },
+    { month: "May", volume: 9800 },
+    { month: "Jun", volume: DEMO_STATS.escrowedVolume },
+  ],
+  recommendation:
+    "Three submitted milestones are ready for human review. Agent analysis can summarize evidence, but fund movement still requires wallet confirmation.",
+};
+
+export const DEMO_AGENT: DemoAgent = {
+  confidence: "94%",
+  contract: "ESC-1048",
+  recommendation: "Release 500 USDC milestone",
+  reason: "Deliverables match approved scope.",
+  risk: "Low",
+  status: "Verified",
+};
+
+export const DEMO_ESCROW_FLOW: DemoEscrowFlow = {
+  clientWallet: "0xA91F...8B21",
+  freelancerWallet: "0xF34D...1CE9",
+  lockedAmount: "1,200 USDC",
+  milestones: [
+    { label: "Start", amount: "400 USDC", status: "done" },
+    { label: "Build", amount: "500 USDC", status: "active" },
+    { label: "Review", amount: "300 USDC", status: "pending" },
+  ],
+  status: "Active",
+};

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { motion, useInView } from "motion/react";
 import { ArrowRight, Shield } from "lucide-react";
 import Link from "next/link";
@@ -8,13 +8,6 @@ import Link from "next/link";
 export function CTASection() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-100px" });
-  const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email) setSubmitted(true);
-  };
 
   return (
     <section
@@ -67,43 +60,19 @@ export function CTASection() {
             The settlement layer where funds are locked before work begins, milestones define progress, and payments release transparently. No trust required.
           </p>
 
-          {submitted ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-[#34d399]/10 border border-[#34d399]/30 text-[#34d399]"
-            >
-              <div className="w-5 h-5 rounded-full bg-[#34d399]/20 flex items-center justify-center">
-                <div className="w-2 h-2 rounded-full bg-[#34d399]" />
-              </div>
-              You&apos;re on the list. We&apos;ll be in touch soon.
-            </motion.div>
-          ) : (
-            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto mb-8">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                className="flex-1 px-5 py-3.5 rounded-xl bg-[#111827] border border-white/10 text-white placeholder-[#8892a4] outline-none focus:border-[#FF7A18]/50 transition-colors duration-200 text-sm"
-              />
-              <button
-                type="submit"
-                className="group flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-[#FF7A18] text-[#060816] hover:bg-[#FF9A4A] transition-all duration-300 shadow-[0_8px_32px_rgba(255,122,24,0.35)] hover:shadow-[0_8px_40px_rgba(255,122,24,0.5)] whitespace-nowrap text-sm"
-              >
-                Get Early Access
-                <ArrowRight size={15} className="group-hover:translate-x-0.5 transition-transform duration-200" />
-              </button>
-            </form>
-          )}
-
-          <div className="flex items-center justify-center gap-2 mb-12">
+          <div className="mb-12 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
               href="/jobs"
-              className="group inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/8 hover:border-white/20 transition-all duration-300 text-sm"
+              className="group inline-flex items-center gap-2 rounded-xl bg-[#FF7A18] px-8 py-4 text-sm font-semibold text-[#060816] shadow-[0_8px_32px_rgba(255,122,24,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#FF9A4A] hover:shadow-[0_8px_40px_rgba(255,122,24,0.5)]"
             >
               Launch App
               <ArrowRight size={15} className="group-hover:translate-x-0.5 transition-transform duration-200" />
+            </Link>
+            <Link
+              href="/#how-it-works"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-8 py-4 text-sm text-[#8892a4] transition-all duration-300 hover:border-white/20 hover:bg-white/5 hover:text-white"
+            >
+              See How Escrow Works
             </Link>
           </div>
 

@@ -7,7 +7,7 @@ import Link from "next/link";
 
 import { formatUsdc } from "@/lib/format";
 import type { JuvraJob } from "@/lib/juvraEscrow";
-import { DEMO_LANDING_JOBS, type DemoLandingJob } from "@/lib/landing-demo-data";
+import { DEMO_AGENT } from "@/lib/landing-demo-data";
 
 const capabilities = [
   {
@@ -47,17 +47,17 @@ const capabilities = [
   },
 ];
 
-export function AICopilotSection({ demoJob, job }: { demoJob?: DemoLandingJob; job?: JuvraJob }) {
+export function AICopilotSection({ isDemo, job }: { isDemo?: boolean; job?: JuvraJob }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-100px" });
-  const previewJob = demoJob ?? DEMO_LANDING_JOBS[0];
-  const contractId = job ? `ESC-${job.id.toString().padStart(4, "0")}` : previewJob.contractId;
-  const jobTitle = job?.title ?? previewJob.title;
-  const progress = job ? 62 : previewJob.progress;
-  const releaseAmount = job ? formatUsdc(job.amount) : previewJob.amount;
-  const assessment = job
-    ? `Milestone evidence ready for review. Recommend releasing ${releaseAmount} after client approval. No anomalies detected.`
-    : `${previewJob.milestone} is ready for human review in this preview workspace. Agent guidance stays advisory and never signs escrow actions.`;
+  const useDemo = isDemo || !job;
+  const contractId = useDemo ? DEMO_AGENT.contract : `ESC-${job?.id.toString().padStart(4, "0")}`;
+  const jobTitle = useDemo ? DEMO_AGENT.recommendation : job?.title ?? DEMO_AGENT.recommendation;
+  const progress = useDemo ? 74 : 62;
+  const releaseAmount = useDemo || !job ? "500 USDC" : formatUsdc(job.amount);
+  const assessment = useDemo
+    ? `${DEMO_AGENT.reason} Recommended next step: ${DEMO_AGENT.recommendation}.`
+    : `Milestone evidence ready for review. Recommend releasing ${releaseAmount} after client approval. No anomalies detected.`;
 
   return (
     <section
@@ -100,17 +100,36 @@ export function AICopilotSection({ demoJob, job }: { demoJob?: DemoLandingJob; j
               {/* Active contract context */}
               <div className="p-5 border-b border-[#B46CFF]/10">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-[#8892a4] text-xs uppercase tracking-widest">Active Contract</span>
+                  <span className="text-[#8892a4] text-xs uppercase tracking-widest">Escrow</span>
                   <div className="flex items-center gap-2">
-                    {!job && (
+                    {useDemo && (
                       <span className="text-[10px] uppercase tracking-widest text-[#34d399] bg-[#34d399]/10 px-2 py-0.5 rounded">
-                        Preview data
+                        Preview Analysis
                       </span>
                     )}
                     <span className="text-xs font-mono text-[#B46CFF] bg-[#B46CFF]/10 px-2 py-0.5 rounded">{contractId}</span>
                   </div>
                 </div>
+                {useDemo && <p className="text-[10px] uppercase tracking-widest text-[#8892a4]">Recommendation</p>}
                 <p className="text-white text-sm mb-2">{jobTitle}</p>
+                {useDemo && (
+                  <div className="mb-3 space-y-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-3 py-2">
+                        <p className="text-[10px] uppercase tracking-widest text-[#8892a4]">Risk</p>
+                        <p className="text-xs text-emerald-300">{DEMO_AGENT.risk}</p>
+                      </div>
+                      <div className="rounded-lg border border-[#B46CFF]/20 bg-[#B46CFF]/10 px-3 py-2">
+                        <p className="text-[10px] uppercase tracking-widest text-[#8892a4]">Contract</p>
+                        <p className="text-xs text-[#B46CFF]">{DEMO_AGENT.status}</p>
+                      </div>
+                    </div>
+                    <div className="rounded-lg border border-white/8 bg-white/[0.03] px-3 py-2">
+                      <p className="text-[10px] uppercase tracking-widest text-[#8892a4]">Reason</p>
+                      <p className="text-xs text-white">{DEMO_AGENT.reason}</p>
+                    </div>
+                  </div>
+                )}
                 <div className="flex items-center gap-3">
                   <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
                     <motion.div
@@ -159,7 +178,7 @@ export function AICopilotSection({ demoJob, job }: { demoJob?: DemoLandingJob; j
                     <div>
                       <p className="text-[#8892a4] text-xs mb-1">Copilot Assessment</p>
                       <p className="text-white text-xs leading-relaxed">
-                        {assessment} Client approval confidence: <span className="text-[#B46CFF]">94%</span>
+                        {assessment} Client approval confidence: <span className="text-[#B46CFF]">{DEMO_AGENT.confidence}</span>
                       </p>
                     </div>
                   </div>

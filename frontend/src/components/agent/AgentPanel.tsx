@@ -7,26 +7,41 @@ import {
   ChevronUp,
   Loader2,
   Sparkles,
+  Trash2,
 } from "lucide-react";
-import { useState } from "react";
+import type { ReactNode } from "react";
+import { useEffect, useState } from "react";
+import { useAccount } from "wagmi";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import type { EvidenceItem } from "@/lib/agent/evidence";
+import { normalizeRecommendationResult } from "@/lib/agent/schemas";
+import {
+  clearAgentResult,
+  clearAllAgentResults,
+  loadAgentResult,
+  saveAgentResult,
+} from "@/lib/agent/storage";
 import type {
   AgentAction,
+  AgentRecommendation,
   DeliveryReviewResult,
   DisputeSummaryResult,
   JobRiskAnalysis,
   RiskLevel,
 } from "@/lib/agent/agentTypes";
+import { getAgentStatusGuidance, getStatusLabel } from "@/lib/job-status";
 
-type AgentMode = "risk" | "delivery" | "dispute";
+type AgentMode = "risk" | "delivery" | "dispute" | "recommendation";
 
 type AgentJob = {
+  id?: string;
   title?: string;
   description?: string;
+  descriptionURI?: string;
   budget?: string;
   amount?: string;
   escrowAmount?: string;
@@ -36,6 +51,8 @@ type AgentJob = {
   client?: string;
   freelancerAddress?: string;
   freelancer?: string;
+  status?: number;
+  submissionURI?: string;
 };
 
 type AgentResponse<T> =
@@ -49,13 +66,23 @@ type AgentResponse<T> =
     };
 
 const modeLabels: Record<AgentMode, string> = {
-  risk: "Risk",
   delivery: "Delivery",
   dispute: "Dispute",
+  recommendation: "Recommend",
+  risk: "Risk",
 };
 
-export default function AgentPanel({ job }: { job?: AgentJob | null }) {
+export default function AgentPanel({
+  evidence = [],
+  job,
+}: {
+  evidence?: EvidenceItem[];
+  job?: AgentJob | null;
+}) {
+  const { address } = useAccount();
   const [mode, setMode] = useState<AgentMode>("risk");
+  const jobId = job?.id?.toString().trim() || "";
+  const [savedAt, setSavedAt] = useState<Partial<Record<AgentMode, string>>>({});
 
   const [riskLoading, setRiskLoading] = useState(false);
   const [riskResult, setRiskResult] = useState<JobRiskAnalysis | null>(null);
@@ -78,17 +105,142 @@ export default function AgentPanel({ job }: { job?: AgentJob | null }) {
   const [disputeDetailsOpen, setDisputeDetailsOpen] = useState(false);
   const [disputeError, setDisputeError] = useState("");
 
+  const [recommendationLoading, setRecommendationLoading] = useState(false);
+  const [recommendationResult, setRecommendationResult] =
+    useState<AgentRecommendation | null>(null);
+  const [recommendationError, setRecommendationError] = useState("");
+
   const jobTitle = job?.title?.trim() || "Untitled job";
   const jobDescription = job?.description?.trim() || "";
   const jobBudget = job?.budget || job?.amount || job?.escrowAmount;
   const clientAddress = job?.clientAddress || job?.client;
   const freelancerAddress = job?.freelancerAddress || job?.freelancer;
   const expectedDeliverables = job?.deliverables || [];
+  const statusGuidance = getAgentStatusGuidance(job?.status);
+  const walletRole = getWalletRole(address, clientAddress, freelancerAddress);
+
+  useEffect(() => {
+    const savedRisk = loadAgentResult<JobRiskAnalysis>("risk", jobId);
+    const savedDelivery = loadAgentResult<DeliveryReviewResult>("delivery", jobId);
+    const savedDispute = loadAgentResult<DisputeSummaryResult>("dispute", jobId);
+    const savedRecommendation = loadAgentResult<AgentRecommendation>(
+      "recommendation",
+      jobId
+    );
+
+    setRiskResult(savedRisk?.result ?? null);
+    setRiskDetailsOpen(false);
+    setRiskError("");
+    setRiskLoading(false);
+
+    setDeliveryText("");
+    setDeliveryLink("");
+    setDeliveryResult(savedDelivery?.result ?? null);
+    setDeliveryDetailsOpen(false);
+    setDeliveryError("");
+    setDeliveryLoading(false);
+
+    setClientClaim("");
+    setFreelancerResponse("");
+    setDisputeResult(savedDispute?.result ?? null);
+    setDisputeDetailsOpen(false);
+    setDisputeError("");
+    setDisputeLoading(false);
+
+    setRecommendationResult(
+      savedRecommendation?.result
+        ? normalizeRecommendationResult(savedRecommendation.result)
+        : null
+    );
+    setRecommendationError("");
+    setRecommendationLoading(false);
+
+    setSavedAt({
+      delivery: savedDelivery?.createdAt,
+      dispute: savedDispute?.createdAt,
+      recommendation: savedRecommendation?.createdAt,
+      risk: savedRisk?.createdAt,
+    });
+    setMode(statusGuidance.defaultMode);
+  }, [jobId, statusGuidance.defaultMode]);
+
+  function saveRiskResult(result: JobRiskAnalysis) {
+    const saved = saveAgentResult("risk", jobId, result);
+
+    setSavedAt((current) => ({ ...current, risk: saved?.createdAt }));
+  }
+
+  function saveDeliveryResult(result: DeliveryReviewResult) {
+    const saved = saveAgentResult("delivery", jobId, result);
+
+    setSavedAt((current) => ({ ...current, delivery: saved?.createdAt }));
+  }
+
+  function saveDisputeResult(result: DisputeSummaryResult) {
+    const saved = saveAgentResult("dispute", jobId, result);
+
+    setSavedAt((current) => ({ ...current, dispute: saved?.createdAt }));
+  }
+
+  function saveRecommendationResult(result: AgentRecommendation) {
+    const saved = saveAgentResult("recommendation", jobId, result);
+
+    setSavedAt((current) => ({
+      ...current,
+      recommendation: saved?.createdAt,
+    }));
+  }
+
+  function clearSavedRisk() {
+    clearAgentResult("risk", jobId);
+    setRiskResult(null);
+    setRiskDetailsOpen(false);
+    setRiskError("");
+    setSavedAt((current) => ({ ...current, risk: undefined }));
+  }
+
+  function clearSavedDelivery() {
+    clearAgentResult("delivery", jobId);
+    setDeliveryResult(null);
+    setDeliveryDetailsOpen(false);
+    setDeliveryError("");
+    setSavedAt((current) => ({ ...current, delivery: undefined }));
+  }
+
+  function clearSavedDispute() {
+    clearAgentResult("dispute", jobId);
+    setDisputeResult(null);
+    setDisputeDetailsOpen(false);
+    setDisputeError("");
+    setSavedAt((current) => ({ ...current, dispute: undefined }));
+  }
+
+  function clearSavedRecommendation() {
+    clearAgentResult("recommendation", jobId);
+    setRecommendationResult(null);
+    setRecommendationError("");
+    setSavedAt((current) => ({ ...current, recommendation: undefined }));
+  }
+
+  function clearAllSavedResultsForJob() {
+    clearAllAgentResults(jobId);
+    setRiskResult(null);
+    setRiskDetailsOpen(false);
+    setRiskError("");
+    setDeliveryResult(null);
+    setDeliveryDetailsOpen(false);
+    setDeliveryError("");
+    setDisputeResult(null);
+    setDisputeDetailsOpen(false);
+    setDisputeError("");
+    setRecommendationResult(null);
+    setRecommendationError("");
+    setSavedAt({});
+  }
 
   async function analyzeJob() {
     setRiskLoading(true);
     setRiskError("");
-    setRiskResult(null);
     setRiskDetailsOpen(false);
 
     try {
@@ -103,6 +255,7 @@ export default function AgentPanel({ job }: { job?: AgentJob | null }) {
       });
 
       setRiskResult(result);
+      saveRiskResult(result);
     } catch (err) {
       setRiskError(err instanceof Error ? err.message : "Could not analyze job.");
     } finally {
@@ -113,30 +266,40 @@ export default function AgentPanel({ job }: { job?: AgentJob | null }) {
   async function reviewDelivery() {
     const cleanDeliveryText = deliveryText.trim();
     const cleanDeliveryLink = deliveryLink.trim();
+    const deliveryEvidence = evidence.filter((item) =>
+      ["delivery", "revision"].includes(item.type)
+    );
 
-    if (!cleanDeliveryText) {
-      setDeliveryError("Delivery notes are required.");
+    if (!cleanDeliveryText && deliveryEvidence.length === 0) {
+      setDeliveryError("Delivery notes or saved delivery evidence are required.");
       return;
     }
 
     setDeliveryLoading(true);
     setDeliveryError("");
-    setDeliveryResult(null);
     setDeliveryDetailsOpen(false);
 
     try {
+      const evidenceSummary = formatEvidenceForAgent(deliveryEvidence);
       const result = await postAgent<DeliveryReviewResult>(
         "/api/agent/review-delivery",
         {
           jobTitle,
           jobDescription,
           expectedDeliverables,
-          deliveryText: cleanDeliveryText,
-          deliveryLinks: cleanDeliveryLink ? [cleanDeliveryLink] : [],
+          deliveryText: [cleanDeliveryText, evidenceSummary]
+            .filter(Boolean)
+            .join("\n\n"),
+          deliveryLinks: uniqueStrings([
+            cleanDeliveryLink,
+            ...deliveryEvidence.map((item) => item.evidenceUrl),
+          ]),
+          deliveryEvidence: evidenceSummary ? [evidenceSummary] : [],
         }
       );
 
       setDeliveryResult(result);
+      saveDeliveryResult(result);
     } catch (err) {
       setDeliveryError(
         err instanceof Error ? err.message : "Could not review delivery."
@@ -147,8 +310,17 @@ export default function AgentPanel({ job }: { job?: AgentJob | null }) {
   }
 
   async function summarizeDispute() {
-    const cleanClientClaim = clientClaim.trim();
-    const cleanFreelancerResponse = freelancerResponse.trim();
+    const savedClientClaim = getEvidenceNotesWithPrefix(
+      evidence,
+      "Client complaint:"
+    ).join("\n");
+    const savedFreelancerResponse = getEvidenceNotesWithPrefix(
+      evidence,
+      "Freelancer response:"
+    ).join("\n");
+    const cleanClientClaim = clientClaim.trim() || savedClientClaim;
+    const cleanFreelancerResponse =
+      freelancerResponse.trim() || savedFreelancerResponse;
 
     if (!cleanClientClaim || !cleanFreelancerResponse) {
       setDisputeError("Client claim and freelancer response are required.");
@@ -157,10 +329,12 @@ export default function AgentPanel({ job }: { job?: AgentJob | null }) {
 
     setDisputeLoading(true);
     setDisputeError("");
-    setDisputeResult(null);
     setDisputeDetailsOpen(false);
 
     try {
+      const disputeEvidence = evidence.filter((item) =>
+        ["delivery", "dispute", "revision", "admin"].includes(item.type)
+      );
       const result = await postAgent<DisputeSummaryResult>(
         "/api/agent/dispute-summary",
         {
@@ -168,18 +342,61 @@ export default function AgentPanel({ job }: { job?: AgentJob | null }) {
           jobDescription,
           clientClaim: cleanClientClaim,
           freelancerResponse: cleanFreelancerResponse,
-          deliveryEvidence: [],
-          timeline: [],
+          deliveryEvidence: formatEvidenceForAgent(disputeEvidence)
+            ? [formatEvidenceForAgent(disputeEvidence)]
+            : [],
+          timeline: buildEvidenceTimeline(disputeEvidence),
         }
       );
 
       setDisputeResult(result);
+      saveDisputeResult(result);
     } catch (err) {
       setDisputeError(
         err instanceof Error ? err.message : "Could not summarize dispute."
       );
     } finally {
       setDisputeLoading(false);
+    }
+  }
+
+  async function recommendAction() {
+    setRecommendationLoading(true);
+    setRecommendationError("");
+
+    try {
+      const result = await postAgent<AgentRecommendation>(
+        "/api/agent/recommend-action",
+        {
+          job: {
+            id: jobId,
+            title: jobTitle,
+            description: jobDescription,
+            budget: jobBudget,
+            status: job?.status,
+            statusLabel: getStatusLabel(job?.status),
+            deadline: job?.deadline,
+            submissionURI: job?.submissionURI,
+            clientAddress,
+            freelancerAddress,
+          },
+          riskAnalysis: riskResult,
+          deliveryReview: deliveryResult,
+          disputeSummary: disputeResult,
+          evidence,
+          walletRole,
+        }
+      );
+      const normalized = normalizeRecommendationResult(result);
+
+      setRecommendationResult(normalized);
+      saveRecommendationResult(normalized);
+    } catch (err) {
+      setRecommendationError(
+        err instanceof Error ? err.message : "Could not recommend an action."
+      );
+    } finally {
+      setRecommendationLoading(false);
     }
   }
 
@@ -196,16 +413,16 @@ export default function AgentPanel({ job }: { job?: AgentJob | null }) {
               Juvra Agent
             </h3>
             <p className="mt-0.5 max-w-2xl text-[0.72rem] leading-4 text-zinc-400">
-              Job clarity and dispute-risk analysis for human review.
+              {statusGuidance.guidance}
             </p>
           </div>
           <Badge className="h-5 shrink-0 border-cyan-200/20 bg-cyan-200/10 px-1.5 text-[0.62rem] text-cyan-100">
-            Decision support
+            {statusGuidance.title}
           </Badge>
         </div>
 
-        <div className="grid grid-cols-3 gap-1 rounded-md border border-white/10 bg-white/[0.035] p-1">
-          {(["risk", "delivery", "dispute"] as const).map((item) => (
+        <div className="grid grid-cols-2 gap-1 rounded-md border border-white/10 bg-white/[0.035] p-1 sm:grid-cols-4">
+          {(["risk", "delivery", "dispute", "recommendation"] as const).map((item) => (
             <button
               className={`rounded px-2 py-1 text-[0.68rem] font-medium transition ${
                 mode === item
@@ -227,8 +444,10 @@ export default function AgentPanel({ job }: { job?: AgentJob | null }) {
             error={riskError}
             loading={riskLoading}
             onAnalyze={analyzeJob}
+            onClearSaved={clearSavedRisk}
             onToggleDetails={() => setRiskDetailsOpen((open) => !open)}
             result={riskResult}
+            savedAt={savedAt.risk}
           />
         )}
 
@@ -239,11 +458,13 @@ export default function AgentPanel({ job }: { job?: AgentJob | null }) {
             detailsOpen={deliveryDetailsOpen}
             error={deliveryError}
             loading={deliveryLoading}
+            onClearSaved={clearSavedDelivery}
             onDeliveryLinkChange={setDeliveryLink}
             onDeliveryTextChange={setDeliveryText}
             onReview={reviewDelivery}
             onToggleDetails={() => setDeliveryDetailsOpen((open) => !open)}
             result={deliveryResult}
+            savedAt={savedAt.delivery}
           />
         )}
 
@@ -255,16 +476,47 @@ export default function AgentPanel({ job }: { job?: AgentJob | null }) {
             freelancerResponse={freelancerResponse}
             loading={disputeLoading}
             onClientClaimChange={setClientClaim}
+            onClearSaved={clearSavedDispute}
             onFreelancerResponseChange={setFreelancerResponse}
             onSummarize={summarizeDispute}
             onToggleDetails={() => setDisputeDetailsOpen((open) => !open)}
             result={disputeResult}
+            savedAt={savedAt.dispute}
+          />
+        )}
+
+        {mode === "recommendation" && (
+          <RecommendationMode
+            error={recommendationError}
+            loading={recommendationLoading}
+            onClearSaved={clearSavedRecommendation}
+            onRecommend={recommendAction}
+            result={recommendationResult}
+            savedAt={savedAt.recommendation}
           />
         )}
 
         <p className="rounded-md border border-amber-200/20 bg-amber-200/10 p-2 text-[0.66rem] leading-4 text-amber-100">
           Decision support only. The agent cannot release or refund funds.
         </p>
+
+        <Button
+          className="h-8 w-full border-rose-300/20 bg-rose-300/5 px-2 text-[0.68rem] text-rose-100 hover:bg-rose-300/10"
+          disabled={
+            !jobId ||
+            (!riskResult &&
+              !deliveryResult &&
+              !disputeResult &&
+              !recommendationResult)
+          }
+          onClick={clearAllSavedResultsForJob}
+          size="sm"
+          type="button"
+          variant="outline"
+        >
+          <Trash2 className="size-3.5" />
+          Clear all saved agent results for this job
+        </Button>
       </div>
     </div>
   );
@@ -275,31 +527,43 @@ function RiskMode({
   error,
   loading,
   onAnalyze,
+  onClearSaved,
   onToggleDetails,
   result,
+  savedAt,
 }: {
   detailsOpen: boolean;
   error: string;
   loading: boolean;
   onAnalyze: () => void;
+  onClearSaved: () => void;
   onToggleDetails: () => void;
   result: JobRiskAnalysis | null;
+  savedAt?: string;
 }) {
   return (
     <div className="space-y-2">
-      <Button
-        className="h-8 w-full bg-gradient-to-r from-cyan-300 to-sky-400 px-3 text-[0.72rem] text-slate-950 hover:from-cyan-200 hover:to-sky-300 sm:w-fit"
-        disabled={loading}
-        onClick={onAnalyze}
-        size="sm"
+      <ActionRow
+        clearLabel="Clear saved risk"
+        loading={loading}
+        onClearSaved={result ? onClearSaved : undefined}
+        savedAt={savedAt}
       >
-        {loading ? (
-          <Loader2 className="size-3.5 animate-spin" />
-        ) : (
-          <Sparkles className="size-3.5" />
-        )}
-        {loading ? "Analyzing..." : result ? "Re-analyze risk" : "Analyze job risk"}
-      </Button>
+        <Button
+          className="h-8 w-full bg-gradient-to-r from-cyan-300 to-sky-400 px-3 text-[0.72rem] text-slate-950 hover:from-cyan-200 hover:to-sky-300 sm:w-fit"
+          disabled={loading}
+          onClick={onAnalyze}
+          size="sm"
+          type="button"
+        >
+          {loading ? (
+            <Loader2 className="size-3.5 animate-spin" />
+          ) : (
+            <Sparkles className="size-3.5" />
+          )}
+          {loading ? "Analyzing..." : result ? "Re-run risk analysis" : "Analyze job risk"}
+        </Button>
+      </ActionRow>
 
       {error && <ErrorMessage message={error} />}
 
@@ -344,22 +608,26 @@ function DeliveryMode({
   detailsOpen,
   error,
   loading,
+  onClearSaved,
   onDeliveryLinkChange,
   onDeliveryTextChange,
   onReview,
   onToggleDetails,
   result,
+  savedAt,
 }: {
   deliveryLink: string;
   deliveryText: string;
   detailsOpen: boolean;
   error: string;
   loading: boolean;
+  onClearSaved: () => void;
   onDeliveryLinkChange: (value: string) => void;
   onDeliveryTextChange: (value: string) => void;
   onReview: () => void;
   onToggleDetails: () => void;
   result: DeliveryReviewResult | null;
+  savedAt?: string;
 }) {
   return (
     <div className="space-y-2">
@@ -375,19 +643,27 @@ function DeliveryMode({
         placeholder="Optional delivery link"
         value={deliveryLink}
       />
-      <Button
-        className="h-8 w-full bg-gradient-to-r from-cyan-300 to-sky-400 px-3 text-[0.72rem] text-slate-950 hover:from-cyan-200 hover:to-sky-300 sm:w-fit"
-        disabled={loading}
-        onClick={onReview}
-        size="sm"
+      <ActionRow
+        clearLabel="Clear saved delivery review"
+        loading={loading}
+        onClearSaved={result ? onClearSaved : undefined}
+        savedAt={savedAt}
       >
-        {loading ? (
-          <Loader2 className="size-3.5 animate-spin" />
-        ) : (
-          <Sparkles className="size-3.5" />
-        )}
-        {loading ? "Reviewing..." : "Review delivery"}
-      </Button>
+        <Button
+          className="h-8 w-full bg-gradient-to-r from-cyan-300 to-sky-400 px-3 text-[0.72rem] text-slate-950 hover:from-cyan-200 hover:to-sky-300 sm:w-fit"
+          disabled={loading}
+          onClick={onReview}
+          size="sm"
+          type="button"
+        >
+          {loading ? (
+            <Loader2 className="size-3.5 animate-spin" />
+          ) : (
+            <Sparkles className="size-3.5" />
+          )}
+          {loading ? "Reviewing..." : result ? "Re-run delivery review" : "Review delivery"}
+        </Button>
+      </ActionRow>
 
       {error && <ErrorMessage message={error} />}
 
@@ -441,10 +717,12 @@ function DisputeMode({
   freelancerResponse,
   loading,
   onClientClaimChange,
+  onClearSaved,
   onFreelancerResponseChange,
   onSummarize,
   onToggleDetails,
   result,
+  savedAt,
 }: {
   clientClaim: string;
   detailsOpen: boolean;
@@ -452,10 +730,12 @@ function DisputeMode({
   freelancerResponse: string;
   loading: boolean;
   onClientClaimChange: (value: string) => void;
+  onClearSaved: () => void;
   onFreelancerResponseChange: (value: string) => void;
   onSummarize: () => void;
   onToggleDetails: () => void;
   result: DisputeSummaryResult | null;
+  savedAt?: string;
 }) {
   return (
     <div className="space-y-2">
@@ -471,19 +751,27 @@ function DisputeMode({
         placeholder="Freelancer response"
         value={freelancerResponse}
       />
-      <Button
-        className="h-8 w-full bg-gradient-to-r from-cyan-300 to-sky-400 px-3 text-[0.72rem] text-slate-950 hover:from-cyan-200 hover:to-sky-300 sm:w-fit"
-        disabled={loading}
-        onClick={onSummarize}
-        size="sm"
+      <ActionRow
+        clearLabel="Clear saved dispute summary"
+        loading={loading}
+        onClearSaved={result ? onClearSaved : undefined}
+        savedAt={savedAt}
       >
-        {loading ? (
-          <Loader2 className="size-3.5 animate-spin" />
-        ) : (
-          <Sparkles className="size-3.5" />
-        )}
-        {loading ? "Summarizing..." : "Summarize dispute"}
-      </Button>
+        <Button
+          className="h-8 w-full bg-gradient-to-r from-cyan-300 to-sky-400 px-3 text-[0.72rem] text-slate-950 hover:from-cyan-200 hover:to-sky-300 sm:w-fit"
+          disabled={loading}
+          onClick={onSummarize}
+          size="sm"
+          type="button"
+        >
+          {loading ? (
+            <Loader2 className="size-3.5 animate-spin" />
+          ) : (
+            <Sparkles className="size-3.5" />
+          )}
+          {loading ? "Summarizing..." : result ? "Re-run dispute summary" : "Summarize dispute"}
+        </Button>
+      </ActionRow>
 
       {error && <ErrorMessage message={error} />}
 
@@ -530,6 +818,124 @@ function DisputeMode({
   );
 }
 
+function RecommendationMode({
+  error,
+  loading,
+  onClearSaved,
+  onRecommend,
+  result,
+  savedAt,
+}: {
+  error: string;
+  loading: boolean;
+  onClearSaved: () => void;
+  onRecommend: () => void;
+  result: AgentRecommendation | null;
+  savedAt?: string;
+}) {
+  return (
+    <div className="space-y-2">
+      <ActionRow
+        clearLabel="Clear saved recommendation"
+        loading={loading}
+        onClearSaved={result ? onClearSaved : undefined}
+        savedAt={savedAt}
+      >
+        <Button
+          className="h-8 w-full bg-gradient-to-r from-cyan-300 to-sky-400 px-3 text-[0.72rem] text-slate-950 hover:from-cyan-200 hover:to-sky-300 sm:w-fit"
+          disabled={loading}
+          onClick={onRecommend}
+          size="sm"
+          type="button"
+        >
+          {loading ? (
+            <Loader2 className="size-3.5 animate-spin" />
+          ) : (
+            <Sparkles className="size-3.5" />
+          )}
+          {loading
+            ? "Recommending..."
+            : result
+              ? "Re-run recommendation"
+              : "Recommend action"}
+        </Button>
+      </ActionRow>
+
+      {error && <ErrorMessage message={error} />}
+
+      {result ? (
+        <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-2">
+            <CompactMetric
+              label="Suggested"
+              value={formatAgentAction(result.suggestedAction)}
+            />
+            <CompactMetric
+              label="Confidence"
+              value={formatConfidence(result.confidence)}
+            />
+          </div>
+          <GuidanceLabel />
+          <ResultBlock label="Reasoning" value={result.reasoning} />
+          <ResultBlock
+            label="Required human action"
+            value={result.requiredHumanAction}
+          />
+          <ResultBlock label="Safety notice" value={result.safetyNotice} />
+        </div>
+      ) : (
+        <p className="rounded-md border border-white/10 bg-white/[0.035] p-2 text-[0.72rem] leading-4 text-zinc-400">
+          Uses the job status, deadline, submission URI, connected wallet role,
+          saved agent results, and local evidence. It never triggers a contract write.
+        </p>
+      )}
+    </div>
+  );
+}
+
+function ActionRow({
+  children,
+  clearLabel,
+  loading,
+  onClearSaved,
+  savedAt,
+}: {
+  children: ReactNode;
+  clearLabel: string;
+  loading: boolean;
+  onClearSaved?: () => void;
+  savedAt?: string;
+}) {
+  return (
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-wrap items-center gap-2">
+        {children}
+        {onClearSaved && (
+          <Button
+            className="h-8 px-2 text-[0.68rem] text-zinc-300 hover:text-white"
+            disabled={loading}
+            onClick={onClearSaved}
+            size="sm"
+            type="button"
+            variant="ghost"
+          >
+            <Trash2 className="size-3.5" />
+            {clearLabel}
+          </Button>
+        )}
+      </div>
+      {savedAt && (
+        <span
+          className="w-fit rounded-full border border-emerald-200/15 bg-emerald-200/10 px-2 py-0.5 text-[0.62rem] font-medium text-emerald-100"
+          title={formatSavedTimestamp(savedAt)}
+        >
+          Saved result • last updated {formatSavedInlineDate(savedAt)}
+        </span>
+      )}
+    </div>
+  );
+}
+
 function DetailsToggle({
   isOpen,
   onToggle,
@@ -565,11 +971,12 @@ function GuidanceLabel() {
 
 function formatAgentAction(action: AgentAction) {
   const labels: Record<AgentAction, string> = {
+    escalate_admin: "Escalate to admin",
+    no_action: "No action needed",
+    refund_client: "Refund client",
     release_full: "Release full payment",
     release_partial: "Release partial payment",
     request_revision: "Request revision",
-    refund_client: "Refund client",
-    escalate_admin: "Escalate to admin",
   };
 
   return labels[action];
@@ -672,6 +1079,89 @@ function capitalize(value: string) {
 
 function formatConfidence(confidence: number) {
   return `${Math.round(confidence * 100)}%`;
+}
+
+function formatSavedTimestamp(timestamp: string) {
+  const date = new Date(timestamp);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Saved result";
+  }
+
+  return `Saved ${date.toLocaleString()}`;
+}
+
+function formatSavedInlineDate(timestamp: string) {
+  const date = new Date(timestamp);
+
+  if (Number.isNaN(date.getTime())) {
+    return "unknown";
+  }
+
+  return date.toLocaleString(undefined, {
+    dateStyle: "short",
+    timeStyle: "short",
+  });
+}
+
+function getWalletRole(
+  address?: string,
+  clientAddress?: string,
+  freelancerAddress?: string
+) {
+  const wallet = address?.toLowerCase();
+
+  if (!wallet) {
+    return "not_connected";
+  }
+
+  if (clientAddress && wallet === clientAddress.toLowerCase()) {
+    return "client";
+  }
+
+  if (freelancerAddress && wallet === freelancerAddress.toLowerCase()) {
+    return "freelancer";
+  }
+
+  return "viewer";
+}
+
+function formatEvidenceForAgent(items: EvidenceItem[]) {
+  return items
+    .map((item) => {
+      const parts = [
+        `${item.type} evidence`,
+        item.evidenceUrl ? `url: ${item.evidenceUrl}` : "",
+        item.note ? `note: ${item.note}` : "",
+        item.submittedBy ? `submittedBy: ${item.submittedBy}` : "",
+        `createdAt: ${item.createdAt}`,
+      ].filter(Boolean);
+
+      return parts.join(" | ");
+    })
+    .join("\n");
+}
+
+function buildEvidenceTimeline(items: EvidenceItem[]) {
+  return items.map((item) => `${item.createdAt}: ${item.type} evidence added`);
+}
+
+function uniqueStrings(values: Array<string | undefined>) {
+  return Array.from(
+    new Set(
+      values
+        .map((value) => value?.trim())
+        .filter((value): value is string => Boolean(value))
+    )
+  );
+}
+
+function getEvidenceNotesWithPrefix(items: EvidenceItem[], prefix: string) {
+  return items
+    .map((item) => item.note?.trim())
+    .filter((note): note is string => Boolean(note?.startsWith(prefix)))
+    .map((note) => note.slice(prefix.length).trim())
+    .filter(Boolean);
 }
 
 function riskTextClass(riskLevel: RiskLevel) {

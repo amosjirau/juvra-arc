@@ -307,6 +307,7 @@ const actionEnum = [
   "request_revision",
   "refund_client",
   "escalate_admin",
+  "no_action",
 ];
 
 const jobRiskSchema = {
@@ -402,7 +403,7 @@ const disputeSummarySchema = {
 const recommendationSchema = {
   type: "OBJECT",
   properties: {
-    recommendation: {
+    suggestedAction: {
       type: "STRING",
       enum: actionEnum,
     },
@@ -411,8 +412,15 @@ const recommendationSchema = {
     },
     reasoning: stringSchema,
     requiredHumanAction: stringSchema,
+    safetyNotice: stringSchema,
   },
-  required: ["recommendation", "confidence", "reasoning", "requiredHumanAction"],
+  required: [
+    "suggestedAction",
+    "confidence",
+    "reasoning",
+    "requiredHumanAction",
+    "safetyNotice",
+  ],
 };
 
 export async function analyzeJobGemini(
@@ -449,9 +457,15 @@ export async function recommendActionGemini(context: {
   riskLevel?: string;
   completionScore?: number;
   disputeRaised?: boolean;
+  job?: Record<string, unknown>;
+  riskAnalysis?: Record<string, unknown>;
+  deliveryReview?: Record<string, unknown>;
+  disputeSummary?: Record<string, unknown>;
+  evidence?: unknown[];
+  walletRole?: string;
 }): Promise<AgentRecommendation> {
   return callGeminiJson<AgentRecommendation>(
-    "Recommend the safest human action for this escrow case. The agent cannot release funds, refund funds, or make final legal decisions.",
+    "Recommend the safest human action for this escrow case using the job context, previous agent results, evidence, status, submission URI, deadline, and connected wallet role. Return suggestedAction only from the allowed enum. The agent cannot release funds, refund funds, sign transactions, select freelancers, resolve disputes, or make final legal decisions.",
     context,
     recommendationSchema
   );

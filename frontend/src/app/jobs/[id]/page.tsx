@@ -12,11 +12,15 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { formatEther } from "viem";
 import { useAccount } from "wagmi";
 
 import AgentPanel from "@/components/agent/AgentPanel";
+import { AgentFlagsPanel } from "@/components/agent/AgentFlagsPanel";
+import { AgentGuidedActions } from "@/components/agent/AgentGuidedActions";
+import { AgentTimeline } from "@/components/agent/AgentTimeline";
+import { EvidencePanel } from "@/components/agent/EvidencePanel";
 import { ApplyButton } from "@/components/apply-button";
 import { ArcscanLink } from "@/components/arcscan-link";
 import { DisputePanel } from "@/components/DisputePanel";
@@ -24,11 +28,20 @@ import { JobStatusBadge } from "@/components/JobStatusBadge";
 import { SubmitWorkDialog } from "@/components/SubmitWorkDialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useApplicants, useArbitrator, useEscrowWrite, useJob, isSameAddress } from "@/hooks/use-juvra-escrow";
+import type { EvidenceItem } from "@/lib/agent/evidence";
+import {
+  isSameAddress,
+  useApplicants,
+  useArbitrator,
+  useEscrowWrite,
+  useJob,
+  useJobCount,
+} from "@/hooks/use-juvra-escrow";
 import { useTransactionSuccess } from "@/hooks/use-transaction-success";
 import { errorMessage, formatDate, shortAddress } from "@/lib/format";
 import {
   getStatusLabel,
+  isEscrowConfigured,
   juvraEscrowAbi,
   juvraEscrowAddress,
   normalizeJuvraJob,
@@ -46,8 +59,33 @@ export default function JobDetailPage() {
     return id > 0n ? id : undefined;
   }, [params.id]);
   const { address } = useAccount();
-  const jobQuery = useJob(jobId);
-  const applicantsQuery = useApplicants(jobId);
+  const [evidenceItems, setEvidenceItems] = useState<EvidenceItem[]>([]);
+  const jobCountQuery = useJobCount();
+  const jobCount = useMemo(() => {
+    const value = jobCountQuery.data;
+
+    if (typeof value === "bigint") {
+      return value;
+    }
+
+    if (typeof value === "number" && Number.isSafeInteger(value)) {
+      return BigInt(value);
+    }
+
+    if (typeof value === "string" && /^\d+$/.test(value)) {
+      return BigInt(value);
+    }
+
+    return undefined;
+  }, [jobCountQuery.data]);
+  const readableJobId =
+    jobId !== undefined && jobCount !== undefined && jobId <= jobCount
+      ? jobId
+      : undefined;
+  const isKnownMissing =
+    jobId !== undefined && jobCount !== undefined && jobId > jobCount;
+  const jobQuery = useJob(readableJobId);
+  const applicantsQuery = useApplicants(readableJobId);
   const arbitratorQuery = useArbitrator();
   const actionTx = useEscrowWrite();
   const job = useMemo(() => normalizeJuvraJob(jobQuery.data), [jobQuery.data]);
@@ -56,9 +94,13 @@ export default function JobDetailPage() {
   const isSelectedFreelancer = isSameAddress(address, job?.freelancer);
 
   const refresh = useCallback(async () => {
+    await jobCountQuery.refetch();
     await jobQuery.refetch();
     await applicantsQuery.refetch();
-  }, [applicantsQuery, jobQuery]);
+  }, [applicantsQuery, jobCountQuery, jobQuery]);
+  const updateEvidenceItems = useCallback((items: EvidenceItem[]) => {
+    setEvidenceItems(items);
+  }, []);
 
   useTransactionSuccess(actionTx.transactionHash, actionTx.isSuccess, refresh);
 
@@ -72,8 +114,41 @@ export default function JobDetailPage() {
     );
   }
 
-  if (jobQuery.isLoading) {
+  if (!isEscrowConfigured()) {
+    return (
+      <StateCard
+        tone="rose"
+        title="Escrow contract is not configured."
+        message="Set the deployed Juvra escrow contract address before opening job workspaces."
+      />
+    );
+  }
+
+  if (
+    jobCountQuery.isLoading ||
+    (readableJobId !== undefined && jobQuery.isLoading)
+  ) {
     return <JobDetailSkeleton />;
+  }
+
+  if (jobCountQuery.isError) {
+    return (
+      <StateCard
+        tone="rose"
+        title="Could not load escrow job count."
+        message="Confirm the Arc RPC and escrow contract configuration."
+      />
+    );
+  }
+
+  if (isKnownMissing) {
+    return (
+      <StateCard
+        tone="neutral"
+        title="Job not found or no longer available."
+        message="Return to the marketplace and choose another escrow-backed job."
+      />
+    );
   }
 
   if (jobQuery.isError) {
@@ -86,7 +161,7 @@ export default function JobDetailPage() {
     );
   }
 
-  if (!job || job.id === 0n || !job.title.trim()) {
+  if (!job || job.id !== jobId || job.id === 0n || !job.title.trim()) {
     return (
       <StateCard
         tone="neutral"
@@ -135,16 +210,21 @@ export default function JobDetailPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              <Metric label="Job ID" value={job.id.toString()} />
               <Metric label="Status" value={getStatusLabel(job.status)} />
-              <Metric label="Escrow" value={formattedAmount} />
+              <Metric label="Escrow amount" value={formattedAmount} />
               <Metric label="Deadline" value={formatDate(job.deadline)} />
-              <Metric fullValue={job.client} label="Client" value={shortAddress(job.client)} />
+              <Metric
+                fullValue={job.client}
+                label="Client address"
+                value={shortAddress(job.client)}
+              />
               <Metric
                 fullValue={job.freelancer}
-                label="Freelancer"
+                label="Freelancer address"
                 value={shortAddress(job.freelancer)}
               />
-              <Metric label="Created" value={formatDate(job.createdAt)} />
+              <Metric label="Created date" value={formatDate(job.createdAt)} />
             </div>
             <ResourceBlock
               icon={FileText}
@@ -161,21 +241,7 @@ export default function JobDetailPage() {
           </CardContent>
         </Card>
 
-        <section className="space-y-3">
-          <div>
-            <p className="text-sm font-medium text-cyan-100/80">
-              Escrow Intelligence
-            </p>
-            <h2 className="font-display mt-1 text-2xl font-semibold text-white">
-              Agent workspace
-            </h2>
-            <p className="mt-2 rounded-xl border border-amber-200/20 bg-amber-200/10 p-3 text-sm text-amber-100">
-              Juvra Agent provides decision support only. Every escrow action still
-              requires explicit wallet confirmation.
-            </p>
-          </div>
-          <AgentPanel job={agentJob} />
-        </section>
+        <AgentFlagsPanel evidence={evidenceItems} job={job} />
 
         <Card className="premium-card-hover rounded-[2rem] border-white/10 bg-white/[0.045]">
           <CardHeader>
@@ -233,9 +299,40 @@ export default function JobDetailPage() {
             <ArcscanLink hash={actionTx.transactionHash} />
           </CardContent>
         </Card>
+
+        <EvidencePanel
+          jobId={job.id.toString()}
+          onEvidenceChange={updateEvidenceItems}
+          submittedBy={address}
+        />
+
+        <AgentTimeline evidence={evidenceItems} job={job} />
       </section>
 
       <aside className="space-y-5">
+        <section className="space-y-3">
+          <div>
+            <p className="text-sm font-medium text-cyan-100/80">
+              Escrow Intelligence
+            </p>
+            <h2 className="font-display mt-1 text-2xl font-semibold text-white">
+              Agent workspace
+            </h2>
+            <p className="mt-2 rounded-xl border border-amber-200/20 bg-amber-200/10 p-3 text-sm text-amber-100">
+              Juvra Agent provides decision support only. Every escrow action still
+              requires explicit wallet confirmation.
+            </p>
+          </div>
+          <AgentPanel evidence={evidenceItems} job={agentJob} />
+        </section>
+
+        <AgentGuidedActions
+          arbitrator={arbitratorQuery.data as `0x${string}` | undefined}
+          job={job}
+          onSettled={refresh}
+          walletAddress={address}
+        />
+
         <Card className="premium-card-hover rounded-[2rem] border-white/10 bg-white/[0.045]">
           <CardHeader>
             <CardTitle className="text-white">Actions</CardTitle>

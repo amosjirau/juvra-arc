@@ -14,6 +14,7 @@ import { useMemo } from "react";
 import { zeroAddress } from "viem";
 import { useAccount, useReadContracts } from "wagmi";
 
+import { AgentFlagsPanel } from "@/components/agent/AgentFlagsPanel";
 import AgentRiskPreview from "@/components/agent/AgentRiskPreview";
 import { EmptyState } from "@/components/empty-state";
 import { JobCard } from "@/components/JobCard";
@@ -309,6 +310,7 @@ function JobGrid({
     <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
       {jobs.map((job) => {
         const mappedJob = {
+          id: job.id.toString(),
           title: job.title,
           description: job.descriptionURI,
           budget: formatUsdc(job.amount),
@@ -320,6 +322,7 @@ function JobGrid({
 
         return (
           <JobCard job={job} key={job.id.toString()}>
+            <AgentFlagsPanel compact job={job} />
             <AgentRiskPreview job={mappedJob} />
           </JobCard>
         );

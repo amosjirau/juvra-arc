@@ -1,12 +1,17 @@
 "use client";
 
 import { AlertTriangle, Bot, Loader2, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import {
+  loadAgentResult,
+  saveAgentResult,
+} from "@/lib/agent/storage";
 import type { JobRiskAnalysis, RiskLevel } from "@/lib/agent/agentTypes";
 
 type AgentJob = {
+  id?: string;
   title?: string;
   description?: string;
   budget?: string;
@@ -34,11 +39,19 @@ export default function AgentRiskPreview({ job }: { job?: AgentJob | null }) {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<JobRiskAnalysis | null>(null);
   const [error, setError] = useState("");
+  const jobId = job?.id?.toString().trim() || "";
+
+  useEffect(() => {
+    const saved = loadAgentResult<JobRiskAnalysis>("risk", jobId);
+
+    setResult(saved?.result ?? null);
+    setError("");
+    setLoading(false);
+  }, [jobId]);
 
   async function analyzeRisk() {
     setLoading(true);
     setError("");
-    setResult(null);
 
     try {
       const data = await postAgent<JobRiskAnalysis>("/api/agent/analyze-job", {
@@ -52,11 +65,16 @@ export default function AgentRiskPreview({ job }: { job?: AgentJob | null }) {
       });
 
       setResult(data);
+      saveRiskResult(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not analyze risk.");
     } finally {
       setLoading(false);
     }
+  }
+
+  function saveRiskResult(data: JobRiskAnalysis) {
+    saveAgentResult("risk", jobId, data);
   }
 
   return (

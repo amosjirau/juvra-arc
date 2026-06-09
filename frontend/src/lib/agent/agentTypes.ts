@@ -5,7 +5,8 @@ export type AgentAction =
   | "release_partial"
   | "request_revision"
   | "refund_client"
-  | "escalate_admin";
+  | "escalate_admin"
+  | "no_action";
 
 export interface JobAnalysisInput {
   jobId?: string;
@@ -32,6 +33,7 @@ export interface DeliveryReviewInput {
   expectedDeliverables?: string[];
   deliveryText: string;
   deliveryLinks?: string[];
+  deliveryEvidence?: string[];
 }
 
 export interface DeliveryReviewResult {
@@ -63,8 +65,9 @@ export interface DisputeSummaryResult {
 }
 
 export interface AgentRecommendation {
-  recommendation: AgentAction;
+  suggestedAction: AgentAction;
   confidence: number;
   reasoning: string;
   requiredHumanAction: string;
+  safetyNotice: string;
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { Gavel, ShieldCheck } from "lucide-react";
+import { AdminAgentSummary } from "@/components/agent/AdminAgentSummary";
 import { DisputePanel } from "@/components/DisputePanel";
 import { EmptyState } from "@/components/empty-state";
 import { JobStatusBadge } from "@/components/JobStatusBadge";
@@ -63,6 +64,10 @@ export default function AdminDisputesPage() {
         <StatsCard icon={ShieldCheck} label="Admin wallet" value={isArbitrator ? "Authorized" : "Read only"} />
       </div>
 
+      <div className="mt-6 rounded-2xl border border-amber-200/20 bg-amber-200/10 p-4 text-sm text-amber-100 shadow-lg shadow-amber-950/10">
+        Agent summaries are advisory. Admin resolution still requires manual wallet confirmation.
+      </div>
+
       <div className="mt-8 grid gap-5 lg:grid-cols-2">
         {isLoading &&
           Array.from({ length: 2 }).map((_, index) => <JobCardSkeleton key={index} />)}
@@ -81,6 +86,10 @@ export default function AdminDisputesPage() {
               <CardContent className="space-y-4">
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="rounded-xl border border-white/10 bg-black/25 p-3 shadow-inner shadow-black/10">
+                    <p className="text-xs text-zinc-500">Amount</p>
+                    <p className="mt-1 font-mono text-sm text-zinc-200">{formatUsdc(job.amount)}</p>
+                  </div>
+                  <div className="rounded-xl border border-white/10 bg-black/25 p-3 shadow-inner shadow-black/10">
                     <p className="text-xs text-zinc-500">Client</p>
                     <p className="mt-1 font-mono text-sm text-zinc-200">{shortAddress(job.client)}</p>
                   </div>
@@ -89,6 +98,7 @@ export default function AdminDisputesPage() {
                     <p className="mt-1 font-mono text-sm text-zinc-200">{shortAddress(job.freelancer)}</p>
                   </div>
                 </div>
+                <AdminAgentSummary job={job} />
                 <DisputePanel
                   arbitrator={arbitrator}
                   job={job}

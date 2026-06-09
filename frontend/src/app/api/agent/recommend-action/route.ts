@@ -1,50 +1,39 @@
 import { NextResponse } from "next/server";
+import {
+  normalizeRecommendationResult,
+  validateRecommendationInput,
+} from "@/lib/agent/schemas";
 import { recommendActionMock } from "@/lib/agent/mockAgent";
-import { recommendActionGemini, useGeminiAgent } from "@/lib/agent/geminiAgent";
+import { recommendActionGemini } from "@/lib/agent/geminiAgent";
+import { runAgentProvider } from "@/lib/agent/provider";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-
+    const input = validateRecommendationInput(body);
     const context = {
-      riskLevel: body.riskLevel,
-      completionScore: body.completionScore,
-      disputeRaised: body.disputeRaised,
+      ...input.legacyContext,
+      job: input.job,
+      riskAnalysis: input.riskAnalysis,
+      deliveryReview: input.deliveryReview,
+      disputeSummary: input.disputeSummary,
+      evidence: input.evidence,
+      walletRole: input.walletRole,
     };
-    const isGeminiMode = useGeminiAgent();
+    const providerResult = await runAgentProvider({
+      gemini: () => recommendActionGemini(context),
+      mock: () => recommendActionMock(context),
+      normalize: normalizeRecommendationResult,
+      routeName: "recommend-action",
+    });
 
-    if (!isGeminiMode) {
-      return NextResponse.json({
-        success: true,
-        mode: "mock",
-        result: recommendActionMock(context),
-      });
-    }
-
-    try {
-      const result = await recommendActionGemini(context);
-
-      return NextResponse.json({
-        success: true,
-        mode: "gemini",
-        result,
-      });
-    } catch (liveError) {
-      console.error("Gemini recommend-action failed:", liveError);
-
-      const fallback = recommendActionMock(context);
-
-      return NextResponse.json({
-        success: true,
-        mode: "mock_fallback",
-        warning: "Gemini failed. Mock fallback was used.",
-        geminiError:
-          process.env.NODE_ENV === "development"
-            ? getErrorMessage(liveError)
-            : undefined,
-        result: fallback,
-      });
-    }
+    return NextResponse.json({
+      success: true,
+      mode: providerResult.mode,
+      warning: providerResult.warning,
+      geminiError: providerResult.developmentError,
+      result: providerResult.result,
+    });
   } catch (error) {
     return NextResponse.json(
       {
@@ -57,8 +46,4 @@ export async function POST(req: Request) {
       { status: 400 }
     );
   }
-}
-
-function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : String(error);
 }

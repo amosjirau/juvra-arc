@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { getStatusLabel } from "@/lib/juvraEscrow";
+import { getStatusLabel } from "@/lib/job-status";
 import { cn } from "@/lib/utils";
 
 const statusStyles: Record<string, string> = {

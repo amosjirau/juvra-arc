@@ -5,21 +5,11 @@ import {
   JUVRA_ESCROW_ADDRESS,
   isJuvraEscrowConfigured,
 } from "@/lib/contract";
+import { getStatusLabel, jobStatuses, type JobStatus } from "@/lib/job-status";
 
 export const juvraEscrowAddress = JUVRA_ESCROW_ADDRESS;
 export const juvraEscrowAbi = JUVRA_ESCROW_ABI;
-
-export const jobStatuses = [
-  "Open",
-  "Assigned",
-  "Submitted",
-  "Approved",
-  "Disputed",
-  "Refunded",
-  "Cancelled",
-] as const;
-
-export type JobStatus = (typeof jobStatuses)[number];
+export { getStatusLabel, jobStatuses, type JobStatus };
 
 export type JuvraJob = {
   id: bigint;
@@ -95,10 +85,6 @@ export function normalizeJuvraJob(job: unknown): JuvraJob | null {
     deadline: Number(deadline),
     status,
   };
-}
-
-export function getStatusLabel(status: number) {
-  return jobStatuses[status] ?? "Unknown";
 }
 
 export function isEscrowConfigured() {

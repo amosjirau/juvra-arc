@@ -13,6 +13,7 @@ import {
 import { useMemo, useState } from "react";
 import { useReadContracts, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 
+import { AdminAgentSummary } from "@/components/agent/AdminAgentSummary";
 import { ArcscanLink } from "@/components/arcscan-link";
 import { EmptyState } from "@/components/empty-state";
 import { JobStatusBadge } from "@/components/JobStatusBadge";
@@ -176,8 +177,9 @@ export default function AdminPage() {
               <div className="flex gap-3">
                 <AlertTriangle className="mt-0.5 size-4 shrink-0" />
                 <p>
-                  Dispute decisions are final. Review the job, delivery, client, and
-                  freelancer addresses before resolving funds.
+                  Agent summaries are advisory. Admin resolution still requires
+                  manual wallet confirmation. Review the job, delivery, client,
+                  and freelancer addresses before resolving funds.
                 </p>
               </div>
             </div>
@@ -251,6 +253,8 @@ export default function AdminPage() {
                           <AdminMetric label="Amount" value={formatUsdc(job.amount)} />
                           <AdminMetric label="Submission URI" value={job.submissionURI || "No submission"} />
                         </div>
+
+                        <AdminAgentSummary job={job} />
 
                         <div className="grid gap-3 sm:grid-cols-2">
                           <Button

@@ -1,46 +1,26 @@
 import { NextResponse } from "next/server";
 import { validateDeliveryReviewInput } from "@/lib/agent/schemas";
 import { reviewDeliveryMock } from "@/lib/agent/mockAgent";
-import { reviewDeliveryGemini, useGeminiAgent } from "@/lib/agent/geminiAgent";
+import { reviewDeliveryGemini } from "@/lib/agent/geminiAgent";
+import { runAgentProvider } from "@/lib/agent/provider";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const input = validateDeliveryReviewInput(body);
-    const isGeminiMode = useGeminiAgent();
+    const providerResult = await runAgentProvider({
+      gemini: () => reviewDeliveryGemini(input),
+      mock: () => reviewDeliveryMock(input),
+      routeName: "review-delivery",
+    });
 
-    if (!isGeminiMode) {
-      return NextResponse.json({
-        success: true,
-        mode: "mock",
-        result: reviewDeliveryMock(input),
-      });
-    }
-
-    try {
-      const result = await reviewDeliveryGemini(input);
-
-      return NextResponse.json({
-        success: true,
-        mode: "gemini",
-        result,
-      });
-    } catch (liveError) {
-      console.error("Gemini review-delivery failed:", liveError);
-
-      const fallback = reviewDeliveryMock(input);
-
-      return NextResponse.json({
-        success: true,
-        mode: "mock_fallback",
-        warning: "Gemini failed. Mock fallback was used.",
-        geminiError:
-          process.env.NODE_ENV === "development"
-            ? getErrorMessage(liveError)
-            : undefined,
-        result: fallback,
-      });
-    }
+    return NextResponse.json({
+      success: true,
+      mode: providerResult.mode,
+      warning: providerResult.warning,
+      geminiError: providerResult.developmentError,
+      result: providerResult.result,
+    });
   } catch (error) {
     return NextResponse.json(
       {
@@ -51,8 +31,4 @@ export async function POST(req: Request) {
       { status: 400 }
     );
   }
-}
-
-function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : String(error);
 }

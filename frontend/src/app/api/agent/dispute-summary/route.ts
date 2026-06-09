@@ -1,46 +1,26 @@
 import { NextResponse } from "next/server";
 import { validateDisputeSummaryInput } from "@/lib/agent/schemas";
 import { summarizeDisputeMock } from "@/lib/agent/mockAgent";
-import { summarizeDisputeGemini, useGeminiAgent } from "@/lib/agent/geminiAgent";
+import { summarizeDisputeGemini } from "@/lib/agent/geminiAgent";
+import { runAgentProvider } from "@/lib/agent/provider";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const input = validateDisputeSummaryInput(body);
-    const isGeminiMode = useGeminiAgent();
+    const providerResult = await runAgentProvider({
+      gemini: () => summarizeDisputeGemini(input),
+      mock: () => summarizeDisputeMock(input),
+      routeName: "dispute-summary",
+    });
 
-    if (!isGeminiMode) {
-      return NextResponse.json({
-        success: true,
-        mode: "mock",
-        result: summarizeDisputeMock(input),
-      });
-    }
-
-    try {
-      const result = await summarizeDisputeGemini(input);
-
-      return NextResponse.json({
-        success: true,
-        mode: "gemini",
-        result,
-      });
-    } catch (liveError) {
-      console.error("Gemini dispute-summary failed:", liveError);
-
-      const fallback = summarizeDisputeMock(input);
-
-      return NextResponse.json({
-        success: true,
-        mode: "mock_fallback",
-        warning: "Gemini failed. Mock fallback was used.",
-        geminiError:
-          process.env.NODE_ENV === "development"
-            ? getErrorMessage(liveError)
-            : undefined,
-        result: fallback,
-      });
-    }
+    return NextResponse.json({
+      success: true,
+      mode: providerResult.mode,
+      warning: providerResult.warning,
+      geminiError: providerResult.developmentError,
+      result: providerResult.result,
+    });
   } catch (error) {
     return NextResponse.json(
       {
@@ -53,8 +33,4 @@ export async function POST(req: Request) {
       { status: 400 }
     );
   }
-}
-
-function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : String(error);
 }

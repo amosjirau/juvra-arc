@@ -7,6 +7,7 @@ import Link from "next/link";
 
 import { formatUsdc, shortAddress } from "@/lib/format";
 import type { JuvraJob } from "@/lib/juvraEscrow";
+import { DEMO_LANDING_JOBS, DEMO_LANDING_STATS, type DemoLandingJob } from "@/lib/landing-demo-data";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 32 },
@@ -17,21 +18,34 @@ const fadeUp = {
   }),
 };
 
-function EscrowViz({ job }: { job?: JuvraJob }) {
-  const client = job ? shortAddress(job.client) : "No live client";
+const defaultHeroStats = [
+  { label: "Escrowed Volume", value: `$${DEMO_LANDING_STATS.escrowedVolume.toLocaleString()}` },
+  { label: "Active Contracts", value: DEMO_LANDING_STATS.activeContracts.toLocaleString() },
+  { label: "Avg Trust Score", value: DEMO_LANDING_STATS.trustScore },
+];
+
+function EscrowViz({ demoJob, job }: { demoJob?: DemoLandingJob; job?: JuvraJob }) {
+  const previewJob = demoJob ?? DEMO_LANDING_JOBS[0];
+  const client = job ? shortAddress(job.client) : previewJob.client;
   const freelancer =
     job && job.freelancer !== "0x0000000000000000000000000000000000000000"
       ? shortAddress(job.freelancer)
-      : "Awaiting match";
-  const lockedAmount = job ? formatUsdc(job.amount) : "0 USDC";
-  const earnedAmount = job?.status === 3 ? lockedAmount : "0 USDC";
+      : previewJob.freelancer;
+  const lockedAmount = job ? formatUsdc(job.amount) : previewJob.amount;
+  const earnedAmount = job
+    ? job.status === 3
+      ? lockedAmount
+      : "Pending"
+    : previewJob.status === "Submitted"
+      ? "Pending review"
+      : "In escrow";
   const milestoneAmounts = job
     ? [
         formatUsdc(job.amount / 4n),
         formatUsdc(job.amount / 2n),
         formatUsdc(job.amount - job.amount / 4n - job.amount / 2n),
       ]
-    : ["0 USDC", "0 USDC", "0 USDC"];
+    : previewJob.milestoneAmounts;
 
   return (
     <div className="relative w-full max-w-sm mx-auto">
@@ -204,13 +218,11 @@ function EscrowViz({ job }: { job?: JuvraJob }) {
 }
 
 export function HeroSection({
+  demoJob,
   job,
-  stats = [
-    { label: "Escrowed Volume", value: "$0" },
-    { label: "Active Contracts", value: "0" },
-    { label: "Avg Trust Score", value: "0.0" },
-  ],
+  stats = defaultHeroStats,
 }: {
+  demoJob?: DemoLandingJob;
   job?: JuvraJob;
   stats?: Array<{ label: string; value: string }>;
 }) {
@@ -330,7 +342,7 @@ export function HeroSection({
             animate="visible"
             className="relative"
           >
-            <EscrowViz job={job} />
+            <EscrowViz demoJob={demoJob} job={job} />
           </motion.div>
         </div>
       </motion.div>

@@ -7,6 +7,7 @@ import Link from "next/link";
 
 import { formatDate, formatUsdc } from "@/lib/format";
 import type { JuvraJob } from "@/lib/juvraEscrow";
+import { DEMO_LANDING_JOBS, type DemoLandingJob } from "@/lib/landing-demo-data";
 
 type Opportunity = {
   accent: string;
@@ -16,8 +17,11 @@ type Opportunity = {
   deadline: string;
   href: string;
   image: string;
+  isDemo?: boolean;
+  milestoneLabel?: string;
   milestones: number;
   rotation: number;
+  status?: string;
   title: string;
   trustScore: number;
 };
@@ -70,6 +74,27 @@ function toOpportunity(job: JuvraJob, index: number): Opportunity {
   };
 }
 
+function toDemoOpportunity(job: DemoLandingJob, index: number): Opportunity {
+  const visual = cardVisuals[index % cardVisuals.length];
+
+  return {
+    accent: visual.accent,
+    amount: job.amount,
+    category: job.category,
+    clientRep: job.clientRep,
+    deadline: job.deadline,
+    href: job.href,
+    image: job.image,
+    isDemo: true,
+    milestoneLabel: job.milestone,
+    milestones: 3,
+    rotation: visual.rotation,
+    status: job.status,
+    title: job.title,
+    trustScore: job.trustScore,
+  };
+}
+
 function OpportunityCard({ opp, index, activeIndex }: { opp: Opportunity; index: number; activeIndex: number }) {
   const isActive = index === activeIndex;
   const offset = index - activeIndex;
@@ -107,7 +132,7 @@ function OpportunityCard({ opp, index, activeIndex }: { opp: Opportunity; index:
           {/* Verified badge */}
           <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/30">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-            <span className="text-emerald-400 text-xs">Escrow Verified</span>
+            <span className="text-emerald-400 text-xs">{opp.isDemo ? "Preview data" : "Escrow Verified"}</span>
           </div>
         </div>
 
@@ -121,8 +146,10 @@ function OpportunityCard({ opp, index, activeIndex }: { opp: Opportunity; index:
               <p style={{ color: opp.accent }} className="font-mono text-sm">{opp.amount}</p>
             </div>
             <div className="bg-white/5 rounded-lg p-2">
-              <p className="text-[#8892a4] text-xs">Milestones</p>
-              <p className="text-white font-mono text-sm">{opp.milestones}</p>
+              <p className="text-[#8892a4] text-xs">{opp.isDemo ? "Milestone" : "Milestones"}</p>
+              <p className="text-white font-mono text-sm truncate" title={opp.milestoneLabel}>
+                {opp.isDemo && opp.milestoneLabel ? opp.milestoneLabel : opp.milestones}
+              </p>
             </div>
           </div>
 
@@ -140,7 +167,9 @@ function OpportunityCard({ opp, index, activeIndex }: { opp: Opportunity; index:
 
           <div className="mt-3 pt-3 border-t border-white/5 flex items-center gap-2">
             <Lock size={10} className="text-[#B46CFF]" />
-            <span className="text-[#8892a4] text-xs">Funds locked on Arc Protocol</span>
+            <span className="text-[#8892a4] text-xs">
+              {opp.isDemo ? `${opp.status} preview on Arc Protocol` : "Funds locked on Arc Protocol"}
+            </span>
           </div>
         </div>
       </div>
@@ -150,36 +179,22 @@ function OpportunityCard({ opp, index, activeIndex }: { opp: Opportunity; index:
 }
 
 export function OpportunitiesSection({
-  isLoading,
+  isDemo,
   jobs,
 }: {
-  isLoading?: boolean;
+  isDemo?: boolean;
   jobs: JuvraJob[];
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-100px" });
   const opportunities = useMemo(() => {
-    if (jobs.length > 0) {
+    if (!isDemo && jobs.length > 0) {
       return jobs.slice(0, 5).map(toOpportunity);
     }
 
-    return [
-      {
-        accent: "#FF7A18",
-        amount: isLoading ? "Loading" : "0 USDC",
-        category: "Arc Escrow",
-        clientRep: isLoading ? "Reading contract" : "Post the first job",
-        deadline: isLoading ? "Syncing" : "Open",
-        href: "/post",
-        image: cardVisuals[0].image,
-        milestones: 0,
-        rotation: cardVisuals[0].rotation,
-        title: isLoading ? "Loading escrow opportunities" : "No escrow-backed jobs yet",
-        trustScore: 0,
-      },
-    ];
-  }, [isLoading, jobs]);
+    return DEMO_LANDING_JOBS.map(toDemoOpportunity);
+  }, [isDemo, jobs]);
   const currentIndex = Math.min(activeIndex, opportunities.length - 1);
 
   return (
@@ -201,7 +216,7 @@ export function OpportunitiesSection({
         >
           <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#B46CFF]/10 border border-[#B46CFF]/20 text-[#B46CFF] text-xs uppercase tracking-widest mb-6">
             <Lock size={11} />
-            Escrow Opportunities
+            {isDemo ? "Demo escrow opportunities" : "Escrow Opportunities"}
           </span>
           <h2
             style={{ fontFamily: "var(--font-display)" }}

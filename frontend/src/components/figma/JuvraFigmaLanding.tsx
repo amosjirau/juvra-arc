@@ -13,6 +13,7 @@ import { OpportunitiesSection } from "@/components/figma/OpportunitiesSection";
 import { UseCasesSection } from "@/components/figma/UseCasesSection";
 import { WhyJuvraSection } from "@/components/figma/WhyJuvraSection";
 import { useJobs } from "@/hooks/use-juvra-escrow";
+import { DEMO_LANDING_JOBS, DEMO_LANDING_STATS } from "@/lib/landing-demo-data";
 
 function shortMoney(value: number) {
   if (value >= 1_000_000) {
@@ -26,11 +27,23 @@ function shortMoney(value: number) {
   return `$${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
 }
 
+function wholeMoney(value: number) {
+  return `$${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+}
+
 export function JuvraFigmaLanding() {
-  const { jobs, isLoading } = useJobs();
-  const escrowedVolume = jobs.reduce((total, job) => total + Number(formatEther(job.amount)), 0);
-  const activeContracts = jobs.filter((job) => ![3, 5, 6].includes(job.status)).length;
-  const trustScore = jobs.length ? Math.min(9.8, 8.6 + jobs.length * 0.08).toFixed(1) : "0.0";
+  const { jobs } = useJobs();
+  const hasLiveJobs = jobs.length > 0;
+  const demoJob = DEMO_LANDING_JOBS[0];
+  const escrowedVolume = hasLiveJobs
+    ? jobs.reduce((total, job) => total + Number(formatEther(job.amount)), 0)
+    : DEMO_LANDING_STATS.escrowedVolume;
+  const activeContracts = hasLiveJobs
+    ? jobs.filter((job) => ![3, 5, 6].includes(job.status)).length
+    : DEMO_LANDING_STATS.activeContracts;
+  const trustScore = hasLiveJobs
+    ? Math.min(9.8, 8.6 + jobs.length * 0.08).toFixed(1)
+    : DEMO_LANDING_STATS.trustScore;
 
   return (
     <div
@@ -45,18 +58,19 @@ export function JuvraFigmaLanding() {
       <main>
         <HeroSection
           job={jobs[0]}
+          demoJob={!hasLiveJobs ? demoJob : undefined}
           stats={[
-            { label: "Escrowed Volume", value: shortMoney(escrowedVolume) },
+            { label: "Escrowed Volume", value: hasLiveJobs ? shortMoney(escrowedVolume) : wholeMoney(escrowedVolume) },
             { label: "Active Contracts", value: activeContracts.toLocaleString() },
             { label: "Avg Trust Score", value: trustScore },
           ]}
         />
         <WhyJuvraSection />
-        <OpportunitiesSection isLoading={isLoading} jobs={jobs} />
+        <OpportunitiesSection isDemo={!hasLiveJobs} jobs={jobs} />
         <HowItWorksSection />
-        <AICopilotSection job={jobs[0]} />
+        <AICopilotSection demoJob={!hasLiveJobs ? demoJob : undefined} job={jobs[0]} />
         <InfrastructureSection />
-        <DashboardSection jobs={jobs} />
+        <DashboardSection isDemo={!hasLiveJobs} jobs={jobs} />
         <UseCasesSection />
         <CTASection />
       </main>

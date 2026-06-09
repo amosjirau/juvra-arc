@@ -7,6 +7,7 @@ import Link from "next/link";
 
 import { formatUsdc } from "@/lib/format";
 import type { JuvraJob } from "@/lib/juvraEscrow";
+import { DEMO_LANDING_JOBS, type DemoLandingJob } from "@/lib/landing-demo-data";
 
 const capabilities = [
   {
@@ -46,12 +47,17 @@ const capabilities = [
   },
 ];
 
-export function AICopilotSection({ job }: { job?: JuvraJob }) {
+export function AICopilotSection({ demoJob, job }: { demoJob?: DemoLandingJob; job?: JuvraJob }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-100px" });
-  const contractId = job ? `ESC-${job.id.toString().padStart(4, "0")}` : "ESC-0000";
-  const jobTitle = job?.title ?? "Waiting for live escrow contract";
-  const releaseAmount = job ? formatUsdc(job.amount) : "0 USDC";
+  const previewJob = demoJob ?? DEMO_LANDING_JOBS[0];
+  const contractId = job ? `ESC-${job.id.toString().padStart(4, "0")}` : previewJob.contractId;
+  const jobTitle = job?.title ?? previewJob.title;
+  const progress = job ? 62 : previewJob.progress;
+  const releaseAmount = job ? formatUsdc(job.amount) : previewJob.amount;
+  const assessment = job
+    ? `Milestone evidence ready for review. Recommend releasing ${releaseAmount} after client approval. No anomalies detected.`
+    : `${previewJob.milestone} is ready for human review in this preview workspace. Agent guidance stays advisory and never signs escrow actions.`;
 
   return (
     <section
@@ -95,19 +101,26 @@ export function AICopilotSection({ job }: { job?: JuvraJob }) {
               <div className="p-5 border-b border-[#B46CFF]/10">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-[#8892a4] text-xs uppercase tracking-widest">Active Contract</span>
-                  <span className="text-xs font-mono text-[#B46CFF] bg-[#B46CFF]/10 px-2 py-0.5 rounded">{contractId}</span>
+                  <div className="flex items-center gap-2">
+                    {!job && (
+                      <span className="text-[10px] uppercase tracking-widest text-[#34d399] bg-[#34d399]/10 px-2 py-0.5 rounded">
+                        Preview data
+                      </span>
+                    )}
+                    <span className="text-xs font-mono text-[#B46CFF] bg-[#B46CFF]/10 px-2 py-0.5 rounded">{contractId}</span>
+                  </div>
                 </div>
                 <p className="text-white text-sm mb-2">{jobTitle}</p>
                 <div className="flex items-center gap-3">
                   <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
                     <motion.div
                       initial={{ width: 0 }}
-                      animate={inView ? { width: "62%" } : {}}
+                      animate={inView ? { width: `${progress}%` } : {}}
                       transition={{ duration: 1.5, delay: 0.5, ease: "easeOut" }}
                       className="h-full bg-gradient-to-r from-[#B46CFF] to-[#7C3AED] rounded-full"
                     />
                   </div>
-                  <span className="text-[#8892a4] text-xs">62% complete</span>
+                  <span className="text-[#8892a4] text-xs">{progress}% complete</span>
                 </div>
               </div>
 
@@ -146,8 +159,7 @@ export function AICopilotSection({ job }: { job?: JuvraJob }) {
                     <div>
                       <p className="text-[#8892a4] text-xs mb-1">Copilot Assessment</p>
                       <p className="text-white text-xs leading-relaxed">
-                        Milestone evidence ready for review. Recommend releasing {releaseAmount} after client approval. No anomalies detected.
-                        Client approval confidence: <span className="text-[#B46CFF]">94%</span>
+                        {assessment} Client approval confidence: <span className="text-[#B46CFF]">94%</span>
                       </p>
                     </div>
                   </div>

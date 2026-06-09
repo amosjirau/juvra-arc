@@ -8,6 +8,7 @@ import { formatEther } from "viem";
 
 import { formatDate, formatUsdc } from "@/lib/format";
 import type { JuvraJob } from "@/lib/juvraEscrow";
+import { DEMO_DASHBOARD_ACTIVITY, DEMO_LANDING_STATS } from "@/lib/landing-demo-data";
 
 function shortMoney(value: number) {
   if (value >= 1_000_000) {
@@ -21,17 +22,38 @@ function shortMoney(value: number) {
   return `$${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
 }
 
-export function DashboardSection({ jobs }: { jobs: JuvraJob[] }) {
+function wholeMoney(value: number) {
+  return `$${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+}
+
+export function DashboardSection({ isDemo, jobs }: { isDemo?: boolean; jobs: JuvraJob[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-100px" });
+  const useDemo = isDemo || jobs.length === 0;
   const escrowedVolume = useMemo(
-    () => jobs.reduce((total, job) => total + Number(formatEther(job.amount)), 0),
-    [jobs],
+    () =>
+      useDemo
+        ? DEMO_LANDING_STATS.escrowedVolume
+        : jobs.reduce((total, job) => total + Number(formatEther(job.amount)), 0),
+    [jobs, useDemo],
   );
-  const activeContracts = jobs.filter((job) => ![3, 5, 6].includes(job.status)).length;
-  const pendingReleases = jobs.filter((job) => job.status === 2).length;
-  const trustScore = jobs.length ? Math.min(9.8, 8.6 + jobs.length * 0.08).toFixed(1) : "0.0";
+  const activeContracts = useDemo
+    ? DEMO_LANDING_STATS.activeContracts
+    : jobs.filter((job) => ![3, 5, 6].includes(job.status)).length;
+  const pendingReleases = useDemo ? 2 : jobs.filter((job) => job.status === 2).length;
+  const trustScore = useDemo
+    ? DEMO_LANDING_STATS.trustScore
+    : Math.min(9.8, 8.6 + jobs.length * 0.08).toFixed(1);
   const chartData = useMemo(() => {
+    if (useDemo) {
+      return [
+        { month: "Mar", volume: 3200 },
+        { month: "Apr", volume: 7600 },
+        { month: "May", volume: 9800 },
+        { month: "Jun", volume: DEMO_LANDING_STATS.escrowedVolume },
+      ];
+    }
+
     const buckets = new Map<string, number>();
     const monthFormat = new Intl.DateTimeFormat(undefined, { month: "short" });
 
@@ -41,28 +63,32 @@ export function DashboardSection({ jobs }: { jobs: JuvraJob[] }) {
     });
 
     const entries = Array.from(buckets.entries()).map(([month, volume]) => ({ month, volume }));
-    return entries.length > 0 ? entries : [{ month: "Live", volume: 0 }];
-  }, [jobs]);
-  const activityFeed = jobs.slice(0, 4).map((job, index) => ({
-    action:
-      job.status === 2
-        ? "Milestone submitted"
-        : job.status === 3
-          ? "Milestone approved"
-          : job.status === 4
-            ? "Dispute opened"
-            : "Funds locked",
-    amount: formatUsdc(job.amount),
-    color: ["#34d399", "#60a5fa", "#B46CFF", "#FF7A18"][index % 4],
-    contract: `ESC-${job.id.toString().padStart(4, "0")}`,
-    time: formatDate(job.createdAt),
-  }));
+    return entries;
+  }, [jobs, useDemo]);
+  const activityFeed = useDemo
+    ? DEMO_DASHBOARD_ACTIVITY
+    : jobs.slice(0, 4).map((job, index) => ({
+        action:
+          job.status === 2
+            ? "Milestone submitted"
+            : job.status === 3
+              ? "Milestone approved"
+              : job.status === 4
+                ? "Dispute opened"
+                : "Funds locked",
+        amount: formatUsdc(job.amount),
+        color: ["#34d399", "#60a5fa", "#B46CFF", "#FF7A18"][index % 4],
+        contract: `ESC-${job.id.toString().padStart(4, "0")}`,
+        time: formatDate(job.createdAt),
+      }));
   const recommendation =
-    pendingReleases > 0
+    useDemo
+      ? "Preview activity shows two contracts ready for human review. The agent can summarize evidence, but every escrow action still requires wallet confirmation."
+      : pendingReleases > 0
       ? `${pendingReleases} submitted contract${pendingReleases === 1 ? "" : "s"} ready for milestone review. Recommend checking evidence coverage before release.`
       : jobs.length > 0
         ? "No submitted milestones are waiting for release. Continue monitoring active escrow progress."
-        : "No live escrows yet. Post the first funded job to activate AI settlement recommendations.";
+        : "Post the first funded job to activate AI settlement recommendations.";
 
   return (
     <section
@@ -84,7 +110,7 @@ export function DashboardSection({ jobs }: { jobs: JuvraJob[] }) {
           className="text-center mb-16"
         >
           <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#34d399]/10 border border-[#34d399]/20 text-[#34d399] text-xs uppercase tracking-widest mb-6">
-            Dashboard Preview
+            {useDemo ? "Demo dashboard preview" : "Dashboard Preview"}
           </span>
           <h2
             style={{ fontFamily: "var(--font-display)" }}
@@ -117,7 +143,7 @@ export function DashboardSection({ jobs }: { jobs: JuvraJob[] }) {
             </div>
             <div className="flex items-center gap-2 text-xs text-[#8892a4]">
               <div className="w-1.5 h-1.5 rounded-full bg-[#34d399] animate-pulse" />
-              Live · Arc Testnet
+              {useDemo ? "Demo dashboard preview" : "Live · Arc Testnet"}
             </div>
           </div>
 
@@ -125,10 +151,10 @@ export function DashboardSection({ jobs }: { jobs: JuvraJob[] }) {
             {/* Metric cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                 {[
-                { label: "Escrowed Volume", value: shortMoney(escrowedVolume), change: "Live", icon: TrendingUp, color: "#FF7A18" },
-                { label: "Active Contracts", value: activeContracts.toLocaleString(), change: `${jobs.length} total`, icon: Clock, color: "#60a5fa" },
-                { label: "Pending Releases", value: pendingReleases.toLocaleString(), change: "Submitted", icon: AlertCircle, color: "#f59e0b" },
-                { label: "Trust Score", value: trustScore, change: jobs.length ? "Derived live" : "No jobs", icon: Star, color: "#34d399" },
+                { label: "Escrowed Volume", value: useDemo ? wholeMoney(escrowedVolume) : shortMoney(escrowedVolume), change: useDemo ? "Preview data" : "Live", icon: TrendingUp, color: "#FF7A18" },
+                { label: "Active Contracts", value: activeContracts.toLocaleString(), change: useDemo ? "Demo active" : `${jobs.length} total`, icon: Clock, color: "#60a5fa" },
+                { label: "Pending Releases", value: pendingReleases.toLocaleString(), change: useDemo ? "Human review" : "Submitted", icon: AlertCircle, color: "#f59e0b" },
+                { label: "Trust Score", value: trustScore, change: useDemo ? "Preview score" : "Derived live", icon: Star, color: "#34d399" },
               ].map((metric, i) => (
                 <motion.div
                   key={metric.label}
@@ -153,7 +179,9 @@ export function DashboardSection({ jobs }: { jobs: JuvraJob[] }) {
               <div className="md:col-span-2 rounded-2xl bg-[#111827] border border-white/8 p-5">
                 <div className="flex items-center justify-between mb-4">
                   <p className="text-white text-sm">Escrow Volume</p>
-                  <span className="text-[#34d399] text-xs bg-[#34d399]/10 px-2 py-0.5 rounded">Live contract data</span>
+                  <span className="text-[#34d399] text-xs bg-[#34d399]/10 px-2 py-0.5 rounded">
+                    {useDemo ? "Demo dashboard preview" : "Live contract data"}
+                  </span>
                 </div>
                 <div className="h-36">
                   <ResponsiveContainer width="100%" height="100%">
@@ -166,7 +194,7 @@ export function DashboardSection({ jobs }: { jobs: JuvraJob[] }) {
                       </defs>
                       <Tooltip
                         contentStyle={{ background: "#111827", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", color: "white" }}
-                        formatter={(v: number) => [shortMoney(v), "Volume"]}
+                        formatter={(v: number) => [useDemo ? wholeMoney(v) : shortMoney(v), "Volume"]}
                       />
                       <Area type="monotone" dataKey="volume" stroke="#FF7A18" strokeWidth={2} fill="url(#volumeGrad)" />
                     </AreaChart>
@@ -181,13 +209,7 @@ export function DashboardSection({ jobs }: { jobs: JuvraJob[] }) {
                   <button className="text-[#8892a4] text-xs hover:text-white transition-colors">All</button>
                 </div>
                 <div className="space-y-3">
-                  {(activityFeed.length > 0 ? activityFeed : [{
-                    action: "Waiting for first escrow",
-                    amount: "0 USDC",
-                    color: "#FF7A18",
-                    contract: "ESC-0000",
-                    time: "Live",
-                  }]).map((item, i) => (
+                  {activityFeed.map((item, i) => (
                     <div key={i} className="flex items-start gap-2">
                       <div className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style={{ background: item.color }} />
                       <div className="flex-1 min-w-0">

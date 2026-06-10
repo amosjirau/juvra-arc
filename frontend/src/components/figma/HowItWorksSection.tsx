@@ -8,33 +8,33 @@ const steps = [
   {
     number: "01",
     icon: Briefcase,
-    title: "Create Job",
-    description: "Post your project with clear milestones, deliverables, and escrow amount. Define exactly what success looks like.",
-    detail: "Set milestones, timeline, deliverables, and the total escrow amount. Smart contracts are deployed automatically.",
+    title: "Structure Scope",
+    description: "AI helps turn loose work into milestones, acceptance criteria, evidence requirements, and revision terms.",
+    detail: "The Agent Scope Builder suggests safer commerce terms before or during escrow, but both parties must agree manually.",
     accent: "#60a5fa",
   },
   {
     number: "02",
     icon: Lock,
-    title: "Lock USDC",
-    description: "Client locks the full project amount in an Arc smart contract escrow vault. Funds are secured before work begins.",
-    detail: "Funds are held in a non-custodial vault on Arc Protocol. Neither party can access them without milestone approval.",
+    title: "Lock USDC on Arc",
+    description: "Client funds escrow with stable USDC value while Arc smart contracts track job state and settlement flow.",
+    detail: "Funds are held in a non-custodial Arc escrow contract. The agent cannot access or redirect the escrow balance.",
     accent: "#B46CFF",
   },
   {
     number: "03",
     icon: CheckCircle,
-    title: "Work Delivered",
-    description: "Freelancer completes milestones and submits evidence. AI copilot reviews deliverables against requirements.",
-    detail: "The AI Copilot analyzes evidence, checks completion, flags risks, and prepares a summary for client review.",
+    title: "Review Evidence",
+    description: "Freelancer submits delivery proof. AI reviews scope fit, risk, missing evidence, and dispute context.",
+    detail: "The AI Copilot analyzes evidence, flags uncertainty, and prepares summaries so humans can make better settlement decisions.",
     accent: "#FF7A18",
   },
   {
     number: "04",
     icon: Send,
-    title: "Release Funds",
-    description: "Client approves milestone. Funds release instantly to freelancer's wallet. Transparent, immutable record created.",
-    detail: "Approval triggers automatic USDC release. The entire transaction history is permanently on-chain.",
+    title: "Confirm Settlement",
+    description: "Authorized humans review agent recommendations, click the relevant action, and confirm with their wallet.",
+    detail: "Every release, dispute, cancellation, or resolution remains a manual wallet-confirmed action. AI never signs or moves funds.",
     accent: "#34d399",
   },
 ];
@@ -72,7 +72,7 @@ export function HowItWorksSection() {
           >
             Four steps to{" "}
             <em className="not-italic text-transparent bg-clip-text bg-gradient-to-r from-[#FF7A18] to-[#FFB347]">
-              trustless settlement.
+              agentic commerce.
             </em>
           </h2>
         </motion.div>

@@ -6,6 +6,8 @@ import {
   DisputeSummaryResult,
   JobAnalysisInput,
   JobRiskAnalysis,
+  ScopeBuilderInput,
+  ScopeBuilderResult,
 } from "./agentTypes";
 
 import {
@@ -224,5 +226,57 @@ export function recommendActionMock(context: {
       "A human should gather more evidence or run the relevant risk, delivery, and dispute analyses.",
     safetyNotice:
       "Juvra Agent is advisory only. Every escrow write still requires explicit wallet confirmation.",
+  };
+}
+
+export function buildScopeMock(input: ScopeBuilderInput): ScopeBuilderResult {
+  const title = input.title.trim() || "Freelance escrow job";
+  const description = input.description.toLowerCase();
+  const hasEvidence =
+    Array.isArray(input.evidence) && input.evidence.length > 0;
+  const needsEvidence =
+    !description.includes("evidence") &&
+    !description.includes("github") &&
+    !description.includes("deliverable");
+
+  return {
+    suggestedMilestones: [
+      `Scope alignment for ${title}`,
+      "Core delivery with reviewable evidence",
+      "Final QA, revision window, and settlement review",
+    ],
+    acceptanceCriteria: [
+      "Client and freelancer agree on the exact deliverables, deadline, and review method before work starts.",
+      "Each milestone has a visible artifact such as a deployment, repository, checklist, design file, or written report.",
+      "Client approval is based on submitted evidence matching the agreed scope, not informal expectations added later.",
+    ],
+    deliveryRequirements: [
+      "Delivery note with a concise completion summary.",
+      "Public or permissioned evidence URL for the completed work.",
+      "Repository, screenshot, document, or deployment link where relevant.",
+      hasEvidence
+        ? "Reference the saved evidence already attached to this job."
+        : "Attach evidence before requesting release or dispute review.",
+    ],
+    revisionTerms: [
+      "Client should request revisions with specific missing criteria and evidence references.",
+      "Freelancer should respond with a revised delivery note and updated evidence URL.",
+      "Escalate only if the parties cannot agree after a clear revision request.",
+    ],
+    riskNotes: [
+      needsEvidence
+        ? "The current scope should state what evidence proves completion."
+        : "Evidence expectations are present, but should still be tied to each milestone.",
+      input.deadline
+        ? "Deadline exists; confirm whether it applies to all milestones or only final delivery."
+        : "Missing or vague deadlines can create avoidable settlement disputes.",
+      "AI suggestions are coordination support only and do not select freelancers or move escrow.",
+    ],
+    suggestedEscrowStructure:
+      "Suggested split: 25% scope confirmation, 45% core build delivery, 30% final review and revisions.",
+    reasoning:
+      "The structure separates agreement, delivery evidence, and final review so the agent can reason about scope while humans retain wallet-confirmed settlement control.",
+    safetyNotice:
+      "These suggestions do not modify escrow. Client and freelancer must agree manually before any wallet-confirmed action.",
   };
 }

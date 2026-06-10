@@ -40,24 +40,24 @@ export function CTASection() {
         >
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FF7A18]/10 border border-[#FF7A18]/20 text-[#FF7A18] text-xs uppercase tracking-widest mb-10">
             <Shield size={11} />
-            Start with Juvra
+            Agent-assisted, human-confirmed
           </div>
 
           <h2
             style={{ fontFamily: "var(--font-display)" }}
             className="text-5xl md:text-7xl text-white leading-[1.0] tracking-tight mb-8"
           >
-            Stop trusting
+            Coordinate work.
             <br />
             <em className="not-italic text-transparent bg-clip-text bg-gradient-to-r from-[#FF7A18] via-[#FFB347] to-[#FF7A18]">
-              strangers.
+              Confirm settlement.
             </em>
             <br />
-            Start using Juvra.
+            Build on Arc.
           </h2>
 
           <p className="text-[#8892a4] text-xl leading-relaxed mb-12 max-w-2xl mx-auto">
-            The settlement layer where funds are locked before work begins, milestones define progress, and payments release transparently. No trust required.
+            Juvra is an agentic freelance commerce network where AI helps organize scope, evidence, and disputes while USDC escrow actions remain manually confirmed on Arc.
           </p>
 
           <div className="mb-12 flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -77,7 +77,7 @@ export function CTASection() {
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-8 text-[#8892a4] text-xs">
-            {["Powered by Arc Protocol", "Settled in USDC", "Non-custodial", "Open-source contracts"].map((item) => (
+            {["Built for Arc + USDC commerce", "Decision support only", "Manual wallet confirmation", "Future-ready Circle layers"].map((item) => (
               <span key={item} className="flex items-center gap-2">
                 <div className="w-1 h-1 rounded-full bg-[#8892a4]" />
                 {item}

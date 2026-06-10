@@ -4,6 +4,7 @@ import { formatEther } from "viem";
 
 import { AICopilotSection } from "@/components/figma/AICopilotSection";
 import { ArcExplainerSection } from "@/components/figma/ArcExplainerSection";
+import { CircleArcSection } from "@/components/figma/CircleArcSection";
 import { CTASection } from "@/components/figma/CTASection";
 import { DashboardSection } from "@/components/figma/DashboardSection";
 import { FAQSection } from "@/components/figma/FAQSection";
@@ -65,6 +66,7 @@ export function JuvraFigmaLanding() {
         <OpportunitiesSection isDemo={!hasLiveJobs} jobs={jobs} />
         <HowItWorksSection />
         <ArcExplainerSection />
+        <CircleArcSection />
         <AICopilotSection isDemo={!hasLiveJobs} job={jobs[0]} />
         <InfrastructureSection />
         <DashboardSection isDemo={!hasLiveJobs} jobs={jobs} />

@@ -6,6 +6,8 @@ import {
   DisputeSummaryResult,
   JobAnalysisInput,
   JobRiskAnalysis,
+  ScopeBuilderInput,
+  ScopeBuilderResult,
 } from "./agentTypes";
 
 import { ESCROW_AGENT_SYSTEM_PROMPT } from "./prompts";
@@ -423,6 +425,45 @@ const recommendationSchema = {
   ],
 };
 
+const scopeBuilderSchema = {
+  type: "OBJECT",
+  properties: {
+    suggestedMilestones: {
+      type: "ARRAY",
+      items: stringSchema,
+    },
+    acceptanceCriteria: {
+      type: "ARRAY",
+      items: stringSchema,
+    },
+    deliveryRequirements: {
+      type: "ARRAY",
+      items: stringSchema,
+    },
+    revisionTerms: {
+      type: "ARRAY",
+      items: stringSchema,
+    },
+    riskNotes: {
+      type: "ARRAY",
+      items: stringSchema,
+    },
+    suggestedEscrowStructure: stringSchema,
+    reasoning: stringSchema,
+    safetyNotice: stringSchema,
+  },
+  required: [
+    "suggestedMilestones",
+    "acceptanceCriteria",
+    "deliveryRequirements",
+    "revisionTerms",
+    "riskNotes",
+    "suggestedEscrowStructure",
+    "reasoning",
+    "safetyNotice",
+  ],
+};
+
 export async function analyzeJobGemini(
   input: JobAnalysisInput
 ): Promise<JobRiskAnalysis> {
@@ -468,5 +509,15 @@ export async function recommendActionGemini(context: {
     "Recommend the safest human action for this escrow case using the job context, previous agent results, evidence, status, submission URI, deadline, and connected wallet role. Return suggestedAction only from the allowed enum. The agent cannot release funds, refund funds, sign transactions, select freelancers, resolve disputes, or make final legal decisions.",
     context,
     recommendationSchema
+  );
+}
+
+export async function buildScopeGemini(
+  input: ScopeBuilderInput
+): Promise<ScopeBuilderResult> {
+  return callGeminiJson<ScopeBuilderResult>(
+    "Act as a safe agentic freelance commerce coordinator. Suggest clearer milestones, acceptance criteria, delivery requirements, revision terms, risk notes, and escrow breakdown for this Arc escrow job. The output is advisory only. Do not claim escrow was modified. Do not select freelancers, release funds, refund funds, resolve disputes, or sign transactions.",
+    input,
+    scopeBuilderSchema
   );
 }

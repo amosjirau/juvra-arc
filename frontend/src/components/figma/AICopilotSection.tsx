@@ -12,36 +12,36 @@ import { DEMO_AGENT } from "@/lib/landing-demo-data";
 const capabilities = [
   {
     icon: Brain,
-    title: "Milestone Tracking",
-    description: "Monitors completion of each milestone against defined deliverables in real-time.",
+    title: "Scope Coordination",
+    description: "Suggests milestones, acceptance criteria, evidence requirements, and revision terms.",
     status: "Active",
     statusColor: "#34d399",
   },
   {
     icon: Search,
     title: "Evidence Review",
-    description: "Scans submitted work, documents, and assets to verify milestone completion.",
+    description: "Reviews submitted notes, links, documents, and saved evidence against agreed scope.",
     status: "Scanning",
     statusColor: "#60a5fa",
   },
   {
     icon: AlertTriangle,
     title: "Risk Detection",
-    description: "Identifies behavioral anomalies, late signals, and quality degradation patterns.",
+    description: "Flags vague scope, missing deadlines, late submissions, and weak evidence.",
     status: "Monitoring",
     statusColor: "#f59e0b",
   },
   {
     icon: Scale,
     title: "Dispute Analysis",
-    description: "Reviews both parties' evidence and provides structured analysis for resolution.",
+    description: "Summarizes both parties' positions for human review without resolving disputes.",
     status: "On Standby",
     statusColor: "#8892a4",
   },
   {
     icon: CreditCard,
-    title: "Payment Recommendations",
-    description: "Suggests release amounts based on completion percentage and quality metrics.",
+    title: "Settlement Recommendations",
+    description: "Recommends human-confirmed next steps while never signing or moving funds.",
     status: "Ready",
     statusColor: "#B46CFF",
   },
@@ -195,21 +195,21 @@ export function AICopilotSection({ isDemo, job }: { isDemo?: boolean; job?: Juvr
           >
             <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#B46CFF]/10 border border-[#B46CFF]/20 text-[#B46CFF] text-xs uppercase tracking-widest mb-8">
               <Brain size={11} />
-              AI Copilot
+              Agentic Commerce Copilot
             </span>
             <h2
               style={{ fontFamily: "var(--font-display)" }}
               className="text-4xl md:text-5xl text-white mb-6 leading-tight"
             >
-              Settlement intelligence,
+              Coordination intelligence,
               <em className="not-italic text-transparent bg-clip-text bg-gradient-to-r from-[#B46CFF] to-[#7C3AED]"> built in.</em>
             </h2>
             <p className="text-[#8892a4] text-lg leading-relaxed mb-8">
-              The AI Copilot monitors every contract in real-time. It reviews evidence, detects risk, analyzes disputes, and recommends payment releases — so human judgment is spent where it matters.
+              Juvra agents help structure work, review delivery evidence, detect escrow risk, summarize disputes, and recommend settlement actions. Arc and USDC handle the settlement layer, and humans remain in control of every wallet-confirmed action.
             </p>
 
             <div className="space-y-4 mb-10">
-              {["No chatbot interface", "Evidence-based analysis", "Milestone-linked intelligence"].map((item) => (
+              {["Scope and evidence coordination", "Agent-assisted, human-confirmed", "Milestone-linked settlement reasoning"].map((item) => (
                 <div key={item} className="flex items-center gap-3">
                   <div className="w-5 h-5 rounded-full bg-[#B46CFF]/15 border border-[#B46CFF]/30 flex items-center justify-center flex-shrink-0">
                     <div className="w-1.5 h-1.5 rounded-full bg-[#B46CFF]" />

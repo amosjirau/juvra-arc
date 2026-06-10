@@ -7,8 +7,8 @@ import { Shield, UserCheck, ThumbsUp, Coins, FileText, AlertCircle } from "lucid
 const cards = [
   {
     icon: Shield,
-    title: "Native Arc Escrow",
-    description: "Funds are locked in smart contracts on Arc — immune to interference, reversal, or manipulation by any party.",
+    title: "Agentic Commerce Layer",
+    description: "AI coordinates scope, evidence, risk, and dispute reasoning while Arc executes escrow logic transparently.",
     size: "large",
     accent: "#FF7A18",
     bg: "from-[#1a0e05] to-[#0d0a06]",
@@ -17,8 +17,8 @@ const cards = [
   },
   {
     icon: UserCheck,
-    title: "Freelancer Protection",
-    description: "Work is protected by milestones. Get paid incrementally as you deliver, with no single point of failure.",
+    title: "Freelancer Confidence",
+    description: "Milestones, delivery evidence, and USDC escrow create clearer payment expectations before work begins.",
     size: "small",
     accent: "#34d399",
     bg: "from-[#051a10] to-[#040d09]",
@@ -27,8 +27,8 @@ const cards = [
   },
   {
     icon: ThumbsUp,
-    title: "Client Approval",
-    description: "Clients approve each milestone before release. No disputes. No chargebacks. Pure transparency.",
+    title: "Client Control",
+    description: "Clients get AI-assisted delivery review while every settlement action still requires explicit wallet confirmation.",
     size: "small",
     accent: "#60a5fa",
     bg: "from-[#050f1a] to-[#04090d]",
@@ -38,7 +38,7 @@ const cards = [
   {
     icon: Coins,
     title: "USDC Settlement",
-    description: "All transactions settle in USDC — a stable, globally accessible digital dollar with zero volatility risk.",
+    description: "Stablecoin settlement keeps freelance escrow value predictable from funding through review.",
     size: "small",
     accent: "#B46CFF",
     bg: "from-[#100a1a] to-[#080610]",
@@ -47,8 +47,8 @@ const cards = [
   },
   {
     icon: FileText,
-    title: "Transparent Records",
-    description: "Every transaction, milestone, and approval is written on-chain. Your work history becomes your reputation.",
+    title: "Evidence-First Records",
+    description: "Delivery links, notes, timelines, and agent results help turn subjective work into reviewable commerce context.",
     size: "small",
     accent: "#f59e0b",
     bg: "from-[#160f03] to-[#0b0902]",
@@ -58,7 +58,7 @@ const cards = [
   {
     icon: AlertCircle,
     title: "Dispute-Ready Workflow",
-    description: "AI-powered dispute analysis reviews evidence, evaluates milestone completion, and recommends fair resolutions.",
+    description: "AI summarizes claims and evidence for human admins without resolving disputes or moving escrow automatically.",
     size: "large",
     accent: "#f43f5e",
     bg: "from-[#1a0508] to-[#0d0305]",
@@ -136,8 +136,8 @@ export function WhyJuvraSection() {
             style={{ fontFamily: "var(--font-display)" }}
             className="text-4xl md:text-5xl text-white max-w-2xl leading-tight"
           >
-            Infrastructure that makes
-            <em className="not-italic text-transparent bg-clip-text bg-gradient-to-r from-[#B46CFF] to-[#7C3AED]"> trust optional.</em>
+            Infrastructure for an
+            <em className="not-italic text-transparent bg-clip-text bg-gradient-to-r from-[#B46CFF] to-[#7C3AED]"> agentic freelance network.</em>
           </h2>
         </motion.div>
 

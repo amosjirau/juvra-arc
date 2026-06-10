@@ -21,6 +21,7 @@ import { AgentFlagsPanel } from "@/components/agent/AgentFlagsPanel";
 import { AgentGuidedActions } from "@/components/agent/AgentGuidedActions";
 import { AgentTimeline } from "@/components/agent/AgentTimeline";
 import { EvidencePanel } from "@/components/agent/EvidencePanel";
+import { AgentScopeBuilder } from "@/components/agent/AgentScopeBuilder";
 import { ApplyButton } from "@/components/apply-button";
 import { ArcscanLink } from "@/components/arcscan-link";
 import { DisputePanel } from "@/components/DisputePanel";
@@ -177,6 +178,7 @@ export default function JobDetailPage() {
     title: job.title,
     description: job.descriptionURI,
     descriptionURI: job.descriptionURI,
+    category: job.category,
     budget: formattedAmount,
     amount: job.amount?.toString?.(),
     deadline: formatDate(job.deadline),
@@ -324,6 +326,7 @@ export default function JobDetailPage() {
             </p>
           </div>
           <AgentPanel evidence={evidenceItems} job={agentJob} />
+          <AgentScopeBuilder evidence={evidenceItems} job={agentJob} />
         </section>
 
         <AgentGuidedActions

@@ -258,7 +258,7 @@ export function HeroSection({
               className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FF7A18]/10 border border-[#FF7A18]/20 text-[#FF7A18] text-xs uppercase tracking-widest mb-8"
             >
               <Shield size={12} />
-              Settlement Layer · Arc Protocol · USDC
+              Agent-assisted, human-confirmed · Arc + USDC
             </motion.div>
 
             <motion.h1
@@ -269,11 +269,12 @@ export function HeroSection({
               style={{ fontFamily: "var(--font-display)" }}
               className="text-5xl md:text-6xl lg:text-7xl text-white leading-[1.05] tracking-tight mb-6"
             >
-              The settlement<br />
+              Agentic escrow
+              <br />
               <em className="not-italic text-transparent bg-clip-text bg-gradient-to-r from-[#FF7A18] to-[#FFB347]">
-                layer for
+                for freelance
               </em>{" "}
-              freelance work.
+              commerce on Arc.
             </motion.h1>
 
             <motion.p
@@ -283,9 +284,10 @@ export function HeroSection({
               animate="visible"
               className="text-[#8892a4] text-lg leading-relaxed mb-10 max-w-xl"
             >
-              Funds are locked before work begins.<br />
-              Milestones define progress.<br />
-              Payments release transparently.
+              Juvra helps clients and freelancers structure work, review
+              delivery evidence, and resolve disputes with AI-assisted
+              recommendations while escrow settlement remains wallet-confirmed
+              on Arc.
             </motion.p>
 
             <motion.div

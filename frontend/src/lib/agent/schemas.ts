@@ -4,6 +4,8 @@ import {
   DisputeSummaryInput,
   AgentRecommendation,
   JobAnalysisInput,
+  ScopeBuilderInput,
+  ScopeBuilderResult,
 } from "./agentTypes";
 
 export function validateJobAnalysisInput(data: unknown): JobAnalysisInput {
@@ -120,6 +122,32 @@ export function validateRecommendationInput(data: unknown) {
   };
 }
 
+export function validateScopeBuilderInput(data: unknown): ScopeBuilderInput {
+  if (!isRecord(data)) {
+    throw new Error("Request body must be a JSON object.");
+  }
+
+  if (!data.title || typeof data.title !== "string") {
+    throw new Error("Job title is required.");
+  }
+
+  if (!data.description || typeof data.description !== "string") {
+    throw new Error("Job description is required.");
+  }
+
+  return {
+    jobId: asOptionalString(data.jobId),
+    title: data.title,
+    description: data.description,
+    category: asOptionalString(data.category),
+    budget: asOptionalString(data.budget),
+    deadline: asOptionalString(data.deadline),
+    status: typeof data.status === "number" ? data.status : undefined,
+    submissionURI: asOptionalString(data.submissionURI),
+    evidence: Array.isArray(data.evidence) ? data.evidence : [],
+  };
+}
+
 export function normalizeRecommendationResult(
   result: unknown
 ): AgentRecommendation {
@@ -154,6 +182,45 @@ export function normalizeRecommendationResult(
   };
 }
 
+export function normalizeScopeBuilderResult(
+  result: unknown
+): ScopeBuilderResult {
+  if (!isRecord(result)) {
+    throw new Error("Scope builder result must be a JSON object.");
+  }
+
+  return {
+    suggestedMilestones: withFallbackStrings(
+      result.suggestedMilestones,
+      ["Discovery and scope confirmation", "Build and delivery", "Final review"]
+    ),
+    acceptanceCriteria: withFallbackStrings(result.acceptanceCriteria, [
+      "Client and freelancer agree on visible completion criteria before work begins.",
+    ]),
+    deliveryRequirements: withFallbackStrings(result.deliveryRequirements, [
+      "Delivery includes links, notes, and evidence needed for client review.",
+    ]),
+    revisionTerms: withFallbackStrings(result.revisionTerms, [
+      "One revision cycle should clarify missing or incomplete deliverables before any dispute escalation.",
+    ]),
+    riskNotes: withFallbackStrings(result.riskNotes, [
+      "Ambiguous scope can increase dispute risk; confirm milestones manually before funding or release.",
+    ]),
+    suggestedEscrowStructure:
+      typeof result.suggestedEscrowStructure === "string"
+        ? result.suggestedEscrowStructure
+        : "Split escrow across scope confirmation, implementation, and final review milestones.",
+    reasoning:
+      typeof result.reasoning === "string"
+        ? result.reasoning
+        : "The agent generated a conservative milestone structure from the available job context.",
+    safetyNotice:
+      typeof result.safetyNotice === "string"
+        ? result.safetyNotice
+        : "These suggestions do not modify escrow. Client and freelancer must agree manually before any wallet-confirmed action.",
+  };
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -166,6 +233,12 @@ function asStringArray(value: unknown) {
   return Array.isArray(value)
     ? value.filter((item): item is string => typeof item === "string")
     : [];
+}
+
+function withFallbackStrings(value: unknown, fallback: string[]) {
+  const items = asStringArray(value).map((item) => item.trim()).filter(Boolean);
+
+  return items.length > 0 ? items : fallback;
 }
 
 function isAgentAction(value: string): value is AgentAction {

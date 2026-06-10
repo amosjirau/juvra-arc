@@ -71,3 +71,26 @@ export interface AgentRecommendation {
   requiredHumanAction: string;
   safetyNotice: string;
 }
+
+export interface ScopeBuilderInput {
+  jobId?: string;
+  title: string;
+  description: string;
+  category?: string;
+  budget?: string;
+  deadline?: string;
+  status?: number;
+  submissionURI?: string;
+  evidence?: unknown[];
+}
+
+export interface ScopeBuilderResult {
+  suggestedMilestones: string[];
+  acceptanceCriteria: string[];
+  deliveryRequirements: string[];
+  revisionTerms: string[];
+  riskNotes: string[];
+  suggestedEscrowStructure: string;
+  reasoning: string;
+  safetyNotice: string;
+}

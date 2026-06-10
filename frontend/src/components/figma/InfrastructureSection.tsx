@@ -13,28 +13,28 @@ const partners = [
     description: "Settlement Layer",
     icon: Zap,
     accent: "#FF7A18",
-    detail: "Native escrow protocol. Non-custodial. Immutable.",
+    detail: "Programmable escrow logic and onchain job state.",
   },
   {
     name: "USDC",
     description: "Settlement Currency",
     icon: Globe,
     accent: "#2775ca",
-    detail: "Stable, globally accessible digital dollar.",
+    detail: "Stable settlement asset for freelance commerce.",
   },
   {
     name: "Circle",
-    description: "Infrastructure",
+    description: "Future Wallet Layer",
     icon: Shield,
     accent: "#34d399",
-    detail: "Regulated digital dollar infrastructure.",
+    detail: "Planned secure wallet infrastructure for agent-assisted transaction preparation.",
   },
   {
-    name: "Smart Contracts",
-    description: "Execution Layer",
+    name: "Juvra Agent",
+    description: "Coordination Layer",
     icon: Code2,
     accent: "#B46CFF",
-    detail: "Transparent, deterministic execution.",
+    detail: "Advisory scope, evidence, risk, and dispute reasoning.",
   },
 ];
 
@@ -74,14 +74,14 @@ export function InfrastructureSection() {
             style={{ fontFamily: "var(--font-display)" }}
             className="text-4xl md:text-5xl text-white mb-6"
           >
-            Built on proven rails.
+            Agentic commerce,
             <br />
             <em className="not-italic text-transparent bg-clip-text bg-gradient-to-r from-[#FF7A18] to-[#FFB347]">
-              Settled in USDC.
+              settled on Arc.
             </em>
           </h2>
           <p className="text-[#8892a4] text-lg max-w-2xl mx-auto">
-            Settled on infrastructure trusted by leading financial institutions.
+            AI coordinates economic activity, Arc enforces escrow state, and USDC settles value with predictable stablecoin rails.
           </p>
         </motion.div>
 

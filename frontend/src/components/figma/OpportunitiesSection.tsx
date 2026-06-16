@@ -118,7 +118,7 @@ function OpportunityCard({ opp, index, activeIndex }: { opp: Opportunity; index:
       >
         {/* Image */}
         <div className="h-44 relative overflow-hidden bg-[#1a2235]">
-          <img src={opp.image} alt={opp.title} className="w-full h-full object-cover" />
+          <img src={opp.image} alt={opp.title} loading="lazy" decoding="async" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#111827] via-transparent to-transparent" />
           {/* Category badge */}
           <div className="absolute top-3 left-3">
@@ -244,7 +244,8 @@ export function OpportunitiesSection({
           <button
             onClick={() => setActiveIndex(Math.max(0, activeIndex - 1))}
             disabled={currentIndex === 0}
-            className="w-10 h-10 rounded-xl border border-white/10 flex items-center justify-center text-[#8892a4] hover:text-white hover:border-white/20 disabled:opacity-30 transition-all duration-200"
+            aria-label="Previous opportunity"
+            className="w-10 h-10 cursor-pointer rounded-xl border border-white/10 flex items-center justify-center text-[#8892a4] hover:text-white hover:border-white/20 disabled:cursor-not-allowed disabled:opacity-30 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF7A18]/50"
           >
             <ChevronLeft size={18} />
           </button>
@@ -253,7 +254,9 @@ export function OpportunitiesSection({
               <button
                 key={i}
                 onClick={() => setActiveIndex(i)}
-                className={`rounded-full transition-all duration-300 ${
+                aria-label={`Go to opportunity ${i + 1}`}
+                aria-current={i === currentIndex ? "true" : undefined}
+                className={`cursor-pointer rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF7A18]/50 ${
                   i === currentIndex ? "w-6 h-2 bg-[#FF7A18]" : "w-2 h-2 bg-white/20 hover:bg-white/40"
                 }`}
               />
@@ -262,7 +265,8 @@ export function OpportunitiesSection({
           <button
             onClick={() => setActiveIndex(Math.min(opportunities.length - 1, activeIndex + 1))}
             disabled={currentIndex === opportunities.length - 1}
-            className="w-10 h-10 rounded-xl border border-white/10 flex items-center justify-center text-[#8892a4] hover:text-white hover:border-white/20 disabled:opacity-30 transition-all duration-200"
+            aria-label="Next opportunity"
+            className="w-10 h-10 cursor-pointer rounded-xl border border-white/10 flex items-center justify-center text-[#8892a4] hover:text-white hover:border-white/20 disabled:cursor-not-allowed disabled:opacity-30 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF7A18]/50"
           >
             <ChevronRight size={18} />
           </button>
@@ -271,7 +275,7 @@ export function OpportunitiesSection({
         <div className="text-center mt-10">
           <Link
             href="/jobs"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-white/10 text-[#8892a4] hover:text-white hover:border-white/20 hover:bg-white/5 transition-all duration-300 text-sm"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-white/10 text-[#8892a4] hover:text-white hover:border-white/20 hover:bg-white/5 transition-all duration-300 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060816]"
           >
             Browse All Opportunities
             <ChevronRight size={14} />

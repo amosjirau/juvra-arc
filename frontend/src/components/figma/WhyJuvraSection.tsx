@@ -77,8 +77,8 @@ function BentoCard({ card, index }: { card: typeof cards[0]; index: number }) {
       initial={{ opacity: 0, y: 40 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.6, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
-      className={`relative group rounded-2xl border p-6 overflow-hidden cursor-default transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_16px_48px_rgba(0,0,0,0.4)] ${card.border} bg-gradient-to-br ${card.bg}`}
-      style={{ boxShadow: `0 0 0 1px ${card.border.replace("border-", "").replace("/20", "33")}` }}
+      className={`relative group rounded-2xl border p-6 overflow-hidden cursor-default transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_16px_48px_rgba(0,0,0,0.4)] ${card.size === "large" ? "lg:col-span-2" : ""} ${card.border} bg-gradient-to-br ${card.bg}`}
+      style={{ boxShadow: `0 0 0 1px ${card.accent}1a` }}
     >
       {/* Glow on hover */}
       <div
@@ -90,18 +90,18 @@ function BentoCard({ card, index }: { card: typeof cards[0]; index: number }) {
 
       <div className="relative">
         <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 border"
+          className={`${card.size === "large" ? "w-12 h-12" : "w-10 h-10"} rounded-xl flex items-center justify-center mb-4 border`}
           style={{
             background: `${card.accent}15`,
             borderColor: `${card.accent}30`,
             boxShadow: `0 0 16px ${card.accent}20`,
           }}
         >
-          <card.icon size={18} style={{ color: card.accent }} />
+          <card.icon size={card.size === "large" ? 20 : 18} style={{ color: card.accent }} />
         </div>
         <h3
           style={{ fontFamily: "var(--font-display)", color: "white" }}
-          className="text-xl mb-2"
+          className={`${card.size === "large" ? "text-2xl" : "text-xl"} mb-2`}
         >
           {card.title}
         </h3>

@@ -201,7 +201,7 @@ export function DashboardSection({ isDemo, jobs }: { isDemo?: boolean; jobs: Juv
               <div className="rounded-2xl bg-[#111827] border border-white/8 p-5">
                 <div className="flex items-center justify-between mb-4">
                   <p className="text-white text-sm">Activity Feed</p>
-                  <button className="text-[#8892a4] text-xs hover:text-white transition-colors">All</button>
+                  <button type="button" tabIndex={-1} aria-hidden className="text-[#8892a4] text-xs hover:text-white transition-colors">All</button>
                 </div>
                 <div className="space-y-3">
                   {activityFeed.map((item, i) => (
@@ -229,7 +229,7 @@ export function DashboardSection({ isDemo, jobs }: { isDemo?: boolean; jobs: Juv
                   {recommendation}
                 </p>
               </div>
-              <button className="flex-shrink-0 text-[#B46CFF] hover:text-white transition-colors">
+              <button type="button" tabIndex={-1} aria-hidden className="flex-shrink-0 text-[#B46CFF] hover:text-white transition-colors">
                 <ChevronRight size={14} />
               </button>
             </div>

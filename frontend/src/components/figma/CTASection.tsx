@@ -63,14 +63,14 @@ export function CTASection() {
           <div className="mb-12 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
               href="/jobs"
-              className="group inline-flex items-center gap-2 rounded-xl bg-[#FF7A18] px-8 py-4 text-sm font-semibold text-[#060816] shadow-[0_8px_32px_rgba(255,122,24,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#FF9A4A] hover:shadow-[0_8px_40px_rgba(255,122,24,0.5)]"
+              className="group inline-flex items-center gap-2 rounded-xl bg-[#FF7A18] px-8 py-4 text-sm font-semibold text-[#060816] shadow-[0_8px_32px_rgba(255,122,24,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#FF9A4A] hover:shadow-[0_8px_40px_rgba(255,122,24,0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF7A18]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060816]"
             >
               Launch App
               <ArrowRight size={15} className="group-hover:translate-x-0.5 transition-transform duration-200" />
             </Link>
             <Link
               href="/#how-it-works"
-              className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-8 py-4 text-sm text-[#8892a4] transition-all duration-300 hover:border-white/20 hover:bg-white/5 hover:text-white"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-8 py-4 text-sm text-[#8892a4] transition-all duration-300 hover:border-white/20 hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060816]"
             >
               See How Escrow Works
             </Link>

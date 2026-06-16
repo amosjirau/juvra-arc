@@ -299,14 +299,14 @@ export function HeroSection({
             >
               <Link
                 href="/jobs"
-                className="group inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-[#FF7A18] text-[#060816] hover:bg-[#FF9A4A] transition-all duration-300 shadow-[0_8px_32px_rgba(255,122,24,0.35)] hover:shadow-[0_8px_40px_rgba(255,122,24,0.5)] hover:-translate-y-0.5"
+                className="group inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-[#FF7A18] text-[#060816] hover:bg-[#FF9A4A] transition-all duration-300 shadow-[0_8px_32px_rgba(255,122,24,0.35)] hover:shadow-[0_8px_40px_rgba(255,122,24,0.5)] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF7A18]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060816]"
               >
                 Launch App
                 <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform duration-200" />
               </Link>
               <Link
                 href="/#how-it-works"
-                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl border border-white/10 text-[#8892a4] hover:text-white hover:border-white/20 hover:bg-white/5 transition-all duration-300"
+                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl border border-white/10 text-[#8892a4] hover:text-white hover:border-white/20 hover:bg-white/5 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060816]"
               >
                 See How Escrow Works
               </Link>
@@ -341,6 +341,27 @@ export function HeroSection({
           </motion.div>
         </div>
       </motion.div>
+
+      {/* Scroll indicator */}
+      <motion.a
+        href="/#about"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 2.0, duration: 0.8 }}
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 group"
+        aria-label="Scroll to explore"
+      >
+        <span className="text-[#8892a4] text-[10px] uppercase tracking-[0.2em] group-hover:text-white transition-colors duration-300">
+          Explore
+        </span>
+        <div className="w-5 h-8 rounded-full border border-white/20 group-hover:border-white/30 flex items-start justify-center pt-1.5 transition-colors duration-300">
+          <motion.div
+            animate={{ y: [0, 8, 0] }}
+            transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
+            className="w-1 h-2 rounded-full bg-white/40 group-hover:bg-white/60"
+          />
+        </div>
+      </motion.a>
 
       {/* Bottom fade */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#060816] to-transparent pointer-events-none" />

@@ -87,7 +87,17 @@ export function HowItWorksSection() {
                 animate={inView ? { opacity: 1, x: 0 } : {}}
                 transition={{ duration: 0.6, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
                 onClick={() => setActiveStep(i)}
-                className={`group cursor-pointer rounded-2xl p-5 border transition-all duration-400 ${
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setActiveStep(i);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                aria-pressed={activeStep === i}
+                aria-label={`${step.title} — step ${step.number}`}
+                className={`group cursor-pointer rounded-2xl p-5 border transition-all duration-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/25 ${
                   activeStep === i
                     ? "bg-[#111827] border-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
                     : "bg-transparent border-white/5 hover:border-white/10 hover:bg-white/2"
@@ -176,7 +186,9 @@ export function HowItWorksSection() {
                         <button
                           key={j}
                           onClick={() => setActiveStep(j)}
-                          className="rounded-full transition-all duration-300"
+                          aria-label={`Go to step ${j + 1}`}
+                          aria-current={j === i ? "true" : undefined}
+                          className="cursor-pointer rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
                           style={{
                             width: j === i ? "24px" : "8px",
                             height: "8px",

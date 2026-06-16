@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, CheckCircle2, Gauge, Layers3, Search, ShieldCheck, UserRound } from "lucide-react";
+import { CalendarDays, CheckCircle2, Gauge, Layers3, Plus, Search, ShieldCheck, UserRound } from "lucide-react";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { useMemo, useState } from "react";
@@ -8,6 +8,8 @@ import { useMemo, useState } from "react";
 import { EmptyState } from "@/components/empty-state";
 import { JobStatusBadge } from "@/components/JobStatusBadge";
 import { Button } from "@/components/ui/button";
+import { CTAButton } from "@/components/ui/cta-button";
+import { ErrorState } from "@/components/ui/error-state";
 import { Input } from "@/components/ui/input";
 import { useJobs } from "@/hooks/use-juvra-escrow";
 import { getEscrowReadErrorMessage } from "@/lib/contract";
@@ -87,17 +89,20 @@ function TrendingJobCard({ deck = false, job, tilt = 0 }: { deck?: boolean; job:
 
   return (
     <Link
-      className={cn("group block", deck && "w-[310px] shrink-0")}
+      className={cn(
+        "group block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7a18]/40",
+        deck && "w-[310px] shrink-0",
+      )}
       href={`/jobs/${job.id.toString()}`}
       style={deck ? ({ "--tilt": `${tilt}deg` } as CSSProperties) : undefined}
     >
       <article className={cn(
-        "h-full rounded-[8px] border border-white/10 bg-[#111827]/90 p-3 text-white shadow-xl shadow-black/20 backdrop-blur-xl transition-all duration-500 hover:-translate-y-2 hover:border-[#ff7a18]/50 hover:shadow-2xl hover:shadow-[#b46cff]/20",
+        "h-full rounded-2xl border border-white/10 bg-[#111827]/90 p-3 text-white shadow-xl shadow-black/20 backdrop-blur-xl transition-all duration-500 hover:-translate-y-2 hover:border-[#ff7a18]/50 hover:shadow-2xl hover:shadow-[#b46cff]/20",
         deck && "min-h-[440px] rotate-[var(--tilt)] hover:rotate-0 hover:scale-[1.025]",
       )}>
         <div
           className={cn(
-            "shine-overlay relative h-36 overflow-hidden rounded-[8px] bg-gradient-to-br before:absolute before:inset-0 before:opacity-60",
+            "shine-overlay relative h-36 overflow-hidden rounded-xl bg-gradient-to-br before:absolute before:inset-0 before:opacity-60",
             categoryVisuals[category],
           )}
         >
@@ -132,27 +137,27 @@ function TrendingJobCard({ deck = false, job, tilt = 0 }: { deck?: boolean; job:
           </div>
 
           <div className="mt-5 grid grid-cols-2 gap-3">
-            <div className="rounded-[8px] border border-white/10 bg-black/20 p-3">
+            <div className="rounded-xl border border-white/10 bg-black/20 p-3">
               <p className="text-xs text-zinc-500">Escrow</p>
               <p className="mt-1 font-mono text-sm font-semibold text-[#ffb86b]">
                 {formatUsdc(job.amount)}
               </p>
             </div>
-            <div className="rounded-[8px] border border-white/10 bg-black/20 p-3">
+            <div className="rounded-xl border border-white/10 bg-black/20 p-3">
               <p className="text-xs text-zinc-500">Milestones</p>
               <p className="mt-1 flex items-center gap-1.5 text-sm text-zinc-300">
                 <Layers3 className="size-3.5 text-[#cba6ff]" />
                 {milestoneCount}
               </p>
             </div>
-            <div className="rounded-[8px] border border-white/10 bg-black/20 p-3">
+            <div className="rounded-xl border border-white/10 bg-black/20 p-3">
               <p className="text-xs text-zinc-500">Deadline</p>
               <p className="mt-1 flex items-center gap-1.5 text-sm text-zinc-300">
                 <CalendarDays className="size-3.5 text-[#b46cff]" />
                 {formatDate(job.deadline)}
               </p>
             </div>
-            <div className="rounded-[8px] border border-white/10 bg-black/20 p-3">
+            <div className="rounded-xl border border-white/10 bg-black/20 p-3">
               <p className="text-xs text-zinc-500">Trust score</p>
               <p className="mt-1 flex items-center gap-1.5 text-sm text-zinc-300">
                 <Gauge className="size-3.5 text-emerald-200" />
@@ -161,12 +166,12 @@ function TrendingJobCard({ deck = false, job, tilt = 0 }: { deck?: boolean; job:
             </div>
           </div>
 
-          <div className="mt-3 flex items-center gap-2 rounded-[8px] border border-emerald-300/15 bg-emerald-300/10 px-3 py-2 text-xs text-emerald-100">
+          <div className="mt-3 flex items-center gap-2 rounded-xl border border-emerald-300/15 bg-emerald-300/10 px-3 py-2 text-xs text-emerald-100">
             <ShieldCheck className="size-3.5" />
             Client reputation: verified payer
           </div>
 
-          <Button asChild className="mt-5 w-full rounded-[8px]">
+          <Button asChild className="mt-5 w-full">
             <span>View Job</span>
           </Button>
         </div>
@@ -176,16 +181,20 @@ function TrendingJobCard({ deck = false, job, tilt = 0 }: { deck?: boolean; job:
 }
 
 export function TrendingJobs({
+  className,
   description = "Fresh escrow-backed opportunities posted on Arc.",
   eyebrow = "Marketplace",
   limit,
+  showHeader = false,
   showSearch = false,
   title = "Trending Jobs",
   variant = "grid",
 }: {
+  className?: string;
   description?: string;
   eyebrow?: string;
   limit?: number;
+  showHeader?: boolean;
   showSearch?: boolean;
   title?: string;
   variant?: "carousel" | "grid";
@@ -218,60 +227,76 @@ export function TrendingJobs({
   const isCarousel = variant === "carousel";
 
   return (
-    <section className={cn("relative overflow-hidden border-t border-white/10 px-4 py-20 sm:px-6 lg:px-8 lg:py-28", isCarousel ? "dark-section" : "dark-section min-h-screen")}>
-      <div className="mx-auto max-w-7xl">
-      <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
-        <div>
-          <p className="text-sm font-medium text-[#FFD0A8]">
-            {eyebrow}
-          </p>
-          <h2 className="font-display mt-3 text-5xl font-semibold leading-none tracking-normal text-[#FFF9F2] sm:text-6xl">
-            {title}
-          </h2>
-          <p className="mt-4 max-w-xl text-base leading-7 text-[#FFF9F2]/58">
-            {description}
-          </p>
+    <div className={cn("relative", className)}>
+      {showHeader && (
+        <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
+          <div>
+            <p className="text-sm font-medium text-[#FFD0A8]">{eyebrow}</p>
+            <h2 className="font-display mt-3 text-4xl font-semibold leading-none tracking-normal text-[#FFF9F2] sm:text-5xl">
+              {title}
+            </h2>
+            <p className="mt-4 max-w-xl text-base leading-7 text-[#FFF9F2]/58">{description}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Controls: category filter + search */}
+      <div
+        className={cn(
+          "flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between",
+          showHeader && "mt-8",
+        )}
+      >
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {categories.map((category) => (
+            <button
+              className={cn(
+                "min-w-fit rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7a18]/40",
+                activeCategory === category
+                  ? "border-[#ff7a18]/40 bg-[#ff7a18]/15 text-white shadow-lg shadow-black/20"
+                  : "border-white/10 bg-white/[0.04] text-zinc-400 hover:border-white/20 hover:bg-white/[0.08] hover:text-white",
+              )}
+              key={category}
+              onClick={() => setActiveCategory(category)}
+              type="button"
+            >
+              {category}
+            </button>
+          ))}
         </div>
         {showSearch && (
-          <div className="relative w-full md:max-w-sm">
+          <div className="relative w-full lg:max-w-xs">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-500" />
             <Input
               className="h-11 pl-9"
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search jobs"
+              placeholder="Search jobs by title, category, or link"
               value={query}
             />
           </div>
         )}
       </div>
 
-      <div className="mt-8 flex gap-2 overflow-x-auto pb-1">
-        {categories.map((category) => (
-          <button
-            className={cn(
-              "min-w-fit rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200",
-              activeCategory === category
-                ? "border-[#FFD0A8]/40 bg-[#FFD0A8]/18 text-[#FFF9F2] shadow-lg shadow-black/20"
-                : "border-white/10 bg-white/[0.05] text-[#FFF9F2]/58 hover:border-white/20 hover:bg-white/[0.1] hover:text-[#FFF9F2]",
-            )}
-            key={category}
-            onClick={() => setActiveCategory(category)}
-            type="button"
-          >
-            {category}
-          </button>
-        ))}
-      </div>
+      {/* Result count */}
+      {!isLoading && !isError && (
+        <p className="mt-4 text-sm text-zinc-500">
+          {visibleJobs.length} {visibleJobs.length === 1 ? "job" : "jobs"}
+          {activeCategory !== "All" ? ` in ${activeCategory}` : " available"}
+        </p>
+      )}
 
       {isError && (
-        <div className="mt-6 rounded-2xl border border-rose-300/20 bg-rose-300/10 p-4 text-sm text-rose-100">
-          {readErrorMessage}
+        <div className="mt-6">
+          <ErrorState
+            title="Couldn't load the marketplace"
+            description={readErrorMessage}
+          />
         </div>
       )}
 
       {isLoading && !isCarousel && (
-        <div className="mt-7 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-          {Array.from({ length: limit ?? 6 }).map((_, index) => (
+        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {Array.from({ length: limit ?? 8 }).map((_, index) => (
             <TrendingJobSkeleton key={index} />
           ))}
         </div>
@@ -286,7 +311,7 @@ export function TrendingJobs({
       )}
 
       {!isLoading && visibleJobs.length > 0 && !isCarousel && (
-        <div className="mt-7 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {visibleJobs.map((job) => (
             <TrendingJobCard job={job} key={job.id.toString()} />
           ))}
@@ -309,14 +334,25 @@ export function TrendingJobs({
       )}
 
       {!isLoading && !isError && visibleJobs.length === 0 && (
-        <div className="mt-7">
+        <div className="mt-6">
           <EmptyState
-            description="Create the first funded opportunity on Arc."
-            title="No escrow-backed jobs yet. Post the first one."
+            description={
+              query || activeCategory !== "All"
+                ? "No jobs match your search yet. Try a different category or clear the search."
+                : "Be the first to create a funded opportunity on Arc."
+            }
+            title={query || activeCategory !== "All" ? "No matching jobs" : "No escrow-backed jobs yet"}
+            action={
+              <CTAButton asChild>
+                <Link href="/post">
+                  <Plus className="size-4" />
+                  Post a Job
+                </Link>
+              </CTAButton>
+            }
           />
         </div>
       )}
-      </div>
-    </section>
+    </div>
   );
 }

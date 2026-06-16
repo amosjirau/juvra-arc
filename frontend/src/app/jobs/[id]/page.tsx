@@ -27,8 +27,10 @@ import { ArcscanLink } from "@/components/arcscan-link";
 import { DisputePanel } from "@/components/DisputePanel";
 import { JobStatusBadge } from "@/components/JobStatusBadge";
 import { SubmitWorkDialog } from "@/components/SubmitWorkDialog";
+import { AppShell } from "@/components/shell/AppShell";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { GlassCard } from "@/components/ui/glass-card";
+import { TxStatus, type TxState } from "@/components/ui/tx-status";
 import type { EvidenceItem } from "@/lib/agent/evidence";
 import {
   isSameAddress,
@@ -189,12 +191,27 @@ export default function JobDetailPage() {
     submissionURI: job.submissionURI,
   };
 
+  const actionTxState: TxState = actionTx.error
+    ? "error"
+    : actionTx.isSuccess
+      ? "success"
+      : actionTx.isPending
+        ? "pending"
+        : "idle";
+
   return (
-    <main className="relative mx-auto grid min-h-screen max-w-7xl gap-6 px-4 py-8 text-white sm:px-6 lg:grid-cols-[minmax(0,1fr)_400px] lg:px-8">
-      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-96 bg-[radial-gradient(circle_at_18%_8%,rgba(217,70,239,0.16),transparent_24rem),radial-gradient(circle_at_82%_0%,rgba(99,102,241,0.16),transparent_24rem)]" />
-      <section className="space-y-6">
-        <Card className="rounded-[2rem] border-white/10 bg-white/[0.05] shadow-2xl shadow-black/20">
-          <CardHeader>
+    <AppShell>
+      <Link
+        href="/jobs"
+        className="inline-flex items-center gap-2 text-sm font-medium text-zinc-400 transition-colors hover:text-white focus-visible:text-white focus-visible:outline-none"
+      >
+        <ArrowLeft className="size-4" />
+        Back to jobs
+      </Link>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">
+        <section className="space-y-6">
+          <GlassCard className="p-6">
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
               <div>
                 <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-cyan-200/20 bg-cyan-200/10 px-3 py-1 text-sm font-medium text-cyan-100 shadow-lg shadow-black/10">
@@ -204,14 +221,15 @@ export default function JobDetailPage() {
                 <p className="text-sm font-medium text-emerald-200/80">
                   Job #{job.id.toString()}
                 </p>
-                <CardTitle className="font-display heading-gradient mt-2 text-3xl">{job.title}</CardTitle>
+                <h1 className="font-display heading-gradient mt-2 text-3xl font-semibold">
+                  {job.title}
+                </h1>
                 <p className="mt-3 text-zinc-400">{job.category}</p>
               </div>
               <JobStatusBadge status={job.status} />
             </div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+
+            <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               <Metric label="Job ID" value={job.id.toString()} />
               <Metric label="Status" value={getStatusLabel(job.status)} />
               <Metric label="Escrow amount" value={formattedAmount} />
@@ -228,178 +246,164 @@ export default function JobDetailPage() {
               />
               <Metric label="Created date" value={formatDate(job.createdAt)} />
             </div>
-            <ResourceBlock
-              icon={FileText}
-              label="Description URI"
-              tone="neutral"
-              value={job.descriptionURI}
-            />
-            <ResourceBlock
-              icon={LinkIcon}
-              label="Submission URI"
-              tone={job.submissionURI ? "success" : "neutral"}
-              value={job.submissionURI || "No submission yet."}
-            />
-          </CardContent>
-        </Card>
+            <div className="mt-6 space-y-6">
+              <ResourceBlock
+                icon={FileText}
+                label="Description URI"
+                tone="neutral"
+                value={job.descriptionURI}
+              />
+              <ResourceBlock
+                icon={LinkIcon}
+                label="Submission URI"
+                tone={job.submissionURI ? "success" : "neutral"}
+                value={job.submissionURI || "No submission yet."}
+              />
+            </div>
+          </GlassCard>
 
-        <AgentFlagsPanel evidence={evidenceItems} job={job} />
+          <AgentFlagsPanel evidence={evidenceItems} job={job} />
 
-        <Card className="premium-card-hover rounded-[2rem] border-white/10 bg-white/[0.045]">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-white">
+          <GlassCard className="p-6">
+            <div className="flex items-center gap-2 text-white">
               <UsersRound className="size-5 text-cyan-100" />
-              Applicants
+              <h2 className="font-heading text-base font-semibold">Applicants</h2>
               <span className="rounded-full border border-white/10 bg-white/[0.06] px-2 py-0.5 text-xs text-zinc-400">
                 {applicants.length}
               </span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {applicantsQuery.isLoading && (
-              <p className="text-sm text-zinc-500">Loading applicants...</p>
-            )}
-            {applicantsQuery.isError && (
-              <div className="flex gap-2 rounded-xl border border-rose-300/20 bg-rose-300/10 p-3 text-sm text-rose-100">
-                <AlertTriangle className="mt-0.5 size-4 shrink-0" />
-                <p>Could not read applicants for this job.</p>
-              </div>
-            )}
-            {!applicantsQuery.isLoading && applicants.length === 0 && (
-              <p className="text-sm text-zinc-500">No applications yet.</p>
-            )}
-            {applicants.map((applicant) => (
-              <div
-                className="flex flex-col justify-between gap-3 rounded-xl border border-white/10 bg-black/25 p-3 shadow-inner shadow-black/10 sm:flex-row sm:items-center"
-                key={applicant}
-              >
-                <span
-                  className="break-all font-mono text-sm text-zinc-300"
-                  title={applicant}
+            </div>
+            <div className="mt-4 space-y-3">
+              {applicantsQuery.isLoading && (
+                <p className="text-sm text-zinc-500">Loading applicants...</p>
+              )}
+              {applicantsQuery.isError && (
+                <div className="flex gap-2 rounded-xl border border-rose-300/20 bg-rose-300/10 p-3 text-sm text-rose-100">
+                  <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+                  <p>Could not read applicants for this job.</p>
+                </div>
+              )}
+              {!applicantsQuery.isLoading && applicants.length === 0 && (
+                <p className="text-sm text-zinc-500">No applications yet.</p>
+              )}
+              {applicants.map((applicant) => (
+                <div
+                  className="flex flex-col justify-between gap-3 rounded-xl border border-white/10 bg-black/25 p-3 shadow-inner shadow-black/10 sm:flex-row sm:items-center"
+                  key={applicant}
                 >
-                  {shortAddress(applicant)}
-                </span>
-                <Button
-                  className="bg-gradient-to-r from-cyan-300 to-sky-400 text-slate-950"
-                  disabled={!isClient || job.status !== 0 || actionTx.isPending}
-                  onClick={() =>
-                    actionTx.writeContract({
-                      address: juvraEscrowAddress,
-                      abi: juvraEscrowAbi,
-                      functionName: "selectFreelancer",
-                      args: [job.id, applicant],
-                    })
-                  }
-                  size="sm"
-                >
-                  <UserCheck className="size-4" />
-                  Select
-                </Button>
-              </div>
-            ))}
-            {actionTx.error && <p className="text-xs text-rose-300">{errorMessage(actionTx.error)}</p>}
-            <ArcscanLink hash={actionTx.transactionHash} />
-          </CardContent>
-        </Card>
+                  <span
+                    className="break-all font-mono text-sm text-zinc-300"
+                    title={applicant}
+                  >
+                    {shortAddress(applicant)}
+                  </span>
+                  <Button
+                    className="bg-gradient-to-r from-cyan-300 to-sky-400 text-slate-950"
+                    disabled={!isClient || job.status !== 0 || actionTx.isPending}
+                    onClick={() =>
+                      actionTx.writeContract({
+                        address: juvraEscrowAddress,
+                        abi: juvraEscrowAbi,
+                        functionName: "selectFreelancer",
+                        args: [job.id, applicant],
+                      })
+                    }
+                    size="sm"
+                  >
+                    <UserCheck className="size-4" />
+                    Select
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </GlassCard>
 
-        <EvidencePanel
-          jobId={job.id.toString()}
-          onEvidenceChange={updateEvidenceItems}
-          submittedBy={address}
-        />
+          <EvidencePanel
+            jobId={job.id.toString()}
+            onEvidenceChange={updateEvidenceItems}
+            submittedBy={address}
+          />
 
-        <AgentTimeline evidence={evidenceItems} job={job} />
-      </section>
-
-      <aside className="space-y-5">
-        <section className="space-y-3">
-          <div>
-            <p className="text-sm font-medium text-cyan-100/80">
-              Escrow Intelligence
-            </p>
-            <h2 className="font-display mt-1 text-2xl font-semibold text-white">
-              Agent workspace
-            </h2>
-            <p className="mt-2 rounded-xl border border-amber-200/20 bg-amber-200/10 p-3 text-sm text-amber-100">
-              Juvra Agent provides decision support only. Every escrow action still
-              requires explicit wallet confirmation.
-            </p>
-          </div>
-          <AgentPanel evidence={evidenceItems} job={agentJob} />
-          <AgentScopeBuilder evidence={evidenceItems} job={agentJob} />
+          <AgentTimeline evidence={evidenceItems} job={job} />
         </section>
 
-        <AgentGuidedActions
-          arbitrator={arbitratorQuery.data as `0x${string}` | undefined}
-          job={job}
-          onSettled={refresh}
-          walletAddress={address}
-        />
+        <aside className="space-y-5">
+          <section className="space-y-3">
+            <div>
+              <p className="text-sm font-medium text-cyan-100/80">Escrow Intelligence</p>
+              <h2 className="font-display mt-1 text-2xl font-semibold text-white">Agent workspace</h2>
+              <p className="mt-2 rounded-xl border border-amber-200/20 bg-amber-200/10 p-3 text-sm text-amber-100">
+                Juvra Agent provides decision support only. Every escrow action still requires
+                explicit wallet confirmation.
+              </p>
+            </div>
+            <AgentPanel evidence={evidenceItems} job={agentJob} />
+            <AgentScopeBuilder evidence={evidenceItems} job={agentJob} />
+          </section>
 
-        <Card className="premium-card-hover rounded-[2rem] border-white/10 bg-white/[0.045]">
-          <CardHeader>
-            <CardTitle className="text-white">Actions</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <ApplyButton job={job} onSettled={refresh} />
-            <SubmitWorkDialog
-              disabled={!isSelectedFreelancer || job.status !== 1}
-              job={job}
-              onSettled={refresh}
-            />
-            <Button
-              className="w-full"
-              disabled={!isClient || job.status !== 2 || actionTx.isPending}
-              onClick={() =>
-                actionTx.writeContract({
-                  address: juvraEscrowAddress,
-                  abi: juvraEscrowAbi,
-                  functionName: "approveWork",
-                  args: [job.id],
-                })
-              }
-            >
-              <CheckCircle2 className="size-4" />
-              {actionTx.isPending ? "Confirming..." : "Approve work"}
-            </Button>
-            <Button
-              className="w-full border-rose-300/30 bg-rose-300/10 text-rose-100 hover:bg-rose-300/20"
-              disabled={!isClient || job.status !== 0 || actionTx.isPending}
-              onClick={() =>
-                actionTx.writeContract({
-                  address: juvraEscrowAddress,
-                  abi: juvraEscrowAbi,
-                  functionName: "cancelJob",
-                  args: [job.id],
-                })
-              }
-              variant="outline"
-            >
-              <CircleX className="size-4" />
-              Cancel open job
-            </Button>
-            {actionTx.isSuccess && (
-              <p className="text-xs text-emerald-300">Transaction confirmed.</p>
-            )}
-            {actionTx.error && (
-              <p className="text-xs text-rose-300">{errorMessage(actionTx.error)}</p>
-            )}
-            <ArcscanLink hash={actionTx.transactionHash} />
-            <p className="text-xs text-zinc-500">
-              Buttons unlock based on wallet role and contract status. Agent guidance
-              cannot release or refund funds.
-            </p>
-          </CardContent>
-        </Card>
+          <AgentGuidedActions
+            arbitrator={arbitratorQuery.data as `0x${string}` | undefined}
+            job={job}
+            onSettled={refresh}
+            walletAddress={address}
+          />
 
-        <DisputePanel
-          arbitrator={arbitratorQuery.data as `0x${string}` | undefined}
-          job={job}
-          onSettled={refresh}
-          walletAddress={address}
-        />
-      </aside>
-    </main>
+          <GlassCard className="p-6">
+            <h2 className="font-heading text-base font-semibold text-white">Actions</h2>
+            <div className="mt-4 space-y-3">
+              <ApplyButton job={job} onSettled={refresh} />
+              <SubmitWorkDialog
+                disabled={!isSelectedFreelancer || job.status !== 1}
+                job={job}
+                onSettled={refresh}
+              />
+              <Button
+                className="w-full"
+                disabled={!isClient || job.status !== 2 || actionTx.isPending}
+                onClick={() =>
+                  actionTx.writeContract({
+                    address: juvraEscrowAddress,
+                    abi: juvraEscrowAbi,
+                    functionName: "approveWork",
+                    args: [job.id],
+                  })
+                }
+              >
+                <CheckCircle2 className="size-4" />
+                {actionTx.isPending ? "Confirming..." : "Approve work"}
+              </Button>
+              <Button
+                className="w-full border-rose-300/30 bg-rose-300/10 text-rose-100 hover:bg-rose-300/20"
+                disabled={!isClient || job.status !== 0 || actionTx.isPending}
+                onClick={() =>
+                  actionTx.writeContract({
+                    address: juvraEscrowAddress,
+                    abi: juvraEscrowAbi,
+                    functionName: "cancelJob",
+                    args: [job.id],
+                  })
+                }
+                variant="outline"
+              >
+                <CircleX className="size-4" />
+                Cancel open job
+              </Button>
+              <TxStatus status={actionTxState} message={actionTx.error ? errorMessage(actionTx.error) : undefined} hash={actionTx.transactionHash} />
+              <p className="text-xs text-zinc-500">
+                Buttons unlock based on wallet role and contract status. Agent guidance cannot
+                release or refund funds.
+              </p>
+            </div>
+          </GlassCard>
+
+          <DisputePanel
+            arbitrator={arbitratorQuery.data as `0x${string}` | undefined}
+            job={job}
+            onSettled={refresh}
+            walletAddress={address}
+          />
+        </aside>
+      </div>
+    </AppShell>
   );
 }
 
@@ -453,31 +457,32 @@ function ResourceBlock({
 
 function JobDetailSkeleton() {
   return (
-    <main className="relative mx-auto grid min-h-screen max-w-7xl gap-6 px-4 py-8 text-white sm:px-6 lg:grid-cols-[minmax(0,1fr)_400px] lg:px-8">
-      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-96 bg-[radial-gradient(circle_at_18%_8%,rgba(217,70,239,0.16),transparent_24rem),radial-gradient(circle_at_82%_0%,rgba(99,102,241,0.16),transparent_24rem)]" />
-      <section className="rounded-[2rem] border border-white/10 bg-white/[0.05] p-6 shadow-2xl shadow-black/20">
-        <div className="h-6 w-40 animate-pulse rounded-full bg-white/10" />
-        <div className="mt-6 h-10 w-2/3 animate-pulse rounded-xl bg-white/10" />
-        <div className="mt-4 h-5 w-32 animate-pulse rounded-lg bg-white/10" />
-        <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, index) => (
-            <div
-              className="h-24 animate-pulse rounded-xl border border-white/10 bg-black/25"
-              key={index}
-            />
-          ))}
-        </div>
-        <div className="mt-6 h-28 animate-pulse rounded-xl border border-white/10 bg-black/25" />
-      </section>
-      <aside className="rounded-[2rem] border border-white/10 bg-white/[0.045] p-6">
-        <div className="h-7 w-28 animate-pulse rounded-lg bg-white/10" />
-        <div className="mt-5 space-y-3">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <div className="h-11 animate-pulse rounded-lg bg-white/10" key={index} />
-          ))}
-        </div>
-      </aside>
-    </main>
+    <AppShell>
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">
+        <section className="surface-2 p-6">
+          <div className="h-6 w-40 animate-pulse rounded-full bg-white/10" />
+          <div className="mt-6 h-10 w-2/3 animate-pulse rounded-xl bg-white/10" />
+          <div className="mt-4 h-5 w-32 animate-pulse rounded-lg bg-white/10" />
+          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div
+                className="h-24 animate-pulse rounded-xl border border-white/10 bg-black/25"
+                key={index}
+              />
+            ))}
+          </div>
+          <div className="mt-6 h-28 animate-pulse rounded-xl border border-white/10 bg-black/25" />
+        </section>
+        <aside className="surface-2 p-6">
+          <div className="h-7 w-28 animate-pulse rounded-lg bg-white/10" />
+          <div className="mt-5 space-y-3">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div className="h-11 animate-pulse rounded-lg bg-white/10" key={index} />
+            ))}
+          </div>
+        </aside>
+      </div>
+    </AppShell>
   );
 }
 
@@ -496,18 +501,20 @@ function StateCard({
       : "border-white/10 bg-white/[0.05] text-zinc-200";
 
   return (
-    <main className="mx-auto min-h-screen max-w-5xl px-4 py-8 text-white sm:px-6 lg:px-8">
-      <div className={`rounded-[2rem] border p-8 shadow-2xl shadow-black/20 ${toneClass}`}>
-        <h1 className="font-display text-2xl font-semibold">{title}</h1>
-        <p className="mt-3 text-sm opacity-80">{message}</p>
-        <Button asChild className="mt-6">
-          <Link href="/jobs">
-            <ArrowLeft className="size-4" />
-            Back to jobs
-          </Link>
-        </Button>
+    <AppShell>
+      <div className="mx-auto max-w-2xl">
+        <div className={`rounded-2xl border p-8 shadow-2xl shadow-black/20 ${toneClass}`}>
+          <h1 className="font-display text-2xl font-semibold">{title}</h1>
+          <p className="mt-3 text-sm opacity-80">{message}</p>
+          <Button asChild className="mt-6">
+            <Link href="/jobs">
+              <ArrowLeft className="size-4" />
+              Back to jobs
+            </Link>
+          </Button>
+        </div>
       </div>
-    </main>
+    </AppShell>
   );
 }
 

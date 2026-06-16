@@ -41,6 +41,19 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-brand-orange: var(--brand-orange);
+  --color-brand-amber: var(--brand-amber);
+  --color-brand-purple: var(--brand-purple);
+  --color-status-open: var(--status-open);
+  --color-status-assigned: var(--status-assigned);
+  --color-status-submitted: var(--status-submitted);
+  --color-status-approved: var(--status-approved);
+  --color-status-disputed: var(--status-disputed);
+  --color-status-refunded: var(--status-refunded);
+  --color-status-cancelled: var(--status-cancelled);
+  --color-risk-low: var(--status-open);
+  --color-risk-medium: var(--status-disputed);
+  --color-risk-high: var(--status-cancelled);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -83,6 +96,33 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* Brand */
+  --brand-orange: #ff7a18;
+  --brand-amber: #ffb86b;
+  --brand-purple: #b46cff;
+
+  /* Semantic status palette (shared by badges, cards, risk levels) */
+  --status-open: #34d399;
+  --status-assigned: #38bdf8;
+  --status-submitted: #60a5fa;
+  --status-approved: #6ee7b7;
+  --status-disputed: #fbbf24;
+  --status-refunded: #a1a1aa;
+  --status-cancelled: #fb7185;
+
+  /* Glass surface elevations */
+  --surface-1: rgba(255, 255, 255, 0.045);
+  --surface-2: rgba(17, 24, 39, 0.62);
+  --surface-3: rgba(17, 24, 39, 0.82);
+  --surface-border: rgba(255, 255, 255, 0.1);
+
+  /* Motion tokens */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 160ms;
+  --dur-med: 320ms;
+  --dur-slow: 640ms;
 }
 
 .dark {
@@ -490,6 +530,103 @@
     from {
       opacity: 0;
       transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ---- Elevation surfaces (token-backed) ---- */
+  .surface-1 {
+    @apply rounded-2xl border border-white/10 backdrop-blur-xl;
+    background: var(--surface-1);
+  }
+  .surface-2 {
+    @apply rounded-2xl border border-white/10 shadow-xl shadow-black/20 backdrop-blur-xl;
+    background: var(--surface-2);
+  }
+  .surface-3 {
+    @apply rounded-2xl border border-white/10 shadow-2xl shadow-black/30 backdrop-blur-xl;
+    background: var(--surface-3);
+  }
+
+  /* ---- Typography ---- */
+  .text-balance {
+    text-wrap: balance;
+  }
+  .text-display-1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.4rem, 5.6vw, 4.25rem);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+  }
+  .text-display-2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.9rem, 4vw, 3rem);
+    line-height: 1.06;
+    letter-spacing: -0.025em;
+  }
+
+  /* ---- Interaction ---- */
+  .focus-ring {
+    @apply outline-none transition-shadow focus-visible:ring-3 focus-visible:ring-[#ff7a18]/35;
+  }
+
+  /* Animated gradient border for premium CTAs / cards */
+  .glow-border {
+    position: relative;
+    isolation: isolate;
+  }
+  .glow-border::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(130deg, rgba(255, 122, 24, 0.65), rgba(180, 108, 255, 0.55), transparent 62%);
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0.75;
+    transition: opacity var(--dur-med) var(--ease-out-soft);
+  }
+  .glow-border:hover::after {
+    opacity: 1;
+  }
+
+  /* Ambient aurora blobs for hero/section backgrounds */
+  .aurora-blob {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(72px);
+    opacity: 0.5;
+    pointer-events: none;
+    animation: juvra-aurora 16s var(--ease-in-out-soft) infinite;
+  }
+
+  .count-pop {
+    animation: juvra-count-pop 520ms var(--ease-out-soft) both;
+  }
+
+  @keyframes juvra-aurora {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    50% {
+      transform: translate3d(2%, -3%, 0) scale(1.14);
+    }
+  }
+
+  @keyframes juvra-count-pop {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
     }
     to {
       opacity: 1;

@@ -337,23 +337,36 @@ export default function PostPage() {
             action={<ConnectButton accountStatus="avatar" chainStatus="icon" showBalance={false} />}
           />
 
-          {/* Live preview */}
-          <GlassCard className="p-5">
-            <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Preview</p>
-            <h3 className="mt-3 line-clamp-2 text-lg font-semibold text-white">
-              {title || "Your job title"}
-            </h3>
-            <p className="mt-1 text-sm text-zinc-400">{category || "Category"}</p>
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <div className="rounded-xl border border-white/10 bg-black/20 p-3">
-                <p className="text-xs text-zinc-500">Escrow</p>
-                <p className="mt-1 font-mono text-sm font-semibold text-[#34d399]">
-                  {amount ? `${amount} USDC` : "—"}
-                </p>
-              </div>
-              <div className="rounded-xl border border-white/10 bg-black/20 p-3">
-                <p className="text-xs text-zinc-500">Deadline</p>
-                <p className="mt-1 text-sm text-zinc-300">{deadline || "—"}</p>
+          {/* Live listing preview — mirrors the marketplace card */}
+          <GlassCard className="p-3">
+            <p className="px-2 pb-2 pt-1 text-xs font-semibold uppercase tracking-wider text-zinc-500">
+              Live preview
+            </p>
+            <div className="shine-overlay relative h-24 overflow-hidden rounded-xl bg-gradient-to-br from-[#10b981] via-[#0d9488] to-[#0ea5e9]">
+              <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.18),transparent_35%,rgba(0,0,0,0.28))]" />
+              <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/25 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur">
+                <ShieldCheck className="size-3 text-emerald-200" />
+                Escrow Verified
+              </span>
+              <span className="absolute bottom-3 left-3 rounded-full border border-white/15 bg-white/15 px-2.5 py-1 text-[11px] font-medium text-white/90 backdrop-blur">
+                {category || "Category"}
+              </span>
+            </div>
+            <div className="p-2">
+              <h3 className="line-clamp-2 text-lg font-semibold leading-snug text-white">
+                {title || "Your job title"}
+              </h3>
+              <div className="mt-3 grid grid-cols-2 gap-2.5">
+                <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+                  <p className="text-xs text-zinc-500">Escrow</p>
+                  <p className="mt-1 font-mono text-sm font-semibold text-[#34d399]">
+                    {amount ? `${amount} USDC` : "—"}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+                  <p className="text-xs text-zinc-500">Deadline</p>
+                  <p className="mt-1 text-sm text-zinc-300">{deadline || "—"}</p>
+                </div>
               </div>
             </div>
           </GlassCard>

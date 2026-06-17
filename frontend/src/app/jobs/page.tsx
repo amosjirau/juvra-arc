@@ -1,3 +1,5 @@
+"use client";
+
 import { BriefcaseBusiness, Plus } from "lucide-react";
 import Link from "next/link";
 

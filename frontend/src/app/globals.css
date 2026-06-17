@@ -4,6 +4,12 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@property --beam-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -643,6 +649,118 @@
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+
+  /* ---- Premium primitives (Magic-style) ---- */
+
+  /* Mouse-tracked spotlight surface (JS sets --mx/--my on pointer move) */
+  .spotlight-surface::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity var(--dur-med) var(--ease-out-soft);
+    background: radial-gradient(
+      340px circle at var(--mx, 50%) var(--my, 0%),
+      rgba(16, 185, 129, 0.16),
+      transparent 62%
+    );
+  }
+  .spotlight-surface:hover::after {
+    opacity: 1;
+  }
+
+  /* Traveling conic border beam (Magic UI BorderBeam) */
+  .border-beam::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: conic-gradient(
+      from var(--beam-angle),
+      transparent 0deg,
+      rgba(16, 185, 129, 0.85) 42deg,
+      rgba(56, 189, 248, 0.65) 84deg,
+      transparent 130deg
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    animation: juvra-beam 6s linear infinite;
+  }
+  @keyframes juvra-beam {
+    to {
+      --beam-angle: 360deg;
+    }
+  }
+
+  /* Shimmer skeleton */
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.06);
+  }
+  .shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(52, 211, 153, 0.12), transparent);
+    animation: juvra-shimmer 1.6s ease-in-out infinite;
+  }
+  @keyframes juvra-shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  /* Top scroll-progress bar */
+  .scroll-progress {
+    transform-origin: 0 50%;
+    background: linear-gradient(90deg, #10b981, #34d399, #38bdf8);
+  }
+
+  /* Expanding pulse ring (status dots, restricted states) */
+  .pulse-ring::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: 1px solid rgba(16, 185, 129, 0.55);
+    animation: juvra-pulse-ring 2.4s var(--ease-out-soft) infinite;
+  }
+  @keyframes juvra-pulse-ring {
+    0% {
+      transform: scale(1);
+      opacity: 0.7;
+    }
+    100% {
+      transform: scale(1.9);
+      opacity: 0;
+    }
+  }
+
+  /* Radar sweep for admin restricted state */
+  .radar-sweep::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: conic-gradient(from 0deg, rgba(16, 185, 129, 0.3), transparent 32%);
+    animation: juvra-radar 3.4s linear infinite;
+  }
+  @keyframes juvra-radar {
+    to {
+      transform: rotate(360deg);
     }
   }
 

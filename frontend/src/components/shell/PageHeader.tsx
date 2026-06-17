@@ -1,12 +1,16 @@
+"use client";
+
 import type { LucideIcon } from "lucide-react";
+import { motion } from "motion/react";
 import type { ReactNode } from "react";
 
+import { blurReveal, fadeUp, staggerContainer } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 /**
- * Standard page header: optional eyebrow chip, display title (optionally
- * gradient), supporting copy, and an actions slot. Uses the CSS-only
- * `.scroll-reveal` entrance so it stays a server component.
+ * Premium page header: animated eyebrow chip with a live pulse dot, a
+ * blur-fade display title, supporting copy, and an actions slot. Entrance is
+ * staggered via the shared motion primitives (reduced-motion safe).
  */
 export function PageHeader({
   eyebrow,
@@ -28,35 +32,63 @@ export function PageHeader({
   align?: "start" | "center";
 }) {
   return (
-    <header
+    <motion.header
+      initial="hidden"
+      animate="visible"
+      variants={staggerContainer(0.1, 0.04)}
       className={cn(
-        "scroll-reveal flex flex-col gap-5",
+        "relative flex flex-col gap-5",
         align === "center"
           ? "items-center text-center"
           : "items-start sm:flex-row sm:items-end sm:justify-between",
         className,
       )}
     >
+      {/* ambient glow */}
+      <div
+        aria-hidden
+        className={cn(
+          "pointer-events-none absolute -top-24 -z-10 h-56 w-[34rem] rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.16),transparent_70%)] blur-2xl",
+          align === "center" ? "left-1/2 -translate-x-1/2" : "-left-10",
+        )}
+      />
       <div className={cn("max-w-2xl", align === "center" && "mx-auto")}>
         {eyebrow ? (
-          <span className="eyebrow">
+          <motion.span variants={fadeUp} className="eyebrow">
+            <span className="relative flex size-2 items-center justify-center">
+              <span className="pulse-ring absolute inset-0 rounded-full" />
+              <span className="size-1.5 rounded-full bg-[#34d399] shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
+            </span>
             {EyebrowIcon ? <EyebrowIcon className="size-3.5 text-[#34d399]" /> : null}
             {eyebrow}
-          </span>
+          </motion.span>
         ) : null}
-        <h1
+        <motion.h1
+          variants={blurReveal}
           className={cn(
-            "text-display-2 mt-4 font-semibold text-balance",
+            "text-display-1 mt-4 font-semibold text-balance",
             gradient ? "heading-gradient" : "text-white",
           )}
         >
           {title}
-        </h1>
+        </motion.h1>
         {description ? (
-          <p className="mt-4 max-w-xl text-base leading-7 text-zinc-400">{description}</p>
+          <motion.p
+            variants={fadeUp}
+            className="mt-4 max-w-xl text-base leading-7 text-zinc-400"
+          >
+            {description}
+          </motion.p>
         ) : null}
       </div>
-      {actions ? <div className="flex shrink-0 flex-wrap items-center gap-3">{actions}</div> : null}
-    </header>
+      {actions ? (
+        <motion.div
+          variants={fadeUp}
+          className="flex shrink-0 flex-wrap items-center gap-3"
+        >
+          {actions}
+        </motion.div>
+      ) : null}
+    </motion.header>
   );
 }

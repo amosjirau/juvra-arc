@@ -16,7 +16,7 @@ export default function NotFound() {
         <p className="mt-6 font-mono text-sm text-zinc-500">Error 404</p>
         <h1 className="mt-2 text-display-2 font-semibold heading-gradient">Page not found</h1>
         <p className="mx-auto mt-4 max-w-md text-sm leading-6 text-zinc-400">
-          The page you're looking for doesn't exist or may have moved. Head back to the marketplace
+          The page you&apos;re looking for doesn&apos;t exist or may have moved. Head back to the marketplace
           to find escrow-backed work.
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">

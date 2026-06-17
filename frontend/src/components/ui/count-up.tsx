@@ -36,8 +36,8 @@ export function CountUp({
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     if (prefersReduced || durationSeconds <= 0) {
-      setDisplay(value);
-      return;
+      const raf = requestAnimationFrame(() => setDisplay(value));
+      return () => cancelAnimationFrame(raf);
     }
 
     let raf = 0;

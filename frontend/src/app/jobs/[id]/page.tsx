@@ -23,7 +23,6 @@ import { AgentTimeline } from "@/components/agent/AgentTimeline";
 import { EvidencePanel } from "@/components/agent/EvidencePanel";
 import { AgentScopeBuilder } from "@/components/agent/AgentScopeBuilder";
 import { ApplyButton } from "@/components/apply-button";
-import { ArcscanLink } from "@/components/arcscan-link";
 import { DisputePanel } from "@/components/DisputePanel";
 import { JobStatusBadge } from "@/components/JobStatusBadge";
 import { SubmitWorkDialog } from "@/components/SubmitWorkDialog";

@@ -118,6 +118,7 @@ function OpportunityCard({ opp, index, activeIndex }: { opp: Opportunity; index:
       >
         {/* Image */}
         <div className="h-44 relative overflow-hidden bg-[#1a2235]">
+          {/* eslint-disable-next-line @next/next/no-img-element -- dynamic remote listing image; next/image remotePatterns not configured */}
           <img src={opp.image} alt={opp.title} loading="lazy" decoding="async" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#111827] via-transparent to-transparent" />
           {/* Category badge */}

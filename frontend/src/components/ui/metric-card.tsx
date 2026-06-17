@@ -12,8 +12,8 @@ const tones = {
   sky: "border-status-assigned/20 bg-status-assigned/10 text-status-assigned",
   blue: "border-status-submitted/20 bg-status-submitted/10 text-status-submitted",
   amber: "border-status-disputed/25 bg-status-disputed/10 text-status-disputed",
-  orange: "border-brand-orange/25 bg-brand-orange/10 text-[#ff9a4a]",
-  purple: "border-brand-purple/25 bg-brand-purple/10 text-brand-purple",
+  teal: "border-brand-mint/25 bg-brand-mint/10 text-brand-mint",
+  violet: "border-brand-violet/25 bg-brand-violet/10 text-brand-violet",
 } as const;
 
 /**

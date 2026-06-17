@@ -37,7 +37,7 @@ export function BentoCard({
   return (
     <GlassCard interactive glow={glow} className={cn("flex flex-col gap-4 p-6", className)}>
       {Icon ? (
-        <span className="flex size-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06] text-[#ff9a4a] shadow-lg shadow-black/20">
+        <span className="flex size-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06] text-[#34d399] shadow-lg shadow-black/20">
           <Icon className="size-5" />
         </span>
       ) : null}

@@ -30,7 +30,7 @@ export function DashboardPanel({
       <div className="flex items-start justify-between gap-4 border-b border-white/[0.08] p-5">
         <div className="flex items-start gap-3">
           {Icon ? (
-            <span className="flex size-9 items-center justify-center rounded-lg border border-white/10 bg-white/[0.06] text-[#ff9a4a]">
+            <span className="flex size-9 items-center justify-center rounded-lg border border-white/10 bg-white/[0.06] text-[#34d399]">
               <Icon className="size-4" />
             </span>
           ) : null}

@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
  */
 export function BeamGlow({
   className,
-  color = "rgba(255,122,24,0.32)",
+  color = "rgba(16,185,129,0.32)",
 }: {
   className?: string;
   color?: string;

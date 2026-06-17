@@ -19,7 +19,7 @@ const steps = [
     title: "Lock USDC on Arc",
     description: "Client funds escrow with stable USDC value while Arc smart contracts track job state and settlement flow.",
     detail: "Funds are held in a non-custodial Arc escrow contract. The agent cannot access or redirect the escrow balance.",
-    accent: "#B46CFF",
+    accent: "#38bdf8",
   },
   {
     number: "03",
@@ -27,7 +27,7 @@ const steps = [
     title: "Review Evidence",
     description: "Freelancer submits delivery proof. AI reviews scope fit, risk, missing evidence, and dispute context.",
     detail: "The AI Copilot analyzes evidence, flags uncertainty, and prepares summaries so humans can make better settlement decisions.",
-    accent: "#FF7A18",
+    accent: "#10b981",
   },
   {
     number: "04",
@@ -53,7 +53,7 @@ export function HowItWorksSection() {
       }}
     >
       {/* Left ambient */}
-      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-96 h-96 bg-[#FF7A18]/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-96 h-96 bg-[#10b981]/5 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
         <motion.div
@@ -63,7 +63,7 @@ export function HowItWorksSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-20"
         >
-          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FF7A18]/10 border border-[#FF7A18]/20 text-[#FF7A18] text-xs uppercase tracking-widest mb-6">
+          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#10b981]/10 border border-[#10b981]/20 text-[#10b981] text-xs uppercase tracking-widest mb-6">
             How It Works
           </span>
           <h2
@@ -71,7 +71,7 @@ export function HowItWorksSection() {
             className="text-4xl md:text-5xl text-white"
           >
             Four steps to{" "}
-            <em className="not-italic text-transparent bg-clip-text bg-gradient-to-r from-[#FF7A18] to-[#FFB347]">
+            <em className="not-italic text-transparent bg-clip-text bg-gradient-to-r from-[#10b981] to-[#34d399]">
               agentic commerce.
             </em>
           </h2>

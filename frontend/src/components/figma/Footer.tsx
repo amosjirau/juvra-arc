@@ -52,13 +52,13 @@ export function Footer() {
     <footer className="relative border-t border-white/[0.08] bg-[#060816]">
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#ff7a18]/40 to-transparent"
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#10b981]/40 to-transparent"
       />
       <div className="mx-auto max-w-7xl px-6 py-14 lg:px-8">
         <div className="grid gap-10 md:grid-cols-[1.4fr_repeat(3,1fr)]">
           <div className="max-w-sm">
             <div className="flex items-center gap-2">
-              <div className="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#FF7A18] to-[#FF9A4A]">
+              <div className="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#10b981] to-[#34d399]">
                 <span
                   style={{ fontFamily: "var(--font-display)" }}
                   className="text-sm font-semibold text-[#060816]"

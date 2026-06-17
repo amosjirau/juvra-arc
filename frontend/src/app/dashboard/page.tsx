@@ -122,7 +122,7 @@ export default function DashboardPage() {
 
       {!isConnected && (
         <GlassCard className="mt-6 p-8 text-center">
-          <div className="mx-auto flex size-12 items-center justify-center rounded-2xl border border-[#ff7a18]/25 bg-[#ff7a18]/10 text-[#ff9a4a]">
+          <div className="mx-auto flex size-12 items-center justify-center rounded-2xl border border-[#10b981]/25 bg-[#10b981]/10 text-[#34d399]">
             <Wallet className="size-6" />
           </div>
           <h2 className="mt-5 text-lg font-semibold text-white">Connect your wallet</h2>
@@ -177,7 +177,7 @@ export default function DashboardPage() {
                   icon={Banknote}
                   label="Total value involved"
                   value={formatUsdc(totalValue)}
-                  tone="orange"
+                  tone="teal"
                 />
               </>
             )}

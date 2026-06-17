@@ -10,7 +10,7 @@ export default function NotFound() {
   return (
     <AppShell contentClassName="max-w-2xl">
       <GlassCard className="p-10 text-center">
-        <div className="mx-auto flex size-14 items-center justify-center rounded-2xl border border-[#ff7a18]/25 bg-[#ff7a18]/10 text-[#ff9a4a]">
+        <div className="mx-auto flex size-14 items-center justify-center rounded-2xl border border-[#10b981]/25 bg-[#10b981]/10 text-[#34d399]">
           <Compass className="size-7" />
         </div>
         <p className="mt-6 font-mono text-sm text-zinc-500">Error 404</p>

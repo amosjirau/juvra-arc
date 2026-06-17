@@ -17,7 +17,7 @@ export function AuroraBackground({ className }: { className?: string }) {
           left: "8%",
           width: "min(46vw, 540px)",
           height: "min(46vw, 540px)",
-          background: "radial-gradient(circle, rgba(255,122,24,0.30), transparent 70%)",
+          background: "radial-gradient(circle, rgba(16,185,129,0.30), transparent 70%)",
           animationDelay: "0s",
         }}
       />
@@ -28,7 +28,7 @@ export function AuroraBackground({ className }: { className?: string }) {
           right: "2%",
           width: "min(40vw, 480px)",
           height: "min(40vw, 480px)",
-          background: "radial-gradient(circle, rgba(180,108,255,0.26), transparent 70%)",
+          background: "radial-gradient(circle, rgba(56,189,248,0.26), transparent 70%)",
           animationDelay: "-6s",
         }}
       />

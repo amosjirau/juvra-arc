@@ -13,20 +13,20 @@ export function CTASection() {
     <section
       className="relative py-36 overflow-hidden"
       style={{
-        background: "linear-gradient(180deg, #060816 0%, #0a0514 40%, #060816 100%)",
+        background: "linear-gradient(180deg, #060b16 0%, #07131f 40%, #060b16 100%)",
       }}
     >
       {/* Large glow */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div className="w-[800px] h-[400px] bg-[#FF7A18]/6 rounded-full blur-[120px]" />
-        <div className="absolute w-[500px] h-[300px] bg-[#B46CFF]/5 rounded-full blur-[100px] translate-y-8" />
+        <div className="w-[800px] h-[400px] bg-[#10b981]/6 rounded-full blur-[120px]" />
+        <div className="absolute w-[500px] h-[300px] bg-[#38bdf8]/5 rounded-full blur-[100px] translate-y-8" />
       </div>
 
       {/* Grid */}
       <div
         className="absolute inset-0 opacity-[0.025]"
         style={{
-          backgroundImage: `linear-gradient(rgba(255,122,24,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,122,24,1) 1px, transparent 1px)`,
+          backgroundImage: `linear-gradient(rgba(16,185,129,1) 1px, transparent 1px), linear-gradient(90deg, rgba(16,185,129,1) 1px, transparent 1px)`,
           backgroundSize: "80px 80px",
         }}
       />
@@ -38,7 +38,7 @@ export function CTASection() {
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FF7A18]/10 border border-[#FF7A18]/20 text-[#FF7A18] text-xs uppercase tracking-widest mb-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#10b981]/10 border border-[#10b981]/20 text-[#10b981] text-xs uppercase tracking-widest mb-10">
             <Shield size={11} />
             Agent-assisted, human-confirmed
           </div>
@@ -49,7 +49,7 @@ export function CTASection() {
           >
             Coordinate work.
             <br />
-            <em className="not-italic text-transparent bg-clip-text bg-gradient-to-r from-[#FF7A18] via-[#FFB347] to-[#FF7A18]">
+            <em className="not-italic text-transparent bg-clip-text bg-gradient-to-r from-[#10b981] via-[#34d399] to-[#10b981]">
               Confirm settlement.
             </em>
             <br />
@@ -63,7 +63,7 @@ export function CTASection() {
           <div className="mb-12 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
               href="/jobs"
-              className="group inline-flex items-center gap-2 rounded-xl bg-[#FF7A18] px-8 py-4 text-sm font-semibold text-[#060816] shadow-[0_8px_32px_rgba(255,122,24,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#FF9A4A] hover:shadow-[0_8px_40px_rgba(255,122,24,0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF7A18]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060816]"
+              className="group inline-flex items-center gap-2 rounded-xl bg-[#10b981] px-8 py-4 text-sm font-semibold text-[#060816] shadow-[0_8px_32px_rgba(16,185,129,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#34d399] hover:shadow-[0_8px_40px_rgba(16,185,129,0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#10b981]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060816]"
             >
               Launch App
               <ArrowRight size={15} className="group-hover:translate-x-0.5 transition-transform duration-200" />

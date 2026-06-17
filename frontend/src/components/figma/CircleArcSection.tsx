@@ -9,7 +9,7 @@ const stackCards = [
     title: "Arc",
     status: "Live integration",
     icon: Zap,
-    accent: "#FF7A18",
+    accent: "#10b981",
     points: [
       "Smart contract escrow layer",
       "Fast programmable commerce logic",
@@ -42,7 +42,7 @@ const stackCards = [
     title: "Gateway / Nanopayments Future Path",
     status: "Future-ready architecture",
     icon: Route,
-    accent: "#B46CFF",
+    accent: "#38bdf8",
     points: [
       "Future treasury routing",
       "Pay-per-agent verification",

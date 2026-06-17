@@ -40,7 +40,7 @@ export function PageHeader({
       <div className={cn("max-w-2xl", align === "center" && "mx-auto")}>
         {eyebrow ? (
           <span className="eyebrow">
-            {EyebrowIcon ? <EyebrowIcon className="size-3.5 text-[#ff9a4a]" /> : null}
+            {EyebrowIcon ? <EyebrowIcon className="size-3.5 text-[#34d399]" /> : null}
             {eyebrow}
           </span>
         ) : null}

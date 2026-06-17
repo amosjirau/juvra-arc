@@ -12,7 +12,7 @@ const partners = [
     name: "Arc",
     description: "Settlement Layer",
     icon: Zap,
-    accent: "#FF7A18",
+    accent: "#10b981",
     detail: "Programmable escrow logic and onchain job state.",
   },
   {
@@ -33,7 +33,7 @@ const partners = [
     name: "Juvra Agent",
     description: "Coordination Layer",
     icon: Code2,
-    accent: "#B46CFF",
+    accent: "#38bdf8",
     detail: "Advisory scope, evidence, risk, and dispute reasoning.",
   },
 ];
@@ -67,7 +67,7 @@ export function InfrastructureSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-20"
         >
-          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FF7A18]/10 border border-[#FF7A18]/20 text-[#FF7A18] text-xs uppercase tracking-widest mb-6">
+          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#10b981]/10 border border-[#10b981]/20 text-[#10b981] text-xs uppercase tracking-widest mb-6">
             Infrastructure
           </span>
           <h2
@@ -76,7 +76,7 @@ export function InfrastructureSection() {
           >
             Agentic commerce,
             <br />
-            <em className="not-italic text-transparent bg-clip-text bg-gradient-to-r from-[#FF7A18] to-[#FFB347]">
+            <em className="not-italic text-transparent bg-clip-text bg-gradient-to-r from-[#10b981] to-[#34d399]">
               settled on Arc.
             </em>
           </h2>
@@ -99,7 +99,7 @@ export function InfrastructureSection() {
               {[1, 2, 3].map((ring) => (
                 <motion.div
                   key={ring}
-                  className="absolute rounded-full border border-[#FF7A18]/20"
+                  className="absolute rounded-full border border-[#10b981]/20"
                   style={{ width: `${ring * 72}px`, height: `${ring * 72}px` }}
                   animate={{ scale: [1, 1.1, 1], opacity: [0.4, 0.08, 0.4] }}
                   transition={{
@@ -111,9 +111,9 @@ export function InfrastructureSection() {
                 />
               ))}
               {/* Ambient glow */}
-              <div className="absolute w-40 h-40 rounded-full bg-[#FF7A18]/8 blur-3xl" />
+              <div className="absolute w-40 h-40 rounded-full bg-[#10b981]/8 blur-3xl" />
               {/* Node */}
-              <div className="relative w-24 h-24 rounded-2xl bg-gradient-to-br from-[#FF7A18]/30 to-[#FF7A18]/10 border border-[#FF7A18]/30 flex items-center justify-center shadow-[0_0_48px_rgba(255,122,24,0.25)]">
+              <div className="relative w-24 h-24 rounded-2xl bg-gradient-to-br from-[#10b981]/30 to-[#10b981]/10 border border-[#10b981]/30 flex items-center justify-center shadow-[0_0_48px_rgba(16,185,129,0.25)]">
                 <span style={{ fontFamily: "var(--font-display)" }} className="text-white text-2xl">J</span>
               </div>
             </div>
@@ -161,7 +161,7 @@ export function InfrastructureSection() {
             All contracts are publicly verifiable on-chain.{" "}
             <a
               href={isEscrowConfigured() ? `${arcExplorerUrl}/address/${juvraEscrowAddress}` : "/jobs"}
-              className="rounded text-[#FF7A18] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF7A18]/40"
+              className="rounded text-[#10b981] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#10b981]/40"
               rel="noreferrer"
               target={isEscrowConfigured() ? "_blank" : undefined}
             >

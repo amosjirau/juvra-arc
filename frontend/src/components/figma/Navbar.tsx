@@ -147,7 +147,8 @@ export function Navbar() {
             className="group flex min-w-0 items-center gap-3.5 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
             href="/"
           >
-            <div className="flex size-11 shrink-0 items-center justify-center rounded-[15px] border border-white/10 bg-gradient-to-br from-[#1E293B] via-[#312E81] to-[#0A0D18] text-base font-bold text-slate-50 shadow-[0_14px_34px_rgba(49,46,129,0.26)] transition-all duration-200 group-hover:-translate-y-px group-hover:shadow-[0_18px_42px_rgba(49,46,129,0.32)]">
+            <div className="relative flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-[15px] border border-emerald-300/20 bg-gradient-to-br from-[#0f3d31] via-[#10b981] to-[#0A0D18] text-base font-bold text-emerald-50 shadow-[0_14px_34px_rgba(16,185,129,0.3)] transition-all duration-200 group-hover:-translate-y-px group-hover:shadow-[0_18px_42px_rgba(16,185,129,0.4)]">
+              <span className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
               J
             </div>
             <div className="min-w-0 font-ui">

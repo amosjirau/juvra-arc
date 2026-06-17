@@ -25,7 +25,7 @@ export function AdminGate({ children }: { children: ReactNode }) {
   return (
     <div className="mx-auto flex min-h-[50vh] max-w-lg flex-col items-center justify-center">
       <GlassCard className="w-full p-8 text-center">
-        <div className="mx-auto flex size-14 items-center justify-center rounded-2xl border border-[#ff7a18]/25 bg-[#ff7a18]/10 text-[#ff9a4a]">
+        <div className="mx-auto flex size-14 items-center justify-center rounded-2xl border border-[#10b981]/25 bg-[#10b981]/10 text-[#34d399]">
           {checking ? (
             <Loader2 className="size-6 animate-spin" />
           ) : isConnected ? (

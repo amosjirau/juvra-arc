@@ -157,7 +157,7 @@ export default function AdminPage() {
               icon={Scale}
               label="Disputed value"
               value={formatUsdc(disputedValue)}
-              tone="orange"
+              tone="teal"
             />
             <MetricCard
               icon={ShieldCheck}

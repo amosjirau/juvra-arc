@@ -26,7 +26,7 @@ export function GlassCard({
     >
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,rgba(255,122,24,0.10),transparent_40%),linear-gradient(270deg,rgba(180,108,255,0.10),transparent_46%)]"
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,rgba(16,185,129,0.10),transparent_40%),linear-gradient(270deg,rgba(56,189,248,0.10),transparent_46%)]"
       />
       <div className="relative">{children}</div>
     </div>

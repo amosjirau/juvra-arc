@@ -21,19 +21,20 @@ const categories = ["All", "Design", "Software", "Education", "Marketing", "Writ
 
 type Category = (typeof categories)[number];
 
+// Emerald trust-first category gradients — emerald / teal / sky / amber only.
 const categoryVisuals: Record<Exclude<Category, "All">, string> = {
   Design:
-    "from-[#E98BBA] via-[#8B5CF6] to-[#FFD0A8] before:bg-[radial-gradient(circle_at_18%_22%,rgba(255,255,255,0.35),transparent_8rem)]",
+    "from-[#10b981] via-[#0d9488] to-[#0ea5e9] before:bg-[radial-gradient(circle_at_18%_22%,rgba(255,255,255,0.32),transparent_8rem)]",
   Software:
-    "from-[#3066FF] via-cyan-300 to-[#0B1526] before:bg-[linear-gradient(135deg,rgba(255,255,255,0.22)_0_1px,transparent_1px_18px)]",
+    "from-[#0ea5e9] via-cyan-300 to-[#0B1526] before:bg-[linear-gradient(135deg,rgba(255,255,255,0.2)_0_1px,transparent_1px_18px)]",
   Education:
-    "from-indigo-500 via-[#8B5CF6] to-[#0B1526] before:bg-[radial-gradient(circle_at_75%_24%,rgba(199,210,254,0.34),transparent_7rem)]",
+    "from-[#38bdf8] via-[#3b82f6] to-[#0B1526] before:bg-[radial-gradient(circle_at_75%_24%,rgba(186,230,253,0.32),transparent_7rem)]",
   Marketing:
-    "from-[#67D9A6] via-emerald-400 to-[#FFB45F] before:bg-[radial-gradient(circle_at_25%_65%,rgba(236,253,245,0.3),transparent_7rem)]",
+    "from-[#34d399] via-emerald-400 to-[#0ea5e9] before:bg-[radial-gradient(circle_at_25%_65%,rgba(236,253,245,0.3),transparent_7rem)]",
   Writing:
-    "from-[#FFD0A8] via-[#FFB45F] to-[#E98BBA] before:bg-[radial-gradient(circle_at_72%_35%,rgba(255,251,235,0.3),transparent_7rem)]",
+    "from-[#5eead4] via-[#2dd4bf] to-[#0f766e] before:bg-[radial-gradient(circle_at_72%_35%,rgba(240,253,250,0.3),transparent_7rem)]",
   Other:
-    "from-[#0B1526] via-[#8B5CF6] to-[#3066FF] before:bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.24),transparent_7rem)]",
+    "from-[#0B1526] via-[#10b981] to-[#0ea5e9] before:bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.22),transparent_7rem)]",
 };
 
 function normalizeCategory(category: string): Exclude<Category, "All"> {
@@ -90,14 +91,14 @@ function TrendingJobCard({ deck = false, job, tilt = 0 }: { deck?: boolean; job:
   return (
     <Link
       className={cn(
-        "group block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7a18]/40",
+        "group block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#10b981]/40",
         deck && "w-[310px] shrink-0",
       )}
       href={`/jobs/${job.id.toString()}`}
       style={deck ? ({ "--tilt": `${tilt}deg` } as CSSProperties) : undefined}
     >
       <article className={cn(
-        "h-full rounded-2xl border border-white/10 bg-[#111827]/90 p-3 text-white shadow-xl shadow-black/20 backdrop-blur-xl transition-all duration-500 hover:-translate-y-2 hover:border-[#ff7a18]/50 hover:shadow-2xl hover:shadow-[#b46cff]/20",
+        "h-full rounded-2xl border border-white/10 bg-[#111827]/90 p-3 text-white shadow-xl shadow-black/20 backdrop-blur-xl transition-all duration-500 hover:-translate-y-2 hover:border-[#10b981]/50 hover:shadow-2xl hover:shadow-[#38bdf8]/20",
         deck && "min-h-[440px] rotate-[var(--tilt)] hover:rotate-0 hover:scale-[1.025]",
       )}>
         <div
@@ -132,28 +133,28 @@ function TrendingJobCard({ deck = false, job, tilt = 0 }: { deck?: boolean; job:
           </div>
 
           <div className="mt-4 flex items-center gap-2 text-sm text-zinc-500">
-            <UserRound className="size-4 text-[#a855f7]" />
+            <UserRound className="size-4 text-[#38bdf8]" />
             <span className="font-mono">{shortAddress(job.client)}</span>
           </div>
 
           <div className="mt-5 grid grid-cols-2 gap-3">
             <div className="rounded-xl border border-white/10 bg-black/20 p-3">
               <p className="text-xs text-zinc-500">Escrow</p>
-              <p className="mt-1 font-mono text-sm font-semibold text-[#ffb86b]">
+              <p className="mt-1 font-mono text-sm font-semibold text-[#34d399]">
                 {formatUsdc(job.amount)}
               </p>
             </div>
             <div className="rounded-xl border border-white/10 bg-black/20 p-3">
               <p className="text-xs text-zinc-500">Milestones</p>
               <p className="mt-1 flex items-center gap-1.5 text-sm text-zinc-300">
-                <Layers3 className="size-3.5 text-[#cba6ff]" />
+                <Layers3 className="size-3.5 text-[#34d399]" />
                 {milestoneCount}
               </p>
             </div>
             <div className="rounded-xl border border-white/10 bg-black/20 p-3">
               <p className="text-xs text-zinc-500">Deadline</p>
               <p className="mt-1 flex items-center gap-1.5 text-sm text-zinc-300">
-                <CalendarDays className="size-3.5 text-[#b46cff]" />
+                <CalendarDays className="size-3.5 text-[#38bdf8]" />
                 {formatDate(job.deadline)}
               </p>
             </div>
@@ -231,7 +232,7 @@ export function TrendingJobs({
       {showHeader && (
         <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
           <div>
-            <p className="text-sm font-medium text-[#FFD0A8]">{eyebrow}</p>
+            <p className="text-sm font-medium text-[#34d399]">{eyebrow}</p>
             <h2 className="font-display mt-3 text-4xl font-semibold leading-none tracking-normal text-[#FFF9F2] sm:text-5xl">
               {title}
             </h2>
@@ -251,9 +252,9 @@ export function TrendingJobs({
           {categories.map((category) => (
             <button
               className={cn(
-                "min-w-fit rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7a18]/40",
+                "min-w-fit rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#10b981]/40",
                 activeCategory === category
-                  ? "border-[#ff7a18]/40 bg-[#ff7a18]/15 text-white shadow-lg shadow-black/20"
+                  ? "border-[#10b981]/40 bg-[#10b981]/15 text-white shadow-lg shadow-black/20"
                   : "border-white/10 bg-white/[0.04] text-zinc-400 hover:border-white/20 hover:bg-white/[0.08] hover:text-white",
               )}
               key={category}

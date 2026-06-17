@@ -347,7 +347,7 @@ export default function PostPage() {
             <div className="mt-4 grid grid-cols-2 gap-3">
               <div className="rounded-xl border border-white/10 bg-black/20 p-3">
                 <p className="text-xs text-zinc-500">Escrow</p>
-                <p className="mt-1 font-mono text-sm font-semibold text-[#ffb86b]">
+                <p className="mt-1 font-mono text-sm font-semibold text-[#34d399]">
                   {amount ? `${amount} USDC` : "—"}
                 </p>
               </div>
@@ -366,7 +366,7 @@ export default function PostPage() {
             <ol className="mt-4 space-y-3 text-sm text-zinc-400">
               {escrowSteps.map((step, i) => (
                 <li key={i} className="flex gap-3">
-                  <span className="flex size-5 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-xs font-semibold text-[#ff9a4a]">
+                  <span className="flex size-5 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-xs font-semibold text-[#34d399]">
                     {i + 1}
                   </span>
                   {step}

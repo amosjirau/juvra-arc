@@ -14,7 +14,7 @@ const statusClasses: Record<JobStatus, string> = {
 
 /**
  * Status pill backed by the shared semantic status tokens. `status` is the
- * on-chain numeric job status (0–6); the label comes from `getStatusLabel`.
+ * on-chain numeric job status (0-6); the label comes from `getStatusLabel`.
  */
 export function StatusBadge({
   status,

@@ -55,10 +55,6 @@ export function PageHeader({
       <div className={cn("max-w-2xl", align === "center" && "mx-auto")}>
         {eyebrow ? (
           <motion.span variants={fadeUp} className="eyebrow">
-            <span className="relative flex size-2 items-center justify-center">
-              <span className="pulse-ring absolute inset-0 rounded-full" />
-              <span className="size-1.5 rounded-full bg-[#34d399] shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
-            </span>
             {EyebrowIcon ? <EyebrowIcon className="size-3.5 text-[#34d399]" /> : null}
             {eyebrow}
           </motion.span>

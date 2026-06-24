@@ -11,7 +11,7 @@ import { useAdminAccess } from "@/hooks/use-admin-access";
 
 /**
  * Gates admin-only UI behind the existing wallet/arbitrator check
- * (`useAdminAccess`). Renders an animated restricted screen for non-admins —
+ * (`useAdminAccess`). Renders an animated restricted screen for non-admins  - 
  * it never exposes the children to unauthorized wallets.
  */
 export function AdminGate({ children }: { children: ReactNode }) {

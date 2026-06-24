@@ -96,7 +96,7 @@ export function HowItWorksSection() {
                 role="button"
                 tabIndex={0}
                 aria-pressed={activeStep === i}
-                aria-label={`${step.title} — step ${step.number}`}
+                aria-label={`${step.title} - step ${step.number}`}
                 className={`group cursor-pointer rounded-2xl p-5 border transition-all duration-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/25 ${
                   activeStep === i
                     ? "bg-[#111827] border-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.3)]"

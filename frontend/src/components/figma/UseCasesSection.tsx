@@ -47,7 +47,7 @@ const cases = [
     icon: Briefcase,
     headline: "Scale without risk.",
     description:
-      "Manage multiple client contracts simultaneously. Multi-milestone escrow, team payouts, and institutional-grade reporting — all on Arc.",
+      "Manage multiple client contracts simultaneously. Multi-milestone escrow, team payouts, and institutional-grade reporting - all on Arc.",
     features: [
       "Multi-contract dashboard",
       "Team payout routing",

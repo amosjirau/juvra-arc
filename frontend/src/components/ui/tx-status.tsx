@@ -34,7 +34,7 @@ export function TxStatus({
       icon: Loader2,
       spin: true,
       shell: "border-status-assigned/25 bg-status-assigned/[0.07] text-status-assigned",
-      label: "Transaction pending — confirm in your wallet and wait for settlement…",
+      label: "Transaction pending - confirm in your wallet and wait for settlement…",
       activeIndex: 1,
     },
     success: {
@@ -48,7 +48,7 @@ export function TxStatus({
       icon: XCircle,
       spin: false,
       shell: "border-rose-400/25 bg-rose-500/[0.07] text-rose-200",
-      label: "Transaction failed. Nothing was charged — please try again.",
+      label: "Transaction failed. Nothing was charged - please try again.",
       activeIndex: -1,
     },
   }[status];

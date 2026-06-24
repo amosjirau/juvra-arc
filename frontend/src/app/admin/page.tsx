@@ -106,7 +106,7 @@ export default function AdminPage() {
     : receipt.isSuccess
       ? `Dispute resolved in favor of the ${activeResolution?.winner === "client" ? "client (refund)" : "freelancer (release)"}.`
       : isBusy
-        ? "Submitting resolution — confirm in your wallet…"
+        ? "Submitting resolution - confirm in your wallet…"
         : undefined;
 
   function resolveDispute(job: JuvraJob, winner: Resolution) {
@@ -141,7 +141,7 @@ export default function AdminPage() {
               <p>
                 Agent summaries are advisory. Admin resolution still requires manual wallet
                 confirmation. Review the job, delivery, client, and freelancer addresses before
-                resolving funds — this action moves escrowed USDC and cannot be undone.
+                resolving funds - this action moves escrowed USDC and cannot be undone.
               </p>
             </div>
           </div>

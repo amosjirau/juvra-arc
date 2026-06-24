@@ -28,7 +28,7 @@ export default function Error({
         </div>
         <h1 className="mt-6 text-display-2 font-semibold text-white">Something went wrong</h1>
         <p className="mx-auto mt-4 max-w-md text-sm leading-6 text-zinc-400">
-          An unexpected error interrupted this page. Your wallet and on-chain escrow are unaffected —
+          An unexpected error interrupted this page. Your wallet and on-chain escrow are unaffected  - 
           you can retry or return home.
         </p>
         {error?.digest ? (

@@ -21,7 +21,7 @@ const categories = ["All", "Design", "Software", "Education", "Marketing", "Writ
 
 type Category = (typeof categories)[number];
 
-// Emerald trust-first category gradients — emerald / teal / sky / amber only.
+// Emerald trust-first category gradients - emerald / teal / sky / amber only.
 const categoryVisuals: Record<Exclude<Category, "All">, string> = {
   Design:
     "from-[#10b981] via-[#0d9488] to-[#0ea5e9] before:bg-[radial-gradient(circle_at_18%_22%,rgba(255,255,255,0.32),transparent_8rem)]",

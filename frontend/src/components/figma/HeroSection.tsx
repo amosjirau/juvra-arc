@@ -284,10 +284,8 @@ export function HeroSection({
               animate="visible"
               className="text-[#8892a4] text-lg leading-relaxed mb-10 max-w-xl"
             >
-              Juvra helps clients and freelancers structure work, review
-              delivery evidence, and resolve disputes with AI-assisted
-              recommendations while escrow settlement remains wallet-confirmed
-              on Arc.
+              Lock funds in onchain escrow, then release payment only when
+              delivery is approved. Settlement stays wallet-confirmed on Arc.
             </motion.p>
 
             <motion.div
@@ -341,27 +339,6 @@ export function HeroSection({
           </motion.div>
         </div>
       </motion.div>
-
-      {/* Scroll indicator */}
-      <motion.a
-        href="/#about"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 2.0, duration: 0.8 }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 group"
-        aria-label="Scroll to explore"
-      >
-        <span className="text-[#8892a4] text-[10px] uppercase tracking-[0.2em] group-hover:text-white transition-colors duration-300">
-          Explore
-        </span>
-        <div className="w-5 h-8 rounded-full border border-white/20 group-hover:border-white/30 flex items-start justify-center pt-1.5 transition-colors duration-300">
-          <motion.div
-            animate={{ y: [0, 8, 0] }}
-            transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
-            className="w-1 h-2 rounded-full bg-white/40 group-hover:bg-white/60"
-          />
-        </div>
-      </motion.a>
 
       {/* Bottom fade */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#060816] to-transparent pointer-events-none" />

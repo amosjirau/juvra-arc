@@ -5,7 +5,7 @@ import { GlassCard } from "@/components/ui/glass-card";
 import { cn } from "@/lib/utils";
 
 /**
- * Presentational wallet-state card (pure — pass wagmi-derived values in). Has
+ * Presentational wallet-state card (pure - pass wagmi-derived values in). Has
  * three states: disconnected, wrong-network, and connected.
  */
 export function WalletStatusCard({

@@ -185,7 +185,7 @@ export default function PostPage() {
   const txMessage = txError
     ? errorMessage(txError)
     : hasSucceeded
-      ? "Job posted successfully — escrow is funded and the job is live."
+      ? "Job posted successfully - escrow is funded and the job is live."
       : isTransactionPending
         ? "Waiting for wallet confirmation…"
         : isConfirming
@@ -337,7 +337,7 @@ export default function PostPage() {
             action={<ConnectButton accountStatus="avatar" chainStatus="icon" showBalance={false} />}
           />
 
-          {/* Live listing preview — mirrors the marketplace card */}
+          {/* Live listing preview - mirrors the marketplace card */}
           <GlassCard className="p-3">
             <p className="px-2 pb-2 pt-1 text-xs font-semibold uppercase tracking-wider text-zinc-500">
               Live preview
@@ -360,12 +360,12 @@ export default function PostPage() {
                 <div className="rounded-xl border border-white/10 bg-black/20 p-3">
                   <p className="text-xs text-zinc-500">Escrow</p>
                   <p className="mt-1 font-mono text-sm font-semibold text-[#34d399]">
-                    {amount ? `${amount} USDC` : "—"}
+                    {amount ? `${amount} USDC` : "Not set"}
                   </p>
                 </div>
                 <div className="rounded-xl border border-white/10 bg-black/20 p-3">
                   <p className="text-xs text-zinc-500">Deadline</p>
-                  <p className="mt-1 text-sm text-zinc-300">{deadline || "—"}</p>
+                  <p className="mt-1 text-sm text-zinc-300">{deadline || "Not set"}</p>
                 </div>
               </div>
             </div>

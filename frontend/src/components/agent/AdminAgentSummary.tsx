@@ -104,7 +104,7 @@ export function AdminAgentSummary({ job }: { job: JuvraJob }) {
         label="Saved recommendation"
         value={
           saved.recommendation
-            ? `${formatAction(saved.recommendation.suggestedAction)} — ${saved.recommendation.requiredHumanAction}`
+            ? `${formatAction(saved.recommendation.suggestedAction)} - ${saved.recommendation.requiredHumanAction}`
             : undefined
         }
       />

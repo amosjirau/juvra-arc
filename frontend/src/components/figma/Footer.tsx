@@ -71,7 +71,7 @@ export function Footer() {
               </span>
             </div>
             <p className="mt-4 text-sm leading-6 text-[#8892a4]">
-              The settlement layer for freelance commerce — onchain escrow that protects clients and
+              The settlement layer for freelance commerce - onchain escrow that protects clients and
               freelancers from the first deposit to final release.
             </p>
             <span className="mt-5 inline-flex items-center gap-2 rounded-full border border-[#60a5fa]/20 bg-[#60a5fa]/10 px-3 py-1.5 text-[11px] font-medium uppercase tracking-widest text-[#93c5fd]">

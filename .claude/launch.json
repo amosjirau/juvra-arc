@@ -1,0 +1,29 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "frontend",
+      "runtimeExecutable": "wsl.exe",
+      "runtimeArgs": [
+        "-d",
+        "ubuntu",
+        "--",
+        "bash",
+        "/home/jurau/juvra-arc/.claude/start-frontend.sh"
+      ],
+      "port": 3000
+    },
+    {
+      "name": "anvil",
+      "runtimeExecutable": "wsl.exe",
+      "runtimeArgs": [
+        "-d",
+        "ubuntu",
+        "--",
+        "bash",
+        "/home/jurau/juvra-arc/.claude/start-anvil.sh"
+      ],
+      "port": 8545
+    }
+  ]
+}

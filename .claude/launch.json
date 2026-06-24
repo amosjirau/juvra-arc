@@ -3,14 +3,26 @@
   "configurations": [
     {
       "name": "frontend",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "frontend", "run", "dev"],
+      "runtimeExecutable": "wsl.exe",
+      "runtimeArgs": [
+        "-d",
+        "ubuntu",
+        "--",
+        "bash",
+        "/home/jurau/juvra-arc/.claude/start-frontend.sh"
+      ],
       "port": 3000
     },
     {
       "name": "anvil",
-      "runtimeExecutable": "anvil",
-      "runtimeArgs": ["--port", "8545"],
+      "runtimeExecutable": "wsl.exe",
+      "runtimeArgs": [
+        "-d",
+        "ubuntu",
+        "--",
+        "bash",
+        "/home/jurau/juvra-arc/.claude/start-anvil.sh"
+      ],
       "port": 8545
     }
   ]

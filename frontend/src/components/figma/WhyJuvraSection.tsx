@@ -10,10 +10,10 @@ const cards = [
     title: "Agentic Commerce Layer",
     description: "AI coordinates scope, evidence, risk, and dispute reasoning while Arc executes escrow logic transparently.",
     size: "large",
-    accent: "#10b981",
+    accent: "#FF7A18",
     bg: "from-[#1a0e05] to-[#0d0a06]",
-    border: "border-[#10b981]/20",
-    glow: "rgba(16,185,129,0.08)",
+    border: "border-[#FF7A18]/20",
+    glow: "rgba(255,122,24,0.08)",
   },
   {
     icon: UserCheck,
@@ -40,10 +40,10 @@ const cards = [
     title: "USDC Settlement",
     description: "Stablecoin settlement keeps freelance escrow value predictable from funding through review.",
     size: "small",
-    accent: "#38bdf8",
+    accent: "#B46CFF",
     bg: "from-[#100a1a] to-[#080610]",
-    border: "border-[#38bdf8]/20",
-    glow: "rgba(56,189,248,0.06)",
+    border: "border-[#B46CFF]/20",
+    glow: "rgba(180,108,255,0.06)",
   },
   {
     icon: FileText,
@@ -77,8 +77,8 @@ function BentoCard({ card, index }: { card: typeof cards[0]; index: number }) {
       initial={{ opacity: 0, y: 40 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.6, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
-      className={`relative group rounded-2xl border p-6 overflow-hidden cursor-default transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_16px_48px_rgba(0,0,0,0.4)] ${card.size === "large" ? "lg:col-span-2" : ""} ${card.border} bg-gradient-to-br ${card.bg}`}
-      style={{ boxShadow: `0 0 0 1px ${card.accent}1a` }}
+      className={`relative group rounded-2xl border p-6 overflow-hidden cursor-default transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_16px_48px_rgba(0,0,0,0.4)] ${card.border} bg-gradient-to-br ${card.bg}`}
+      style={{ boxShadow: `0 0 0 1px ${card.border.replace("border-", "").replace("/20", "33")}` }}
     >
       {/* Glow on hover */}
       <div
@@ -90,18 +90,18 @@ function BentoCard({ card, index }: { card: typeof cards[0]; index: number }) {
 
       <div className="relative">
         <div
-          className={`${card.size === "large" ? "w-12 h-12" : "w-10 h-10"} rounded-xl flex items-center justify-center mb-4 border`}
+          className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 border"
           style={{
             background: `${card.accent}15`,
             borderColor: `${card.accent}30`,
             boxShadow: `0 0 16px ${card.accent}20`,
           }}
         >
-          <card.icon size={card.size === "large" ? 20 : 18} style={{ color: card.accent }} />
+          <card.icon size={18} style={{ color: card.accent }} />
         </div>
         <h3
           style={{ fontFamily: "var(--font-display)", color: "white" }}
-          className={`${card.size === "large" ? "text-2xl" : "text-xl"} mb-2`}
+          className="text-xl mb-2"
         >
           {card.title}
         </h3>
@@ -119,7 +119,7 @@ export function WhyJuvraSection() {
     <section
       id="about"
       className="relative py-28 overflow-hidden"
-      style={{ background: "radial-gradient(ellipse 60% 40% at 80% 50%, rgba(16,185,129,0.05) 0%, transparent 60%), #060816" }}
+      style={{ background: "radial-gradient(ellipse 60% 40% at 80% 50%, rgba(255,122,24,0.05) 0%, transparent 60%), #060816" }}
     >
       <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
         <motion.div
@@ -129,7 +129,7 @@ export function WhyJuvraSection() {
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className="mb-16"
         >
-          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#38bdf8]/10 border border-[#38bdf8]/20 text-[#38bdf8] text-xs uppercase tracking-widest mb-6">
+          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#B46CFF]/10 border border-[#B46CFF]/20 text-[#B46CFF] text-xs uppercase tracking-widest mb-6">
             Why Juvra
           </span>
           <h2
@@ -137,7 +137,7 @@ export function WhyJuvraSection() {
             className="text-4xl md:text-5xl text-white max-w-2xl leading-tight"
           >
             Infrastructure for an
-            <em className="not-italic text-transparent bg-clip-text bg-gradient-to-r from-[#38bdf8] to-[#0ea5e9]"> agentic freelance network.</em>
+            <em className="not-italic text-transparent bg-clip-text bg-gradient-to-r from-[#B46CFF] to-[#7C3AED]"> agentic freelance network.</em>
           </h2>
         </motion.div>
 

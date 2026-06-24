@@ -14,7 +14,6 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -68,7 +67,7 @@ function WalletButton({ compact = false }: { compact?: boolean }) {
           >
             {!connected ? (
               <button
-                className="flex h-11 items-center gap-2 rounded-2xl border border-emerald-300/20 bg-gradient-to-br from-[#22C55E] to-[#16A34A] px-4 text-sm font-semibold text-[#04110a] shadow-[0_12px_32px_rgba(22,163,74,0.22)] transition-all duration-200 hover:-translate-y-px hover:shadow-[0_16px_38px_rgba(22,163,74,0.28)] focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-emerald-300/40 sm:h-[46px] sm:px-5"
+                className="flex h-11 items-center gap-2 rounded-2xl border border-emerald-300/20 bg-gradient-to-br from-[#22C55E] to-[#16A34A] px-4 text-sm font-semibold text-[#04110a] shadow-[0_12px_32px_rgba(22,163,74,0.22)] transition-all duration-200 hover:-translate-y-px hover:shadow-[0_16px_38px_rgba(22,163,74,0.28)] sm:h-[46px] sm:px-5"
                 onClick={openConnectModal}
                 type="button"
               >
@@ -77,7 +76,7 @@ function WalletButton({ compact = false }: { compact?: boolean }) {
               </button>
             ) : chain.unsupported ? (
               <button
-                className="flex h-11 items-center gap-2 rounded-2xl border border-rose-300/24 bg-rose-300/12 px-4 text-sm font-semibold text-rose-100 transition-all duration-200 hover:-translate-y-px hover:bg-rose-300/18 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-rose-300/40 sm:h-[46px]"
+                className="flex h-11 items-center gap-2 rounded-2xl border border-rose-300/24 bg-rose-300/12 px-4 text-sm font-semibold text-rose-100 transition-all duration-200 hover:-translate-y-px hover:bg-rose-300/18 sm:h-[46px]"
                 onClick={openChainModal}
                 type="button"
               >
@@ -86,7 +85,7 @@ function WalletButton({ compact = false }: { compact?: boolean }) {
               </button>
             ) : (
               <button
-                className="flex h-11 items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.08] px-3.5 text-sm font-semibold text-slate-100 transition-all duration-200 hover:-translate-y-px hover:border-white/16 hover:bg-white/[0.11] focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-white/25 sm:h-[46px] sm:px-4"
+                className="flex h-11 items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.08] px-3.5 text-sm font-semibold text-slate-100 transition-all duration-200 hover:-translate-y-px hover:border-white/16 hover:bg-white/[0.11] sm:h-[46px] sm:px-4"
                 onClick={openAccountModal}
                 type="button"
               >
@@ -143,12 +142,8 @@ export function Navbar() {
         style={{ background: "rgba(10, 13, 24, 0.72)" }}
       >
         <div className="flex min-w-0 items-center gap-3 justify-self-start">
-          <Link
-            className="group flex min-w-0 items-center gap-3.5 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
-            href="/"
-          >
-            <div className="relative flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-[15px] border border-emerald-300/20 bg-gradient-to-br from-[#0f3d31] via-[#10b981] to-[#0A0D18] text-base font-bold text-emerald-50 shadow-[0_14px_34px_rgba(16,185,129,0.3)] transition-all duration-200 group-hover:-translate-y-px group-hover:shadow-[0_18px_42px_rgba(16,185,129,0.4)]">
-              <span className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+          <Link className="group flex min-w-0 items-center gap-3.5" href="/">
+            <div className="flex size-11 shrink-0 items-center justify-center rounded-[15px] border border-white/10 bg-gradient-to-br from-[#1E293B] via-[#312E81] to-[#0A0D18] text-base font-bold text-slate-50 shadow-[0_14px_34px_rgba(49,46,129,0.26)] transition-all duration-200 group-hover:-translate-y-px group-hover:shadow-[0_18px_42px_rgba(49,46,129,0.32)]">
               J
             </div>
             <div className="min-w-0 font-ui">
@@ -168,9 +163,8 @@ export function Navbar() {
 
             return (
               <Link
-                aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex h-10 items-center gap-[7px] rounded-full px-3 text-sm font-medium text-slate-50/60 transition-all duration-200 ease-out hover:-translate-y-px hover:bg-white/[0.075] hover:text-slate-50/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 xl:px-[18px]",
+                  "flex h-10 items-center gap-[7px] rounded-full px-3 text-sm font-medium text-slate-50/60 transition-all duration-200 ease-out hover:-translate-y-px hover:bg-white/[0.075] hover:text-slate-50/90 xl:px-[18px]",
                   active &&
                     "bg-white/[0.13] text-[#F8FAFC] shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_8px_20px_rgba(0,0,0,0.18)]",
                 )}
@@ -197,7 +191,7 @@ export function Navbar() {
           <button
             aria-expanded={mobileOpen}
             aria-label="Toggle navigation"
-            className="flex size-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-slate-200 transition-all duration-200 hover:-translate-y-px hover:bg-white/[0.1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 md:hidden"
+            className="flex size-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-slate-200 transition-all duration-200 hover:-translate-y-px hover:bg-white/[0.1] md:hidden"
             onClick={() => setMobileOpen((open) => !open)}
             type="button"
           >
@@ -206,43 +200,34 @@ export function Navbar() {
         </div>
       </div>
 
-      <AnimatePresence>
-        {mobileOpen && (
-          <motion.div
-            className="mt-3 overflow-hidden rounded-[24px] border border-white/10 bg-[#0A0D18]/94 p-2 shadow-[0_18px_60px_rgba(0,0,0,0.34)] backdrop-blur-[24px] md:hidden"
-            initial={{ opacity: 0, height: 0, y: -8 }}
-            animate={{ opacity: 1, height: "auto", y: 0 }}
-            exit={{ opacity: 0, height: 0, y: -8 }}
-            transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <div className="px-2 pb-2">
-              <TestnetBadge compact />
-            </div>
-            <nav className="grid gap-1">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const active = activeSection === item.section;
+      {mobileOpen && (
+        <div className="mt-3 overflow-hidden rounded-[24px] border border-white/10 bg-[#0A0D18]/94 p-2 shadow-[0_18px_60px_rgba(0,0,0,0.34)] backdrop-blur-[24px] md:hidden">
+          <div className="px-2 pb-2">
+            <TestnetBadge compact />
+          </div>
+          <nav className="grid gap-1">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const active = activeSection === item.section;
 
-                return (
-                  <Link
-                    aria-current={active ? "page" : undefined}
-                    className={cn(
-                      "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-300 transition-all duration-200 hover:bg-white/[0.075] hover:text-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30",
-                      active && "bg-white/[0.13] text-slate-50",
-                    )}
-                    href={item.href}
-                    key={item.label}
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    <Icon className="size-4" />
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </nav>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              return (
+                <Link
+                  className={cn(
+                    "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-300 transition-all duration-200 hover:bg-white/[0.075] hover:text-slate-50",
+                    active && "bg-white/[0.13] text-slate-50",
+                  )}
+                  href={item.href}
+                  key={item.label}
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <Icon className="size-4" />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+      )}
     </header>
   );
 }

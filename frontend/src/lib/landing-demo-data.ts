@@ -137,14 +137,14 @@ export const DEMO_DASHBOARD: DemoDashboard = {
     {
       action: "Agent reviewed dispute",
       amount: "3,800 USDC",
-      color: "#38bdf8",
+      color: "#B46CFF",
       contract: "ESC-1046",
       time: "Yesterday",
     },
     {
       action: "Funds released",
       amount: "500 USDC",
-      color: "#10b981",
+      color: "#FF7A18",
       contract: "ESC-1048",
       time: "Yesterday",
     },

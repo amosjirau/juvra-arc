@@ -30,12 +30,12 @@ const cardVisuals = [
   {
     image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop&auto=format",
     rotation: -2,
-    accent: "#10b981",
+    accent: "#FF7A18",
   },
   {
     image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=400&fit=crop&auto=format",
     rotation: 1.5,
-    accent: "#38bdf8",
+    accent: "#B46CFF",
   },
   {
     image: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=600&h=400&fit=crop&auto=format",
@@ -118,8 +118,7 @@ function OpportunityCard({ opp, index, activeIndex }: { opp: Opportunity; index:
       >
         {/* Image */}
         <div className="h-44 relative overflow-hidden bg-[#1a2235]">
-          {/* eslint-disable-next-line @next/next/no-img-element -- dynamic remote listing image; next/image remotePatterns not configured */}
-          <img src={opp.image} alt={opp.title} loading="lazy" decoding="async" className="w-full h-full object-cover" />
+          <img src={opp.image} alt={opp.title} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#111827] via-transparent to-transparent" />
           {/* Category badge */}
           <div className="absolute top-3 left-3">
@@ -167,7 +166,7 @@ function OpportunityCard({ opp, index, activeIndex }: { opp: Opportunity; index:
           </div>
 
           <div className="mt-3 pt-3 border-t border-white/5 flex items-center gap-2">
-            <Lock size={10} className="text-[#38bdf8]" />
+            <Lock size={10} className="text-[#B46CFF]" />
             <span className="text-[#8892a4] text-xs">
               {opp.isDemo ? `${opp.status} preview on Arc Protocol` : "Funds locked on Arc Protocol"}
             </span>
@@ -204,7 +203,7 @@ export function OpportunitiesSection({
       className="relative py-28 overflow-hidden"
       style={{
         background:
-          "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(56,189,248,0.06) 0%, transparent 70%), linear-gradient(180deg, #060816 0%, #0b1020 50%, #060816 100%)",
+          "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(180,108,255,0.06) 0%, transparent 70%), linear-gradient(180deg, #060816 0%, #0b1020 50%, #060816 100%)",
       }}
     >
       <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
@@ -215,7 +214,7 @@ export function OpportunitiesSection({
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className="text-center mb-20"
         >
-          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#38bdf8]/10 border border-[#38bdf8]/20 text-[#38bdf8] text-xs uppercase tracking-widest mb-6">
+          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#B46CFF]/10 border border-[#B46CFF]/20 text-[#B46CFF] text-xs uppercase tracking-widest mb-6">
             <Lock size={11} />
             {isDemo ? "Demo escrow opportunities" : "Escrow Opportunities"}
           </span>
@@ -245,8 +244,7 @@ export function OpportunitiesSection({
           <button
             onClick={() => setActiveIndex(Math.max(0, activeIndex - 1))}
             disabled={currentIndex === 0}
-            aria-label="Previous opportunity"
-            className="w-10 h-10 cursor-pointer rounded-xl border border-white/10 flex items-center justify-center text-[#8892a4] hover:text-white hover:border-white/20 disabled:cursor-not-allowed disabled:opacity-30 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#10b981]/50"
+            className="w-10 h-10 rounded-xl border border-white/10 flex items-center justify-center text-[#8892a4] hover:text-white hover:border-white/20 disabled:opacity-30 transition-all duration-200"
           >
             <ChevronLeft size={18} />
           </button>
@@ -255,10 +253,8 @@ export function OpportunitiesSection({
               <button
                 key={i}
                 onClick={() => setActiveIndex(i)}
-                aria-label={`Go to opportunity ${i + 1}`}
-                aria-current={i === currentIndex ? "true" : undefined}
-                className={`cursor-pointer rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#10b981]/50 ${
-                  i === currentIndex ? "w-6 h-2 bg-[#10b981]" : "w-2 h-2 bg-white/20 hover:bg-white/40"
+                className={`rounded-full transition-all duration-300 ${
+                  i === currentIndex ? "w-6 h-2 bg-[#FF7A18]" : "w-2 h-2 bg-white/20 hover:bg-white/40"
                 }`}
               />
             ))}
@@ -266,8 +262,7 @@ export function OpportunitiesSection({
           <button
             onClick={() => setActiveIndex(Math.min(opportunities.length - 1, activeIndex + 1))}
             disabled={currentIndex === opportunities.length - 1}
-            aria-label="Next opportunity"
-            className="w-10 h-10 cursor-pointer rounded-xl border border-white/10 flex items-center justify-center text-[#8892a4] hover:text-white hover:border-white/20 disabled:cursor-not-allowed disabled:opacity-30 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#10b981]/50"
+            className="w-10 h-10 rounded-xl border border-white/10 flex items-center justify-center text-[#8892a4] hover:text-white hover:border-white/20 disabled:opacity-30 transition-all duration-200"
           >
             <ChevronRight size={18} />
           </button>
@@ -276,7 +271,7 @@ export function OpportunitiesSection({
         <div className="text-center mt-10">
           <Link
             href="/jobs"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-white/10 text-[#8892a4] hover:text-white hover:border-white/20 hover:bg-white/5 transition-all duration-300 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060816]"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-white/10 text-[#8892a4] hover:text-white hover:border-white/20 hover:bg-white/5 transition-all duration-300 text-sm"
           >
             Browse All Opportunities
             <ChevronRight size={14} />

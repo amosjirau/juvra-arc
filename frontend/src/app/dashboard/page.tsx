@@ -5,10 +5,10 @@ import {
   Banknote,
   BriefcaseBusiness,
   CheckCircle2,
+  Clock3,
   LayoutDashboard,
   Scale,
   UserCheck,
-  Wallet,
 } from "lucide-react";
 import { useMemo } from "react";
 import { zeroAddress } from "viem";
@@ -18,18 +18,13 @@ import { AgentFlagsPanel } from "@/components/agent/AgentFlagsPanel";
 import AgentRiskPreview from "@/components/agent/AgentRiskPreview";
 import { EmptyState } from "@/components/empty-state";
 import { JobCard } from "@/components/JobCard";
-import { JobCardSkeleton, MetricCardSkeleton } from "@/components/loading-skeleton";
-import { AppShell } from "@/components/shell/AppShell";
-import { PageHeader } from "@/components/shell/PageHeader";
+import { JobCardSkeleton } from "@/components/loading-skeleton";
 import { Badge } from "@/components/ui/badge";
-import { ErrorState } from "@/components/ui/error-state";
-import { GlassCard } from "@/components/ui/glass-card";
-import { MetricCard } from "@/components/ui/metric-card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { WalletStatusCard } from "@/components/ui/wallet-status-card";
 import { useJobCount } from "@/hooks/use-juvra-escrow";
 import { getEscrowReadErrorMessage } from "@/lib/contract";
-import { formatDate, formatUsdc } from "@/lib/format";
+import { formatDate, formatUsdc, shortAddress } from "@/lib/format";
 import {
   isEscrowConfigured,
   juvraEscrowAbi,
@@ -103,136 +98,186 @@ export default function DashboardPage() {
   const readErrorMessage = getEscrowReadErrorMessage(readError);
 
   return (
-    <AppShell>
-      <PageHeader
-        eyebrow="Mission control"
-        eyebrowIcon={LayoutDashboard}
-        title="Dashboard"
-        description="Track every escrow where your wallet is the client or the selected freelancer."
-        actions={<ConnectButton accountStatus="address" chainStatus="icon" showBalance={false} />}
-      />
-
-      <div className="mt-8">
-        <WalletStatusCard
-          isConnected={isConnected}
-          address={address}
-          networkName="Arc Testnet"
-        />
-      </div>
-
-      {!isConnected && (
-        <GlassCard className="mt-6 p-8 text-center">
-          <div className="mx-auto flex size-12 items-center justify-center rounded-2xl border border-[#10b981]/25 bg-[#10b981]/10 text-[#34d399]">
-            <Wallet className="size-6" />
-          </div>
-          <h2 className="mt-5 text-lg font-semibold text-white">Connect your wallet</h2>
-          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-400">
-            Connect your Arc Testnet wallet to load your client jobs, freelancer assignments,
-            disputes, and escrow totals.
-          </p>
-          <div className="mt-6 flex justify-center">
-            <ConnectButton accountStatus="address" chainStatus="full" showBalance={false} />
-          </div>
-        </GlassCard>
-      )}
-
-      {isConnected && (
-        <>
-          {isError && (
-            <div className="mt-6">
-              <ErrorState title="Couldn't load your dashboard" description={readErrorMessage} />
+    <main className="min-h-screen text-white">
+      <section className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
+        <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-96 bg-[radial-gradient(circle_at_12%_12%,rgba(217,70,239,0.16),transparent_25rem),radial-gradient(circle_at_88%_0%,rgba(99,102,241,0.16),transparent_24rem)]" />
+        <div className="premium-panel p-6 sm:p-8">
+          <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
+            <div>
+              <div className="eyebrow mb-4">
+                <LayoutDashboard className="size-4" />
+                Mission control
+              </div>
+              <h1 className="font-display heading-gradient text-4xl font-semibold tracking-normal sm:text-5xl">
+                Dashboard
+              </h1>
+              <p className="mt-3 max-w-2xl leading-7 text-zinc-400">
+                Track every escrow where your wallet is the client or selected freelancer.
+              </p>
             </div>
-          )}
-
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-            {isLoading ? (
-              Array.from({ length: 5 }).map((_, i) => <MetricCardSkeleton key={i} />)
-            ) : (
-              <>
-                <MetricCard
-                  icon={BriefcaseBusiness}
-                  label="Jobs posted by me"
-                  countTo={clientJobs.length}
-                  tone="emerald"
-                />
-                <MetricCard
-                  icon={UserCheck}
-                  label="Jobs assigned to me"
-                  countTo={freelancerJobs.length}
-                  tone="sky"
-                />
-                <MetricCard
-                  icon={CheckCircle2}
-                  label="Completed jobs"
-                  countTo={completedJobs.length}
-                  tone="emerald"
-                />
-                <MetricCard
-                  icon={Scale}
-                  label="Disputed jobs"
-                  countTo={disputedJobs.length}
-                  tone="amber"
-                />
-                <MetricCard
-                  icon={Banknote}
-                  label="Total value involved"
-                  value={formatUsdc(totalValue)}
-                  tone="teal"
-                />
-              </>
-            )}
+            <div className="flex flex-col items-start gap-2 md:items-end">
+              <ConnectButton accountStatus="address" chainStatus="icon" showBalance={false} />
+              {address && (
+                <Badge className="border-white/10 bg-white/5 font-mono text-zinc-300">
+                  {shortAddress(address)}
+                </Badge>
+              )}
+            </div>
           </div>
+        </div>
 
-          <Tabs className="mt-8" defaultValue="client">
-            <TabsList className="h-auto w-full justify-start overflow-x-auto border border-white/10 bg-white/[0.04] p-1 sm:w-fit">
-              <TabsTrigger className="min-w-fit px-3 py-1.5" value="client">
-                Client Jobs
-                <Badge className="border-status-open/20 bg-status-open/10 text-status-open">
-                  {clientJobs.length}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger className="min-w-fit px-3 py-1.5" value="freelancer">
-                Freelancer Jobs
-                <Badge className="border-status-assigned/20 bg-status-assigned/10 text-status-assigned">
-                  {freelancerJobs.length}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger className="min-w-fit px-3 py-1.5" value="disputes">
-                Disputes
-                <Badge className="border-status-disputed/20 bg-status-disputed/10 text-status-disputed">
-                  {disputedJobs.length}
-                </Badge>
-              </TabsTrigger>
-            </TabsList>
+        {!isConnected && (
+          <Card className="mt-8 border-amber-200/20 bg-amber-200/10 shadow-2xl shadow-amber-950/10">
+            <CardHeader>
+              <CardTitle className="text-amber-100">Connect wallet required</CardTitle>
+              <CardDescription className="text-amber-100/80">
+                Connect your Arc Testnet wallet to load your client jobs, freelancer
+                assignments, disputes, and escrow totals.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ConnectButton accountStatus="address" chainStatus="full" showBalance={false} />
+            </CardContent>
+          </Card>
+        )}
 
-            <TabsContent className="mt-5" value="client">
-              <JobGrid
-                emptyDescription="Jobs you post and fund from this wallet will appear here."
-                emptyTitle="No client jobs"
+        {isConnected && (
+          <>
+            {isError && (
+              <div className="mt-6 rounded-xl border border-rose-300/20 bg-rose-300/10 p-4 text-sm text-rose-100">
+                {readErrorMessage}
+              </div>
+            )}
+
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
+              <DashboardStat
+                icon={BriefcaseBusiness}
                 isLoading={isLoading}
-                jobs={clientJobs}
+                label="Jobs posted by me"
+                value={String(clientJobs.length)}
+                wide
               />
-            </TabsContent>
-            <TabsContent className="mt-5" value="freelancer">
-              <JobGrid
-                emptyDescription="When a client selects this wallet, assigned work will appear here."
-                emptyTitle="No freelancer jobs"
+              <DashboardStat
+                icon={UserCheck}
                 isLoading={isLoading}
-                jobs={freelancerJobs}
+                label="Jobs assigned to me"
+                tone="cyan"
+                value={String(freelancerJobs.length)}
               />
-            </TabsContent>
-            <TabsContent className="mt-5" value="disputes">
-              <JobGrid
-                emptyDescription="Disputed client or freelancer jobs will appear here."
-                emptyTitle="No disputes"
+              <DashboardStat
+                icon={CheckCircle2}
                 isLoading={isLoading}
-                jobs={disputedJobs}
+                label="Completed jobs"
+                value={String(completedJobs.length)}
               />
-            </TabsContent>
-          </Tabs>
-        </>
-      )}
-    </AppShell>
+              <DashboardStat
+                icon={Scale}
+                isLoading={isLoading}
+                label="Disputed jobs"
+                tone="amber"
+                value={String(disputedJobs.length)}
+              />
+              <DashboardStat
+                icon={Banknote}
+                isLoading={isLoading}
+                label="Total value involved"
+                tone="cyan"
+                value={formatUsdc(totalValue)}
+                wide
+              />
+            </div>
+
+            <Tabs className="mt-8" defaultValue="client">
+              <TabsList className="h-auto w-full justify-start overflow-x-auto border border-white/10 bg-white/[0.04] p-1 sm:w-fit">
+                <TabsTrigger className="min-w-fit px-3 py-1.5" value="client">
+                  Client Jobs
+                  <Badge className="border-emerald-300/20 bg-emerald-300/10 text-emerald-100">
+                    {clientJobs.length}
+                  </Badge>
+                </TabsTrigger>
+                <TabsTrigger className="min-w-fit px-3 py-1.5" value="freelancer">
+                  Freelancer Jobs
+                  <Badge className="border-cyan-200/20 bg-cyan-200/10 text-cyan-100">
+                    {freelancerJobs.length}
+                  </Badge>
+                </TabsTrigger>
+                <TabsTrigger className="min-w-fit px-3 py-1.5" value="disputes">
+                  Disputes
+                  <Badge className="border-amber-200/20 bg-amber-200/10 text-amber-100">
+                    {disputedJobs.length}
+                  </Badge>
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent className="mt-5" value="client">
+                <JobGrid
+                  emptyDescription="Jobs you post and fund from this wallet will appear here."
+                  emptyTitle="No client jobs"
+                  isLoading={isLoading}
+                  jobs={clientJobs}
+                />
+              </TabsContent>
+              <TabsContent className="mt-5" value="freelancer">
+                <JobGrid
+                  emptyDescription="When a client selects this wallet, assigned work will appear here."
+                  emptyTitle="No freelancer jobs"
+                  isLoading={isLoading}
+                  jobs={freelancerJobs}
+                />
+              </TabsContent>
+              <TabsContent className="mt-5" value="disputes">
+                <JobGrid
+                  emptyDescription="Disputed client or freelancer jobs will appear here."
+                  emptyTitle="No disputes"
+                  isLoading={isLoading}
+                  jobs={disputedJobs}
+                />
+              </TabsContent>
+            </Tabs>
+          </>
+        )}
+      </section>
+    </main>
+  );
+}
+
+function DashboardStat({
+  icon: Icon,
+  isLoading,
+  label,
+  tone = "emerald",
+  value,
+  wide = false,
+}: {
+  icon: typeof Clock3;
+  isLoading: boolean;
+  label: string;
+  tone?: "emerald" | "cyan" | "amber";
+  value: string;
+  wide?: boolean;
+}) {
+  const toneClass = {
+    emerald: "border-emerald-300/20 bg-emerald-300/10 text-emerald-200",
+    cyan: "border-cyan-200/20 bg-cyan-200/10 text-cyan-100",
+    amber: "border-amber-200/20 bg-amber-200/10 text-amber-100",
+  }[tone];
+
+  return (
+    <Card className={`premium-card-hover border-white/10 bg-white/[0.045] ${wide ? "xl:col-span-2" : ""}`}>
+      <CardContent className="flex items-center justify-between gap-4 p-5">
+        <div>
+          <p className="text-sm text-zinc-400">{label}</p>
+          {isLoading ? (
+            <div className="mt-3 h-7 w-20 animate-pulse rounded-md bg-white/10" />
+          ) : (
+            <p className="font-display mt-2 text-2xl font-semibold tracking-normal text-white">{value}</p>
+          )}
+        </div>
+        <div className={`flex size-11 items-center justify-center rounded-xl border shadow-lg shadow-black/10 ${toneClass}`}>
+          <Icon className="size-5" />
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 

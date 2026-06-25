@@ -43,7 +43,7 @@ const capabilities = [
     title: "Settlement Recommendations",
     description: "Recommends human-confirmed next steps while never signing or moving funds.",
     status: "Ready",
-    statusColor: "#38bdf8",
+    statusColor: "#B46CFF",
   },
 ];
 
@@ -63,11 +63,11 @@ export function AICopilotSection({ isDemo, job }: { isDemo?: boolean; job?: Juvr
     <section
       className="relative py-28 overflow-hidden"
       style={{
-        background: "linear-gradient(180deg, #060b16 0%, #07131f 60%, #060b16 100%)",
+        background: "linear-gradient(180deg, #060816 0%, #0d0620 60%, #060816 100%)",
       }}
     >
       {/* Right ambient */}
-      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#38bdf8]/6 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#B46CFF]/6 rounded-full blur-[140px] pointer-events-none" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-20 items-center">
@@ -78,27 +78,27 @@ export function AICopilotSection({ isDemo, job }: { isDemo?: boolean; job?: Juvr
             animate={inView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div className="relative rounded-3xl border border-[#38bdf8]/20 bg-[#0b1120] overflow-hidden shadow-[0_0_80px_rgba(56,189,248,0.12)]">
-              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#38bdf8]/50 to-transparent" />
+            <div className="relative rounded-3xl border border-[#B46CFF]/20 bg-[#0d0a1a] overflow-hidden shadow-[0_0_80px_rgba(180,108,255,0.12)]">
+              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#B46CFF]/50 to-transparent" />
 
               {/* Header bar */}
-              <div className="flex items-center gap-3 px-5 py-4 border-b border-[#38bdf8]/10">
+              <div className="flex items-center gap-3 px-5 py-4 border-b border-[#B46CFF]/10">
                 <div className="flex gap-1.5">
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#38bdf8]/40" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#38bdf8]/25" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#38bdf8]/15" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#B46CFF]/40" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#B46CFF]/25" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#B46CFF]/15" />
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-[#38bdf8]/40 to-[#0ea5e9]/20 flex items-center justify-center">
-                    <Brain size={12} className="text-[#38bdf8]" />
+                  <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-[#B46CFF]/40 to-[#7C3AED]/20 flex items-center justify-center">
+                    <Brain size={12} className="text-[#B46CFF]" />
                   </div>
                   <span className="text-[#8892a4] text-xs font-mono">AI Settlement Copilot</span>
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#38bdf8] animate-pulse ml-1" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#B46CFF] animate-pulse ml-1" />
                 </div>
               </div>
 
               {/* Active contract context */}
-              <div className="p-5 border-b border-[#38bdf8]/10">
+              <div className="p-5 border-b border-[#B46CFF]/10">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-[#8892a4] text-xs uppercase tracking-widest">Escrow</span>
                   <div className="flex items-center gap-2">
@@ -107,7 +107,7 @@ export function AICopilotSection({ isDemo, job }: { isDemo?: boolean; job?: Juvr
                         Preview Analysis
                       </span>
                     )}
-                    <span className="text-xs font-mono text-[#38bdf8] bg-[#38bdf8]/10 px-2 py-0.5 rounded">{contractId}</span>
+                    <span className="text-xs font-mono text-[#B46CFF] bg-[#B46CFF]/10 px-2 py-0.5 rounded">{contractId}</span>
                   </div>
                 </div>
                 {useDemo && <p className="text-[10px] uppercase tracking-widest text-[#8892a4]">Recommendation</p>}
@@ -119,9 +119,9 @@ export function AICopilotSection({ isDemo, job }: { isDemo?: boolean; job?: Juvr
                         <p className="text-[10px] uppercase tracking-widest text-[#8892a4]">Risk</p>
                         <p className="text-xs text-emerald-300">{DEMO_AGENT.risk}</p>
                       </div>
-                      <div className="rounded-lg border border-[#38bdf8]/20 bg-[#38bdf8]/10 px-3 py-2">
+                      <div className="rounded-lg border border-[#B46CFF]/20 bg-[#B46CFF]/10 px-3 py-2">
                         <p className="text-[10px] uppercase tracking-widest text-[#8892a4]">Contract</p>
-                        <p className="text-xs text-[#38bdf8]">{DEMO_AGENT.status}</p>
+                        <p className="text-xs text-[#B46CFF]">{DEMO_AGENT.status}</p>
                       </div>
                     </div>
                     <div className="rounded-lg border border-white/8 bg-white/[0.03] px-3 py-2">
@@ -136,7 +136,7 @@ export function AICopilotSection({ isDemo, job }: { isDemo?: boolean; job?: Juvr
                       initial={{ width: 0 }}
                       animate={inView ? { width: `${progress}%` } : {}}
                       transition={{ duration: 1.5, delay: 0.5, ease: "easeOut" }}
-                      className="h-full bg-gradient-to-r from-[#38bdf8] to-[#0ea5e9] rounded-full"
+                      className="h-full bg-gradient-to-r from-[#B46CFF] to-[#7C3AED] rounded-full"
                     />
                   </div>
                   <span className="text-[#8892a4] text-xs">{progress}% complete</span>
@@ -151,10 +151,10 @@ export function AICopilotSection({ isDemo, job }: { isDemo?: boolean; job?: Juvr
                     initial={{ opacity: 0, x: -20 }}
                     animate={inView ? { opacity: 1, x: 0 } : {}}
                     transition={{ duration: 0.5, delay: 0.2 + i * 0.1 }}
-                    className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/5 hover:border-[#38bdf8]/20 transition-colors duration-300 group"
+                    className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/5 hover:border-[#B46CFF]/20 transition-colors duration-300 group"
                   >
-                    <div className="w-8 h-8 rounded-lg bg-[#38bdf8]/10 flex items-center justify-center flex-shrink-0">
-                      <cap.icon size={14} className="text-[#38bdf8]" />
+                    <div className="w-8 h-8 rounded-lg bg-[#B46CFF]/10 flex items-center justify-center flex-shrink-0">
+                      <cap.icon size={14} className="text-[#B46CFF]" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-white text-xs mb-0.5">{cap.title}</p>
@@ -170,15 +170,15 @@ export function AICopilotSection({ isDemo, job }: { isDemo?: boolean; job?: Juvr
 
               {/* AI message */}
               <div className="px-5 pb-5">
-                <div className="rounded-xl bg-[#38bdf8]/8 border border-[#38bdf8]/15 p-4">
+                <div className="rounded-xl bg-[#B46CFF]/8 border border-[#B46CFF]/15 p-4">
                   <div className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-lg bg-[#38bdf8]/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Brain size={12} className="text-[#38bdf8]" />
+                    <div className="w-6 h-6 rounded-lg bg-[#B46CFF]/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Brain size={12} className="text-[#B46CFF]" />
                     </div>
                     <div>
                       <p className="text-[#8892a4] text-xs mb-1">Copilot Assessment</p>
                       <p className="text-white text-xs leading-relaxed">
-                        {assessment} Client approval confidence: <span className="text-[#38bdf8]">{DEMO_AGENT.confidence}</span>
+                        {assessment} Client approval confidence: <span className="text-[#B46CFF]">{DEMO_AGENT.confidence}</span>
                       </p>
                     </div>
                   </div>
@@ -193,7 +193,7 @@ export function AICopilotSection({ isDemo, job }: { isDemo?: boolean; job?: Juvr
             animate={inView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
           >
-            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#38bdf8]/10 border border-[#38bdf8]/20 text-[#38bdf8] text-xs uppercase tracking-widest mb-8">
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#B46CFF]/10 border border-[#B46CFF]/20 text-[#B46CFF] text-xs uppercase tracking-widest mb-8">
               <Brain size={11} />
               Agentic Commerce Copilot
             </span>
@@ -202,7 +202,7 @@ export function AICopilotSection({ isDemo, job }: { isDemo?: boolean; job?: Juvr
               className="text-4xl md:text-5xl text-white mb-6 leading-tight"
             >
               Coordination intelligence,
-              <em className="not-italic text-transparent bg-clip-text bg-gradient-to-r from-[#38bdf8] to-[#0ea5e9]"> built in.</em>
+              <em className="not-italic text-transparent bg-clip-text bg-gradient-to-r from-[#B46CFF] to-[#7C3AED]"> built in.</em>
             </h2>
             <p className="text-[#8892a4] text-lg leading-relaxed mb-8">
               Juvra agents help structure work, review delivery evidence, detect escrow risk, summarize disputes, and recommend settlement actions. Arc and USDC handle the settlement layer, and humans remain in control of every wallet-confirmed action.
@@ -211,8 +211,8 @@ export function AICopilotSection({ isDemo, job }: { isDemo?: boolean; job?: Juvr
             <div className="space-y-4 mb-10">
               {["Scope and evidence coordination", "Agent-assisted, human-confirmed", "Milestone-linked settlement reasoning"].map((item) => (
                 <div key={item} className="flex items-center gap-3">
-                  <div className="w-5 h-5 rounded-full bg-[#38bdf8]/15 border border-[#38bdf8]/30 flex items-center justify-center flex-shrink-0">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#38bdf8]" />
+                  <div className="w-5 h-5 rounded-full bg-[#B46CFF]/15 border border-[#B46CFF]/30 flex items-center justify-center flex-shrink-0">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#B46CFF]" />
                   </div>
                   <span className="text-[#8892a4] text-sm">{item}</span>
                 </div>
@@ -221,7 +221,7 @@ export function AICopilotSection({ isDemo, job }: { isDemo?: boolean; job?: Juvr
 
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-2 text-[#38bdf8] text-sm hover:gap-3 transition-all duration-200"
+              className="inline-flex items-center gap-2 text-[#B46CFF] text-sm hover:gap-3 transition-all duration-200"
             >
               See AI Copilot in dashboard <ChevronRight size={14} />
             </Link>

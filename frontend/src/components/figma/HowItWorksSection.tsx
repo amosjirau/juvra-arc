@@ -19,7 +19,7 @@ const steps = [
     title: "Lock USDC on Arc",
     description: "Client funds escrow with stable USDC value while Arc smart contracts track job state and settlement flow.",
     detail: "Funds are held in a non-custodial Arc escrow contract. The agent cannot access or redirect the escrow balance.",
-    accent: "#38bdf8",
+    accent: "#B46CFF",
   },
   {
     number: "03",
@@ -27,7 +27,7 @@ const steps = [
     title: "Review Evidence",
     description: "Freelancer submits delivery proof. AI reviews scope fit, risk, missing evidence, and dispute context.",
     detail: "The AI Copilot analyzes evidence, flags uncertainty, and prepares summaries so humans can make better settlement decisions.",
-    accent: "#10b981",
+    accent: "#FF7A18",
   },
   {
     number: "04",
@@ -53,7 +53,7 @@ export function HowItWorksSection() {
       }}
     >
       {/* Left ambient */}
-      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-96 h-96 bg-[#10b981]/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-96 h-96 bg-[#FF7A18]/5 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
         <motion.div
@@ -63,7 +63,7 @@ export function HowItWorksSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-20"
         >
-          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#10b981]/10 border border-[#10b981]/20 text-[#10b981] text-xs uppercase tracking-widest mb-6">
+          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FF7A18]/10 border border-[#FF7A18]/20 text-[#FF7A18] text-xs uppercase tracking-widest mb-6">
             How It Works
           </span>
           <h2
@@ -71,7 +71,7 @@ export function HowItWorksSection() {
             className="text-4xl md:text-5xl text-white"
           >
             Four steps to{" "}
-            <em className="not-italic text-transparent bg-clip-text bg-gradient-to-r from-[#10b981] to-[#34d399]">
+            <em className="not-italic text-transparent bg-clip-text bg-gradient-to-r from-[#FF7A18] to-[#FFB347]">
               agentic commerce.
             </em>
           </h2>
@@ -87,17 +87,7 @@ export function HowItWorksSection() {
                 animate={inView ? { opacity: 1, x: 0 } : {}}
                 transition={{ duration: 0.6, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
                 onClick={() => setActiveStep(i)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    setActiveStep(i);
-                  }
-                }}
-                role="button"
-                tabIndex={0}
-                aria-pressed={activeStep === i}
-                aria-label={`${step.title} - step ${step.number}`}
-                className={`group cursor-pointer rounded-2xl p-5 border transition-all duration-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/25 ${
+                className={`group cursor-pointer rounded-2xl p-5 border transition-all duration-400 ${
                   activeStep === i
                     ? "bg-[#111827] border-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
                     : "bg-transparent border-white/5 hover:border-white/10 hover:bg-white/2"
@@ -186,9 +176,7 @@ export function HowItWorksSection() {
                         <button
                           key={j}
                           onClick={() => setActiveStep(j)}
-                          aria-label={`Go to step ${j + 1}`}
-                          aria-current={j === i ? "true" : undefined}
-                          className="cursor-pointer rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
+                          className="rounded-full transition-all duration-300"
                           style={{
                             width: j === i ? "24px" : "8px",
                             height: "8px",

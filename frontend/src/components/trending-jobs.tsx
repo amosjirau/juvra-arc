@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, CheckCircle2, Gauge, Layers3, Plus, Search, ShieldCheck, UserRound } from "lucide-react";
+import { CalendarDays, CheckCircle2, Plus, Search, ShieldCheck, UserRound } from "lucide-react";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { useMemo, useState } from "react";
@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { useJobs } from "@/hooks/use-juvra-escrow";
 import { getEscrowReadErrorMessage } from "@/lib/contract";
 import { formatDate, formatUsdc, shortAddress } from "@/lib/format";
+import { getStatusLabel } from "@/lib/job-status";
 import type { JuvraJob } from "@/lib/juvraEscrow";
 import { cn } from "@/lib/utils";
 
@@ -85,8 +86,6 @@ function TrendingJobSkeleton({ deck = false }: { deck?: boolean }) {
 
 function TrendingJobCard({ deck = false, job, tilt = 0 }: { deck?: boolean; job: JuvraJob; tilt?: number }) {
   const category = normalizeCategory(job.category);
-  const trustScore = 88 + Number(job.id % 9n);
-  const milestoneCount = 2 + Number(job.id % 4n);
 
   return (
     <Link
@@ -145,10 +144,10 @@ function TrendingJobCard({ deck = false, job, tilt = 0 }: { deck?: boolean; job:
               </p>
             </div>
             <div className="rounded-xl border border-white/10 bg-black/20 p-3">
-              <p className="text-xs text-zinc-500">Milestones</p>
+              <p className="text-xs text-zinc-500">Posted</p>
               <p className="mt-1 flex items-center gap-1.5 text-sm text-zinc-300">
-                <Layers3 className="size-3.5 text-[#34d399]" />
-                {milestoneCount}
+                <CalendarDays className="size-3.5 text-[#34d399]" />
+                {formatDate(job.createdAt)}
               </p>
             </div>
             <div className="rounded-xl border border-white/10 bg-black/20 p-3">
@@ -159,17 +158,17 @@ function TrendingJobCard({ deck = false, job, tilt = 0 }: { deck?: boolean; job:
               </p>
             </div>
             <div className="rounded-xl border border-white/10 bg-black/20 p-3">
-              <p className="text-xs text-zinc-500">Trust score</p>
+              <p className="text-xs text-zinc-500">Status</p>
               <p className="mt-1 flex items-center gap-1.5 text-sm text-zinc-300">
-                <Gauge className="size-3.5 text-emerald-200" />
-                {trustScore}%
+                <ShieldCheck className="size-3.5 text-emerald-200" />
+                {getStatusLabel(job.status)}
               </p>
             </div>
           </div>
 
           <div className="mt-3 flex items-center gap-2 rounded-xl border border-emerald-300/15 bg-emerald-300/10 px-3 py-2 text-xs text-emerald-100">
             <ShieldCheck className="size-3.5" />
-            Client reputation: verified payer
+            Escrow-backed contract on Arc
           </div>
 
           <Button asChild className="mt-5 w-full">

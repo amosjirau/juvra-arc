@@ -50,7 +50,6 @@ export function EvidencePanel({
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
 
   useEffect(() => {
-    // Sync local state from the persisted (localStorage) store on job change.
     /* eslint-disable react-hooks/set-state-in-effect */
     const saved = loadJobEvidence(jobId);
     const savedItems = saved?.items ?? [];

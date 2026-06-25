@@ -72,7 +72,7 @@ export function DashboardSection({ isDemo, jobs }: { isDemo?: boolean; jobs: Juv
                 ? "Dispute opened"
                 : "Funds locked",
         amount: formatUsdc(job.amount),
-        color: ["#34d399", "#60a5fa", "#38bdf8", "#10b981"][index % 4],
+        color: ["#34d399", "#60a5fa", "#B46CFF", "#FF7A18"][index % 4],
         contract: `ESC-${job.id.toString().padStart(4, "0")}`,
         time: formatDate(job.createdAt),
       }));
@@ -146,7 +146,7 @@ export function DashboardSection({ isDemo, jobs }: { isDemo?: boolean; jobs: Juv
             {/* Metric cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                 {[
-                { label: "Escrowed Volume", value: useDemo ? wholeMoney(escrowedVolume) : shortMoney(escrowedVolume), change: useDemo ? "Preview data" : "Live", icon: TrendingUp, color: "#10b981" },
+                { label: "Escrowed Volume", value: useDemo ? wholeMoney(escrowedVolume) : shortMoney(escrowedVolume), change: useDemo ? "Preview data" : "Live", icon: TrendingUp, color: "#FF7A18" },
                 { label: "Active Contracts", value: activeContracts.toLocaleString(), change: useDemo ? "Demo active" : `${jobs.length} total`, icon: Clock, color: "#60a5fa" },
                 { label: "Pending Releases", value: pendingReleases.toLocaleString(), change: useDemo ? "Human review" : "Submitted", icon: AlertCircle, color: "#f59e0b" },
                 { label: "Trust Score", value: trustScore, change: useDemo ? "Preview score" : "Derived live", icon: Star, color: "#34d399" },
@@ -183,15 +183,15 @@ export function DashboardSection({ isDemo, jobs }: { isDemo?: boolean; jobs: Juv
                     <AreaChart data={chartData}>
                       <defs>
                         <linearGradient id="volumeGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                          <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                          <stop offset="5%" stopColor="#FF7A18" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="#FF7A18" stopOpacity={0} />
                         </linearGradient>
                       </defs>
                       <Tooltip
                         contentStyle={{ background: "#111827", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", color: "white" }}
                         formatter={(v: number) => [useDemo ? wholeMoney(v) : shortMoney(v), "Volume"]}
                       />
-                      <Area type="monotone" dataKey="volume" stroke="#10b981" strokeWidth={2} fill="url(#volumeGrad)" />
+                      <Area type="monotone" dataKey="volume" stroke="#FF7A18" strokeWidth={2} fill="url(#volumeGrad)" />
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
@@ -201,7 +201,7 @@ export function DashboardSection({ isDemo, jobs }: { isDemo?: boolean; jobs: Juv
               <div className="rounded-2xl bg-[#111827] border border-white/8 p-5">
                 <div className="flex items-center justify-between mb-4">
                   <p className="text-white text-sm">Activity Feed</p>
-                  <button type="button" tabIndex={-1} aria-hidden className="text-[#8892a4] text-xs hover:text-white transition-colors">All</button>
+                  <button className="text-[#8892a4] text-xs hover:text-white transition-colors">All</button>
                 </div>
                 <div className="space-y-3">
                   {activityFeed.map((item, i) => (
@@ -219,17 +219,17 @@ export function DashboardSection({ isDemo, jobs }: { isDemo?: boolean; jobs: Juv
             </div>
 
             {/* AI Recommendations */}
-            <div className="mt-4 rounded-2xl bg-gradient-to-r from-[#38bdf8]/8 to-transparent border border-[#38bdf8]/15 p-4 flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-[#38bdf8]/15 flex items-center justify-center flex-shrink-0">
-                <Brain size={14} className="text-[#38bdf8]" />
+            <div className="mt-4 rounded-2xl bg-gradient-to-r from-[#B46CFF]/8 to-transparent border border-[#B46CFF]/15 p-4 flex items-start gap-3">
+              <div className="w-8 h-8 rounded-lg bg-[#B46CFF]/15 flex items-center justify-center flex-shrink-0">
+                <Brain size={14} className="text-[#B46CFF]" />
               </div>
               <div className="flex-1">
-                <p className="text-[#38bdf8] text-xs mb-1">AI Recommendation</p>
+                <p className="text-[#B46CFF] text-xs mb-1">AI Recommendation</p>
                 <p className="text-[#8892a4] text-xs leading-relaxed">
                   {recommendation}
                 </p>
               </div>
-              <button type="button" tabIndex={-1} aria-hidden className="flex-shrink-0 text-[#38bdf8] hover:text-white transition-colors">
+              <button className="flex-shrink-0 text-[#B46CFF] hover:text-white transition-colors">
                 <ChevronRight size={14} />
               </button>
             </div>

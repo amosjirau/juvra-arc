@@ -1,6 +1,5 @@
 "use client";
 
-import { MotionConfig } from "motion/react";
 import { formatEther } from "viem";
 
 import { AICopilotSection } from "@/components/figma/AICopilotSection";
@@ -45,7 +44,6 @@ export function JuvraFigmaLanding() {
     : DEMO_STATS.trustScore;
 
   return (
-    <MotionConfig reducedMotion="user">
     <div
       className="min-h-screen antialiased"
       style={{
@@ -78,6 +76,5 @@ export function JuvraFigmaLanding() {
       </main>
       <Footer />
     </div>
-    </MotionConfig>
   );
 }

@@ -120,12 +120,15 @@ export function Navbar() {
     if (pathname.startsWith("/admin")) {
       return "admin";
     }
-    return "how";
+    if (pathname === "/" || pathname === "/how-it-works") {
+      return "how";
+    }
+    return "";
   }, [pathname]);
 
   const navItems = useMemo<NavItem[]>(
     () => [
-      { href: "/#how-it-works", icon: ListChecks, label: "How It Works", section: "how" },
+      { href: "/how-it-works", icon: ListChecks, label: "How It Works", section: "how" },
       { href: "/jobs", icon: BriefcaseBusiness, label: "Jobs", section: "jobs" },
       { href: "/post", icon: SquarePen, label: "Post a Job", section: "post" },
       { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard", section: "dashboard" },

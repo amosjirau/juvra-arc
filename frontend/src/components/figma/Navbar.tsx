@@ -68,12 +68,15 @@ function WalletButton({ compact = false }: { compact?: boolean }) {
           >
             {!connected ? (
               <button
-                className="flex h-11 items-center gap-2 rounded-2xl border border-emerald-300/20 bg-gradient-to-br from-[#22C55E] to-[#16A34A] px-4 text-sm font-semibold text-[#04110a] shadow-[0_12px_32px_rgba(22,163,74,0.22)] transition-all duration-200 hover:-translate-y-px hover:shadow-[0_16px_38px_rgba(22,163,74,0.28)] focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-emerald-300/40 sm:h-[46px] sm:px-5"
+                aria-label="Connect wallet"
+                className="flex h-11 items-center gap-2 rounded-2xl border border-emerald-300/20 bg-gradient-to-br from-[#22C55E] to-[#16A34A] px-3.5 text-sm font-semibold text-[#04110a] shadow-[0_12px_32px_rgba(22,163,74,0.22)] transition-all duration-200 hover:-translate-y-px hover:shadow-[0_16px_38px_rgba(22,163,74,0.28)] focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-emerald-300/40 sm:h-[46px] sm:px-5"
                 onClick={openConnectModal}
                 type="button"
               >
                 <Wallet className="size-4" />
-                <span>{compact ? "Connect" : "Connect Wallet"}</span>
+                <span className={cn(compact && "hidden min-[400px]:inline")}>
+                  {compact ? "Connect" : "Connect Wallet"}
+                </span>
               </button>
             ) : chain.unsupported ? (
               <button
@@ -200,7 +203,7 @@ export function Navbar() {
           <button
             aria-expanded={mobileOpen}
             aria-label="Toggle navigation"
-            className="flex size-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-slate-200 transition-all duration-200 hover:-translate-y-px hover:bg-white/[0.1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 md:hidden"
+            className="flex size-11 items-center justify-center rounded-full border border-white/15 bg-white/[0.1] text-slate-100 transition-all duration-200 hover:-translate-y-px hover:bg-white/[0.14] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 md:hidden"
             onClick={() => setMobileOpen((open) => !open)}
             type="button"
           >

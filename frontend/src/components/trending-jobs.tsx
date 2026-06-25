@@ -251,7 +251,7 @@ export function TrendingJobs({
           {categories.map((category) => (
             <button
               className={cn(
-                "min-w-fit rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#10b981]/40",
+                "min-w-fit rounded-full border px-4 py-3 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#10b981]/40 sm:py-2",
                 activeCategory === category
                   ? "border-[#10b981]/40 bg-[#10b981]/15 text-white shadow-lg shadow-black/20"
                   : "border-white/10 bg-white/[0.04] text-zinc-400 hover:border-white/20 hover:bg-white/[0.08] hover:text-white",

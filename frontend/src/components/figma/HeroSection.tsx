@@ -227,7 +227,7 @@ export function HeroSection({
   return (
     <section
       ref={ref}
-      className="relative min-h-screen flex items-center pt-28 pb-20 overflow-hidden"
+      className="relative min-h-[100dvh] flex items-center pt-28 pb-20 overflow-hidden"
       style={{ background: "radial-gradient(ellipse 80% 50% at 50% -10%, rgba(56,189,248,0.12) 0%, transparent 60%), #060816" }}
     >
       {/* Background grid */}
@@ -246,8 +246,8 @@ export function HeroSection({
         <div className="absolute bottom-1/4 left-1/3 w-64 h-64 bg-blue-500/5 rounded-full blur-[80px]" />
       </motion.div>
 
-      <motion.div style={{ opacity }} className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+      <motion.div style={{ opacity }} className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           {/* Left: copy */}
           <div>
             <motion.div
@@ -267,7 +267,7 @@ export function HeroSection({
               initial="hidden"
               animate="visible"
               style={{ fontFamily: "var(--font-display)" }}
-              className="text-5xl md:text-6xl lg:text-7xl text-white leading-[1.05] tracking-tight mb-6"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white leading-[1.05] tracking-tight mb-6"
             >
               Agentic escrow
               <br />
@@ -316,7 +316,7 @@ export function HeroSection({
               custom={4}
               initial="hidden"
               animate="visible"
-              className="mt-12 flex gap-8"
+              className="mt-10 flex flex-wrap gap-x-8 gap-y-5"
             >
               {stats.map((s) => (
                 <div key={s.label}>

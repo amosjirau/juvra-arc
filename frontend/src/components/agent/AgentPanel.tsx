@@ -120,6 +120,7 @@ export default function AgentPanel({
   const walletRole = getWalletRole(address, clientAddress, freelancerAddress);
 
   useEffect(() => {
+    // Sync local state from the persisted (localStorage) store on job/status change.
     /* eslint-disable react-hooks/set-state-in-effect */
     const savedRisk = loadAgentResult<JobRiskAnalysis>("risk", jobId);
     const savedDelivery = loadAgentResult<DeliveryReviewResult>("delivery", jobId);

@@ -42,6 +42,7 @@ export default function AgentRiskPreview({ job }: { job?: AgentJob | null }) {
   const jobId = job?.id?.toString().trim() || "";
 
   useEffect(() => {
+    // Sync local state from the persisted (localStorage) store on job change.
     /* eslint-disable react-hooks/set-state-in-effect */
     const saved = loadAgentResult<JobRiskAnalysis>("risk", jobId);
 

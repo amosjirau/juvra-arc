@@ -5,14 +5,14 @@ import { motion, useInView } from "motion/react";
 import { Zap, Globe, Code2, Shield } from "lucide-react";
 
 import { arcExplorerUrl } from "@/lib/arc";
-import { juvraEscrowAddress } from "@/lib/juvraEscrow";
+import { isEscrowConfigured, juvraEscrowAddress } from "@/lib/juvraEscrow";
 
 const partners = [
   {
     name: "Arc",
     description: "Settlement Layer",
     icon: Zap,
-    accent: "#FF7A18",
+    accent: "#10b981",
     detail: "Programmable escrow logic and onchain job state.",
   },
   {
@@ -33,7 +33,7 @@ const partners = [
     name: "Juvra Agent",
     description: "Coordination Layer",
     icon: Code2,
-    accent: "#B46CFF",
+    accent: "#38bdf8",
     detail: "Advisory scope, evidence, risk, and dispute reasoning.",
   },
 ];
@@ -67,7 +67,7 @@ export function InfrastructureSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-20"
         >
-          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FF7A18]/10 border border-[#FF7A18]/20 text-[#FF7A18] text-xs uppercase tracking-widest mb-6">
+          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#10b981]/10 border border-[#10b981]/20 text-[#10b981] text-xs uppercase tracking-widest mb-6">
             Infrastructure
           </span>
           <h2
@@ -76,7 +76,7 @@ export function InfrastructureSection() {
           >
             Agentic commerce,
             <br />
-            <em className="not-italic text-transparent bg-clip-text bg-gradient-to-r from-[#FF7A18] to-[#FFB347]">
+            <em className="not-italic text-transparent bg-clip-text bg-gradient-to-r from-[#10b981] to-[#34d399]">
               settled on Arc.
             </em>
           </h2>
@@ -87,35 +87,35 @@ export function InfrastructureSection() {
 
         {/* Central node visualization */}
         <div className="relative max-w-3xl mx-auto">
-          {/* Central Juvra node */}
+          {/* Central Juvra node with pulse rings */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={inView ? { opacity: 1, scale: 1 } : {}}
             transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             className="relative flex items-center justify-center mb-16"
           >
-            <div className="relative">
-              <div className="absolute inset-0 rounded-full bg-[#FF7A18]/10 blur-2xl scale-150" />
-              <div className="relative w-24 h-24 rounded-2xl bg-gradient-to-br from-[#FF7A18]/30 to-[#FF7A18]/10 border border-[#FF7A18]/30 flex items-center justify-center shadow-[0_0_48px_rgba(255,122,24,0.2)]">
-                <span style={{ fontFamily: "var(--font-display)" }} className="text-white text-2xl">J</span>
-              </div>
-            </div>
-
-            {/* Connection lines */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              {[0, 90, 180, 270].map((angle) => (
+            <div className="relative flex items-center justify-center">
+              {/* Animated concentric rings */}
+              {[1, 2, 3].map((ring) => (
                 <motion.div
-                  key={angle}
-                  initial={{ scaleX: 0, opacity: 0 }}
-                  animate={inView ? { scaleX: 1, opacity: 1 } : {}}
-                  transition={{ duration: 0.6, delay: 0.5 + angle / 360 }}
-                  className="absolute w-32 h-px origin-left"
-                  style={{
-                    background: "linear-gradient(90deg, rgba(255,122,24,0.5), rgba(255,122,24,0.1))",
-                    transform: `rotate(${angle}deg) translateX(48px)`,
+                  key={ring}
+                  className="absolute rounded-full border border-[#10b981]/20"
+                  style={{ width: `${ring * 72}px`, height: `${ring * 72}px` }}
+                  animate={{ scale: [1, 1.1, 1], opacity: [0.4, 0.08, 0.4] }}
+                  transition={{
+                    duration: 3.5,
+                    delay: ring * 0.7,
+                    repeat: Infinity,
+                    ease: "easeInOut",
                   }}
                 />
               ))}
+              {/* Ambient glow */}
+              <div className="absolute w-40 h-40 rounded-full bg-[#10b981]/8 blur-3xl" />
+              {/* Node */}
+              <div className="relative w-24 h-24 rounded-2xl bg-gradient-to-br from-[#10b981]/30 to-[#10b981]/10 border border-[#10b981]/30 flex items-center justify-center shadow-[0_0_48px_rgba(16,185,129,0.25)]">
+                <span style={{ fontFamily: "var(--font-display)" }} className="text-white text-2xl">J</span>
+              </div>
             </div>
           </motion.div>
 
@@ -160,10 +160,10 @@ export function InfrastructureSection() {
           <p className="text-[#8892a4] text-sm">
             All contracts are publicly verifiable on-chain.{" "}
             <a
-              href={juvraEscrowAddress ? `${arcExplorerUrl}/address/${juvraEscrowAddress}` : "/jobs"}
-              className="text-[#FF7A18] hover:underline"
+              href={isEscrowConfigured() ? `${arcExplorerUrl}/address/${juvraEscrowAddress}` : "/jobs"}
+              className="rounded text-[#10b981] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#10b981]/40"
               rel="noreferrer"
-              target={juvraEscrowAddress ? "_blank" : undefined}
+              target={isEscrowConfigured() ? "_blank" : undefined}
             >
               View contract registry →
             </a>

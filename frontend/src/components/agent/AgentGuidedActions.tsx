@@ -101,7 +101,7 @@ export function AgentGuidedActions({
           Agent suggested action
         </CardTitle>
         <p className="text-xs font-medium uppercase tracking-[0.14em] text-amber-100/80">
-          Agent suggested action — manual confirmation required
+          Agent suggested action - manual confirmation required
         </p>
       </CardHeader>
       <CardContent className="space-y-3">

@@ -51,7 +51,7 @@ function EscrowViz({ job }: { job?: JuvraJob }) {
         className="absolute inset-0 blur-3xl -z-10 scale-150"
         style={{
           background:
-            "radial-gradient(circle, rgba(255,122,24,0.2) 0%, rgba(180,108,255,0.1) 45%, transparent 70%)",
+            "radial-gradient(circle, rgba(16,185,129,0.2) 0%, rgba(56,189,248,0.1) 45%, transparent 70%)",
         }}
       />
 
@@ -84,12 +84,12 @@ function EscrowViz({ job }: { job?: JuvraJob }) {
           transition={{ delay: 0.5, duration: 0.4 }}
           className="flex flex-col items-center gap-0 py-2"
         >
-          <div className="w-px h-6 bg-gradient-to-b from-blue-500/60 to-[#FF7A18]/60" />
+          <div className="w-px h-6 bg-gradient-to-b from-blue-500/60 to-[#10b981]/60" />
           <motion.div
             animate={{ y: [0, 3, 0] }}
             transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
           >
-            <ChevronDown size={14} className="text-[#FF7A18]" />
+            <ChevronDown size={14} className="text-[#10b981]" />
           </motion.div>
         </motion.div>
 
@@ -100,16 +100,16 @@ function EscrowViz({ job }: { job?: JuvraJob }) {
           transition={{ delay: 0.55, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           className="w-full"
         >
-          <div className="relative bg-gradient-to-b from-[#1a1030] to-[#0d0820] border border-[#B46CFF]/30 rounded-2xl p-5 shadow-[0_0_48px_rgba(180,108,255,0.15)] overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#B46CFF]/5 to-transparent" />
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#B46CFF]/60 to-transparent" />
+          <div className="relative bg-gradient-to-b from-[#0b1120] to-[#070b14] border border-[#38bdf8]/30 rounded-2xl p-5 shadow-[0_0_48px_rgba(56,189,248,0.15)] overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#38bdf8]/5 to-transparent" />
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#38bdf8]/60 to-transparent" />
             <div className="relative">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#B46CFF]/30 to-[#7C3AED]/20 border border-[#B46CFF]/40 flex items-center justify-center shadow-[0_0_16px_rgba(180,108,255,0.3)]">
-                  <Lock size={16} className="text-[#B46CFF]" />
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#38bdf8]/30 to-[#0ea5e9]/20 border border-[#38bdf8]/40 flex items-center justify-center shadow-[0_0_16px_rgba(56,189,248,0.3)]">
+                  <Lock size={16} className="text-[#38bdf8]" />
                 </div>
                 <div>
-                  <p className="text-[#B46CFF] text-xs uppercase tracking-widest font-mono">Escrow Vault</p>
+                  <p className="text-[#38bdf8] text-xs uppercase tracking-widest font-mono">Escrow Vault</p>
                   <p className="text-white text-sm">Funds Locked</p>
                 </div>
                 <div className="ml-auto">
@@ -125,9 +125,9 @@ function EscrowViz({ job }: { job?: JuvraJob }) {
                   </div>
                 ))}
               </div>
-              <div className="mt-3 bg-[#FF7A18]/10 border border-[#FF7A18]/20 rounded-xl p-3 flex items-center justify-between">
+              <div className="mt-3 bg-[#10b981]/10 border border-[#10b981]/20 rounded-xl p-3 flex items-center justify-between">
                 <span className="text-[#8892a4] text-xs">Locked Amount</span>
-                <span className="text-[#FF7A18] font-mono text-sm">{lockedAmount}</span>
+                <span className="text-[#10b981] font-mono text-sm">{lockedAmount}</span>
               </div>
             </div>
           </div>
@@ -144,9 +144,9 @@ function EscrowViz({ job }: { job?: JuvraJob }) {
             animate={{ y: [0, 3, 0] }}
             transition={{ repeat: Infinity, duration: 2, ease: "easeInOut", delay: 0.5 }}
           >
-            <ChevronDown size={14} className="text-[#FF7A18]" />
+            <ChevronDown size={14} className="text-[#10b981]" />
           </motion.div>
-          <div className="w-px h-6 bg-gradient-to-b from-[#FF7A18]/60 to-emerald-500/60" />
+          <div className="w-px h-6 bg-gradient-to-b from-[#10b981]/60 to-emerald-500/60" />
         </motion.div>
 
         {/* Milestones row */}
@@ -163,7 +163,7 @@ function EscrowViz({ job }: { job?: JuvraJob }) {
                 m.status === "done"
                   ? "bg-emerald-500/10 border-emerald-500/25 text-emerald-400"
                   : m.status === "active"
-                  ? "bg-[#FF7A18]/10 border-[#FF7A18]/25 text-[#FF7A18]"
+                  ? "bg-[#10b981]/10 border-[#10b981]/25 text-[#10b981]"
                   : "bg-white/5 border-white/10 text-[#8892a4]"
               }`}
             >
@@ -228,7 +228,7 @@ export function HeroSection({
     <section
       ref={ref}
       className="relative min-h-screen flex items-center pt-28 pb-20 overflow-hidden"
-      style={{ background: "radial-gradient(ellipse 80% 50% at 50% -10%, rgba(180,108,255,0.12) 0%, transparent 60%), #060816" }}
+      style={{ background: "radial-gradient(ellipse 80% 50% at 50% -10%, rgba(56,189,248,0.12) 0%, transparent 60%), #060816" }}
     >
       {/* Background grid */}
       <div
@@ -241,8 +241,8 @@ export function HeroSection({
 
       {/* Ambient orbs */}
       <motion.div style={{ y }} className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-[10%] w-96 h-96 bg-[#FF7A18]/6 rounded-full blur-[100px]" />
-        <div className="absolute top-1/3 right-[5%] w-80 h-80 bg-[#B46CFF]/8 rounded-full blur-[100px]" />
+        <div className="absolute top-1/4 left-[10%] w-96 h-96 bg-[#10b981]/6 rounded-full blur-[100px]" />
+        <div className="absolute top-1/3 right-[5%] w-80 h-80 bg-[#38bdf8]/8 rounded-full blur-[100px]" />
         <div className="absolute bottom-1/4 left-1/3 w-64 h-64 bg-blue-500/5 rounded-full blur-[80px]" />
       </motion.div>
 
@@ -255,7 +255,7 @@ export function HeroSection({
               custom={0}
               initial="hidden"
               animate="visible"
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FF7A18]/10 border border-[#FF7A18]/20 text-[#FF7A18] text-xs uppercase tracking-widest mb-8"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#10b981]/10 border border-[#10b981]/20 text-[#10b981] text-xs uppercase tracking-widest mb-8"
             >
               <Shield size={12} />
               Agent-assisted, human-confirmed · Arc + USDC
@@ -271,7 +271,7 @@ export function HeroSection({
             >
               Agentic escrow
               <br />
-              <em className="not-italic text-transparent bg-clip-text bg-gradient-to-r from-[#FF7A18] to-[#FFB347]">
+              <em className="not-italic text-transparent bg-clip-text bg-gradient-to-r from-[#10b981] to-[#34d399]">
                 for freelance
               </em>{" "}
               commerce on Arc.
@@ -284,10 +284,8 @@ export function HeroSection({
               animate="visible"
               className="text-[#8892a4] text-lg leading-relaxed mb-10 max-w-xl"
             >
-              Juvra helps clients and freelancers structure work, review
-              delivery evidence, and resolve disputes with AI-assisted
-              recommendations while escrow settlement remains wallet-confirmed
-              on Arc.
+              Lock funds in onchain escrow, then release payment only when
+              delivery is approved. Settlement stays wallet-confirmed on Arc.
             </motion.p>
 
             <motion.div
@@ -299,14 +297,14 @@ export function HeroSection({
             >
               <Link
                 href="/jobs"
-                className="group inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-[#FF7A18] text-[#060816] hover:bg-[#FF9A4A] transition-all duration-300 shadow-[0_8px_32px_rgba(255,122,24,0.35)] hover:shadow-[0_8px_40px_rgba(255,122,24,0.5)] hover:-translate-y-0.5"
+                className="group inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-[#10b981] text-[#060816] hover:bg-[#34d399] transition-all duration-300 shadow-[0_8px_32px_rgba(16,185,129,0.35)] hover:shadow-[0_8px_40px_rgba(16,185,129,0.5)] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#10b981]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060816]"
               >
                 Launch App
                 <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform duration-200" />
               </Link>
               <Link
                 href="/#how-it-works"
-                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl border border-white/10 text-[#8892a4] hover:text-white hover:border-white/20 hover:bg-white/5 transition-all duration-300"
+                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl border border-white/10 text-[#8892a4] hover:text-white hover:border-white/20 hover:bg-white/5 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060816]"
               >
                 See How Escrow Works
               </Link>

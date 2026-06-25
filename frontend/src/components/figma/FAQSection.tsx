@@ -1,8 +1,8 @@
 "use client";
 
-import { motion, useInView } from "motion/react";
-import { HelpCircle } from "lucide-react";
-import { useRef } from "react";
+import { motion, AnimatePresence, useInView } from "motion/react";
+import { HelpCircle, ChevronDown } from "lucide-react";
+import { useRef, useState } from "react";
 
 const faqs = [
   {
@@ -40,6 +40,7 @@ const faqs = [
 export function FAQSection() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-100px" });
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
     <section
@@ -55,7 +56,7 @@ export function FAQSection() {
           transition={{ duration: 0.6 }}
           className="mb-14 text-center"
         >
-          <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#B46CFF]/20 bg-[#B46CFF]/10 px-3 py-1.5 text-xs uppercase tracking-widest text-[#B46CFF]">
+          <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#38bdf8]/20 bg-[#38bdf8]/10 px-3 py-1.5 text-xs uppercase tracking-widest text-[#38bdf8]">
             <HelpCircle className="size-3" />
             FAQ
           </span>
@@ -65,25 +66,68 @@ export function FAQSection() {
           >
             Clear answers before
             <br />
-            <em className="not-italic text-transparent bg-clip-text bg-gradient-to-r from-[#B46CFF] to-[#60a5fa]">
+            <em className="not-italic text-transparent bg-clip-text bg-gradient-to-r from-[#38bdf8] to-[#60a5fa]">
               funds move.
             </em>
           </h2>
         </motion.div>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          {faqs.map((item, index) => (
-            <motion.div
-              key={item.question}
-              initial={{ opacity: 0, y: 24 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.45, delay: index * 0.06 }}
-              className="rounded-2xl border border-white/8 bg-[#111827]/70 p-6"
-            >
-              <h3 className="mb-3 text-base font-semibold text-white">{item.question}</h3>
-              <p className="text-sm leading-relaxed text-[#8892a4]">{item.answer}</p>
-            </motion.div>
-          ))}
+        <div className="mx-auto max-w-3xl space-y-2">
+          {faqs.map((item, index) => {
+            const isOpen = openIndex === index;
+            return (
+              <motion.div
+                key={item.question}
+                initial={{ opacity: 0, y: 24 }}
+                animate={inView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.45, delay: index * 0.06 }}
+                className="overflow-hidden rounded-2xl border border-white/8 bg-[#111827]/70"
+                style={{
+                  borderColor: isOpen ? "rgba(56,189,248,0.25)" : undefined,
+                  boxShadow: isOpen ? "0 0 24px rgba(56,189,248,0.06)" : undefined,
+                  transition: "border-color 0.3s, box-shadow 0.3s",
+                }}
+              >
+                <button
+                  onClick={() => setOpenIndex(isOpen ? null : index)}
+                  className="flex w-full cursor-pointer items-center justify-between gap-4 rounded-2xl px-6 py-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8]/40 focus-visible:ring-inset"
+                  aria-expanded={isOpen}
+                  aria-controls={`faq-answer-${index}`}
+                >
+                  <h3 className="text-base font-semibold text-white">{item.question}</h3>
+                  <motion.div
+                    animate={{ rotate: isOpen ? 180 : 0 }}
+                    transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                    className="flex-shrink-0"
+                  >
+                    <ChevronDown
+                      size={16}
+                      className="transition-colors duration-300"
+                      style={{ color: isOpen ? "#38bdf8" : "#8892a4" }}
+                    />
+                  </motion.div>
+                </button>
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      key="answer"
+                      id={`faq-answer-${index}`}
+                      role="region"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                      className="overflow-hidden"
+                    >
+                      <div className="border-t border-[#38bdf8]/10 px-6 pb-5 pt-4">
+                        <p className="text-sm leading-relaxed text-[#8892a4]">{item.answer}</p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>

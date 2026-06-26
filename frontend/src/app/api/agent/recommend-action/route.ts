@@ -5,7 +5,8 @@ import {
 } from "@/lib/agent/schemas";
 import { recommendActionMock } from "@/lib/agent/mockAgent";
 import { recommendActionGemini } from "@/lib/agent/geminiAgent";
-import { runAgentProvider } from "@/lib/agent/provider";
+import { recommendActionOpenAICompat } from "@/lib/agent/openaiCompatAgent";
+import { runAgentTask } from "@/lib/agent/provider";
 
 export async function POST(req: Request) {
   try {
@@ -20,20 +21,15 @@ export async function POST(req: Request) {
       evidence: input.evidence,
       walletRole: input.walletRole,
     };
-    const providerResult = await runAgentProvider({
+    const outcome = await runAgentTask({
+      routeName: "recommend-action",
       gemini: () => recommendActionGemini(context),
+      openaiCompat: () => recommendActionOpenAICompat(context),
       mock: () => recommendActionMock(context),
       normalize: normalizeRecommendationResult,
-      routeName: "recommend-action",
     });
 
-    return NextResponse.json({
-      success: true,
-      mode: providerResult.mode,
-      warning: providerResult.warning,
-      geminiError: providerResult.developmentError,
-      result: providerResult.result,
-    });
+    return NextResponse.json(outcome.body, { status: outcome.status });
   } catch (error) {
     return NextResponse.json(
       {

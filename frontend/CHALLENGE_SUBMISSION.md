@@ -25,7 +25,8 @@ Implemented today:
 - Local evidence collection
 - Local agent result persistence
 - Local agent economic action ledger
-- Gemini-compatible agent provider with mock fallback
+- Live AI agent provider (Gemini default; optional xAI Grok or Groq) with a strict `live`/`mock` runtime and no silent fallback
+- Provider health endpoint at `/api/agent/health`
 
 ## Escrow Contract
 
@@ -69,8 +70,9 @@ Future-ready / planned:
 
 - The frontend and backend routes are functional.
 - Contract reads and wallet-confirmed writes use the configured Arc escrow contract.
-- Agent APIs run locally without Gemini through mock logic.
-- Gemini can be enabled when configured and safely falls back to mock.
+- In live mode (`AGENT_RUNTIME_MODE=live`), every agent route runs a real AI provider and returns `mode: "live"` with the active `provider`. There is no silent mock fallback.
+- If the live provider fails, the API returns `success: false` with a clear error ("Live AI provider failed. Check API key, quota, model, or billing.") and never substitutes a fake result. Error details are development-only and API keys are never exposed.
+- `mock` mode (`AGENT_RUNTIME_MODE=mock`) is for local testing only and is clearly labeled `mode: "mock"`, `provider: "mock"`.
 - The verification workflow produces a real receipt object and stores it in a transparent local ledger.
 - The UI labels the verification action as a testnet/demo verification payment and states that escrow funds are not controlled by the agent.
 

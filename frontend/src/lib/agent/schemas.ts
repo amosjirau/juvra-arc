@@ -266,16 +266,18 @@ export function normalizeAgentVerificationResult(
   }
 
   const receipt = isRecord(result.receipt) ? result.receipt : {};
-  const fallbackCost = normalizeUSDCAmount(
-    input?.verificationBudgetUSDC,
-    input?.evidenceItems.length ? "0.01" : "0.00"
-  );
-  const costUSDC = normalizeUSDCAmount(
+  // The USDC verification cost is bound to the deterministic nanopayment policy
+  // budget supplied by the caller, NOT to an arbitrary number a live model may
+  // invent. Budget wins when present; otherwise we use the model's value, then a
+  // safe default. This keeps live receipts consistent with the UI cost estimate.
+  const budgetCost = toUSDCAmount(input?.verificationBudgetUSDC);
+  const modelCost = toUSDCAmount(
     typeof result.verificationCostUSDC === "string"
       ? result.verificationCostUSDC
-      : receipt.costUSDC,
-    fallbackCost
+      : receipt.costUSDC
   );
+  const costUSDC =
+    budgetCost ?? modelCost ?? (input?.evidenceItems.length ? "0.01" : "0.00");
   const jobId =
     typeof receipt.jobId === "string" && receipt.jobId.trim()
       ? receipt.jobId
@@ -405,15 +407,15 @@ function isSettlementImpact(value: unknown): value is SettlementImpact {
   );
 }
 
-function normalizeUSDCAmount(value: unknown, fallback: string) {
+function toUSDCAmount(value: unknown): string | undefined {
   if (typeof value !== "string" && typeof value !== "number") {
-    return fallback;
+    return undefined;
   }
 
   const amount = Number(value);
 
   if (!Number.isFinite(amount) || amount < 0) {
-    return fallback;
+    return undefined;
   }
 
   return amount.toFixed(2);

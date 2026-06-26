@@ -2,25 +2,21 @@ import { NextResponse } from "next/server";
 import { validateDisputeSummaryInput } from "@/lib/agent/schemas";
 import { summarizeDisputeMock } from "@/lib/agent/mockAgent";
 import { summarizeDisputeGemini } from "@/lib/agent/geminiAgent";
-import { runAgentProvider } from "@/lib/agent/provider";
+import { summarizeDisputeOpenAICompat } from "@/lib/agent/openaiCompatAgent";
+import { runAgentTask } from "@/lib/agent/provider";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const input = validateDisputeSummaryInput(body);
-    const providerResult = await runAgentProvider({
-      gemini: () => summarizeDisputeGemini(input),
-      mock: () => summarizeDisputeMock(input),
+    const outcome = await runAgentTask({
       routeName: "dispute-summary",
+      gemini: () => summarizeDisputeGemini(input),
+      openaiCompat: () => summarizeDisputeOpenAICompat(input),
+      mock: () => summarizeDisputeMock(input),
     });
 
-    return NextResponse.json({
-      success: true,
-      mode: providerResult.mode,
-      warning: providerResult.warning,
-      geminiError: providerResult.developmentError,
-      result: providerResult.result,
-    });
+    return NextResponse.json(outcome.body, { status: outcome.status });
   } catch (error) {
     return NextResponse.json(
       {

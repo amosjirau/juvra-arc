@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 
 import { buildScopeGemini } from "@/lib/agent/geminiAgent";
 import { buildScopeMock } from "@/lib/agent/mockAgent";
-import { runAgentProvider } from "@/lib/agent/provider";
+import { buildScopeOpenAICompat } from "@/lib/agent/openaiCompatAgent";
+import { runAgentTask } from "@/lib/agent/provider";
 import {
   normalizeScopeBuilderResult,
   validateScopeBuilderInput,
@@ -12,20 +13,15 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const input = validateScopeBuilderInput(body);
-    const providerResult = await runAgentProvider({
+    const outcome = await runAgentTask({
+      routeName: "scope-builder",
       gemini: () => buildScopeGemini(input),
+      openaiCompat: () => buildScopeOpenAICompat(input),
       mock: () => buildScopeMock(input),
       normalize: normalizeScopeBuilderResult,
-      routeName: "scope-builder",
     });
 
-    return NextResponse.json({
-      success: true,
-      mode: providerResult.mode,
-      warning: providerResult.warning,
-      geminiError: providerResult.developmentError,
-      result: providerResult.result,
-    });
+    return NextResponse.json(outcome.body, { status: outcome.status });
   } catch (error) {
     return NextResponse.json(
       {

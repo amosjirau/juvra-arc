@@ -24,8 +24,8 @@ type ScopeBuilderJob = {
 type AgentResponse =
   | {
       success: true;
-      mode?: "gemini" | "mock" | "mock_fallback";
-      warning?: string;
+      mode?: "live" | "mock";
+      provider?: "gemini" | "xai" | "groq" | "mock";
       result: ScopeBuilderResult;
     }
   | {
@@ -42,9 +42,7 @@ export function AgentScopeBuilder({
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [mode, setMode] = useState<"gemini" | "mock" | "mock_fallback" | null>(
-    null
-  );
+  const [mode, setMode] = useState<"live" | "mock" | null>(null);
   const [result, setResult] = useState<ScopeBuilderResult | null>(null);
 
   async function buildScope() {

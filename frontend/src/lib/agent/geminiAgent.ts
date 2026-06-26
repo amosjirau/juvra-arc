@@ -23,11 +23,14 @@ export function getGeminiModel() {
 }
 
 export function getGeminiModels() {
+  // gemini-1.5-* are retired on v1beta generateContent (404 NOT_FOUND), so the
+  // default candidates are current models. The configured GEMINI_MODEL is tried
+  // first, then we fall through to other live models if it is unavailable.
   return [
     process.env.GEMINI_MODEL,
-    "gemini-1.5-flash",
+    "gemini-2.5-flash",
+    "gemini-2.5-flash-lite",
     "gemini-2.0-flash",
-    "gemini-1.5-flash-8b",
   ].reduce<string[]>((models, model) => {
     const cleanModel = model?.trim();
 
@@ -239,10 +242,60 @@ function buildAllModelsFailedError(models: string[], errors: unknown[]) {
   const errorSummary = errors.map(summarizeGeminiError).join(" | ");
 
   return new Error(
-    `All Gemini models failed; mock fallback should be used. Attempted models: ${models.join(
+    `All Gemini models failed. Attempted models: ${models.join(
       ", "
     )}. Final status code: ${finalStatus ?? "unknown"}. Errors: ${errorSummary}`
   );
+}
+
+/**
+ * Lightweight readiness check used by the health endpoint. Tries the configured
+ * model candidates with a trivial prompt and resolves on the first success.
+ * Throws an aggregated error if every model fails. Never exposes the API key.
+ */
+export async function pingGemini(): Promise<void> {
+  const apiKey = getGeminiApiKey();
+
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY is missing.");
+  }
+
+  const models = getGeminiModels();
+  const errors: unknown[] = [];
+
+  for (const model of models) {
+    try {
+      const response = await fetch(getGeminiUrl(apiKey, model), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            { role: "user", parts: [{ text: "Reply with the single word OK." }] },
+          ],
+          generationConfig: { temperature: 0, maxOutputTokens: 5 },
+        }),
+      });
+
+      if (response.ok) {
+        return;
+      }
+
+      const errorText = await response.text();
+      errors.push(
+        new GeminiRequestError(
+          `Gemini health check failed for ${model}: ${response.status} ${errorText}`,
+          response.status,
+          model,
+          "plain",
+          errorText
+        )
+      );
+    } catch (error) {
+      errors.push(error);
+    }
+  }
+
+  throw buildAllModelsFailedError(models, errors);
 }
 
 async function callGeminiJson<T>(

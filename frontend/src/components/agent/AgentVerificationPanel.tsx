@@ -14,7 +14,10 @@ import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { AgentProviderMode } from "@/lib/agent/provider";
+import type {
+  AgentProviderName,
+  AgentRuntimeMode,
+} from "@/lib/agent/provider";
 import type {
   SettlementImpact,
   VerificationStatus,
@@ -32,31 +35,43 @@ import {
   shouldRunVerification,
 } from "@/lib/agent/nanopaymentPolicy";
 
+type VerificationResult = {
+  verificationId: string;
+  verificationCostUSDC: string;
+  verificationStatus: VerificationStatus;
+  checkedSignals: string[];
+  findings: string[];
+  riskFlags: string[];
+  settlementImpact: SettlementImpact;
+  receipt: {
+    jobId: string;
+    timestamp: string;
+    agent: "Juvra Verification Agent";
+    costUSDC: string;
+    memo: string;
+  };
+  safetyNotice: string;
+};
+
 type VerificationResponse =
   | {
       success: true;
-      mode: AgentProviderMode;
-      verificationId: string;
-      verificationCostUSDC: string;
-      verificationStatus: VerificationStatus;
-      checkedSignals: string[];
-      findings: string[];
-      riskFlags: string[];
-      settlementImpact: SettlementImpact;
-      receipt: {
-        jobId: string;
-        timestamp: string;
-        agent: "Juvra Verification Agent";
-        costUSDC: string;
-        memo: string;
-      };
-      safetyNotice: string;
-      warning?: string;
+      mode: AgentRuntimeMode;
+      provider: AgentProviderName;
+      result: VerificationResult;
     }
   | {
       success: false;
       error?: string;
+      details?: string;
     };
+
+// Flattened view stored in component state: the result payload plus the
+// runtime mode and provider that produced it.
+type VerificationView = VerificationResult & {
+  mode: AgentRuntimeMode;
+  provider: AgentProviderName;
+};
 
 type VerificationJob = {
   id?: string;
@@ -77,9 +92,7 @@ export function AgentVerificationPanel({
   const jobId = job?.id?.toString().trim() || "";
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [result, setResult] = useState<Extract<VerificationResponse, { success: true }> | null>(
-    null
-  );
+  const [result, setResult] = useState<VerificationView | null>(null);
   const [ledger, setLedger] = useState<AgentEconomicAction[]>([]);
   const localRiskFlags = useMemo(
     () => getLocalRiskFlags(job?.status, evidence),
@@ -139,12 +152,21 @@ export function AgentVerificationPanel({
 
       if (!response.ok || !data.success) {
         throw new Error(
-          data.success ? "Verification failed." : data.error ?? "Verification failed."
+          data.success
+            ? "Verification failed."
+            : data.error ??
+              "Live AI provider failed. Check API key, quota, model, or billing."
         );
       }
 
-      setResult(data);
-      saveVerificationLedgerEntry(jobId, data);
+      const view: VerificationView = {
+        ...data.result,
+        mode: data.mode,
+        provider: data.provider,
+      };
+
+      setResult(view);
+      saveVerificationLedgerEntry(jobId, view);
       setLedger(loadAgentEconomicActions(jobId));
     } catch (err) {
       setError(
@@ -343,11 +365,7 @@ export function AgentVerificationPanel({
   );
 }
 
-function VerificationResultBlock({
-  result,
-}: {
-  result: Extract<VerificationResponse, { success: true }>;
-}) {
+function VerificationResultBlock({ result }: { result: VerificationView }) {
   return (
     <div className="space-y-3 rounded-xl border border-emerald-200/20 bg-emerald-200/10 p-3">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -366,7 +384,7 @@ function VerificationResultBlock({
       </div>
 
       <div className="grid gap-2 sm:grid-cols-3">
-        <SignalMetric label="Mode" value={result.mode} />
+        <SignalMetric label="Mode" value={`${result.provider} · ${result.mode}`} />
         <SignalMetric label="Cost" value={`${result.verificationCostUSDC} USDC`} />
         <SignalMetric
           label="Impact"
@@ -413,7 +431,7 @@ function ResultList({ items, label }: { items: string[]; label: string }) {
 
 function saveVerificationLedgerEntry(
   jobId: string,
-  result: Extract<VerificationResponse, { success: true }>
+  result: VerificationView
 ) {
   saveAgentEconomicAction({
     id: `agent-action-${result.verificationId}`,

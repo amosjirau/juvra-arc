@@ -24,6 +24,13 @@ const defaultHeroStats = [
   { label: "Avg Trust Score", value: DEMO_STATS.trustScore },
 ];
 
+const challengeBadges = [
+  "Built on Arc",
+  "USDC-native escrow",
+  "Agent-assisted commerce",
+  "Human-confirmed settlement",
+];
+
 function EscrowViz({ job }: { job?: JuvraJob }) {
   const client = job ? shortAddress(job.client) : DEMO_ESCROW_FLOW.clientWallet;
   const freelancer =
@@ -272,9 +279,9 @@ export function HeroSection({
               Agentic escrow
               <br />
               <em className="not-italic text-transparent bg-clip-text bg-gradient-to-r from-[#10b981] to-[#34d399]">
-                for freelance
+                for freelance commerce
               </em>{" "}
-              commerce on Arc.
+              on Arc.
             </motion.h1>
 
             <motion.p
@@ -284,13 +291,31 @@ export function HeroSection({
               animate="visible"
               className="text-[#8892a4] text-lg leading-relaxed mb-10 max-w-xl"
             >
-              Lock funds in onchain escrow, then release payment only when
-              delivery is approved. Settlement stays wallet-confirmed on Arc.
+              Juvra uses AI agents to structure work, verify delivery evidence,
+              manage risk, and recommend settlement actions while Arc and USDC
+              handle programmable escrow.
             </motion.p>
 
             <motion.div
               variants={fadeUp}
               custom={3}
+              initial="hidden"
+              animate="visible"
+              className="mb-10 flex flex-wrap gap-2"
+            >
+              {challengeBadges.map((badge) => (
+                <span
+                  className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs text-[#cbd5e1]"
+                  key={badge}
+                >
+                  {badge}
+                </span>
+              ))}
+            </motion.div>
+
+            <motion.div
+              variants={fadeUp}
+              custom={4}
               initial="hidden"
               animate="visible"
               className="flex flex-col sm:flex-row gap-4"
@@ -313,7 +338,7 @@ export function HeroSection({
             {/* Stats */}
             <motion.div
               variants={fadeUp}
-              custom={4}
+              custom={5}
               initial="hidden"
               animate="visible"
               className="mt-10 flex flex-wrap gap-x-8 gap-y-5"

@@ -1,12 +1,20 @@
 import {
   AgentAction,
+  AgentVerificationInput,
+  AgentVerificationResult,
   DeliveryReviewInput,
   DisputeSummaryInput,
   AgentRecommendation,
   JobAnalysisInput,
+  SettlementImpact,
   ScopeBuilderInput,
   ScopeBuilderResult,
+  VerificationStatus,
 } from "./agentTypes";
+import type { EvidenceItem, EvidenceType } from "./evidence";
+
+export const VERIFICATION_SAFETY_NOTICE =
+  "Verification is advisory only. Escrow actions require manual wallet confirmation.";
 
 export function validateJobAnalysisInput(data: unknown): JobAnalysisInput {
   if (!isRecord(data)) {
@@ -148,6 +156,34 @@ export function validateScopeBuilderInput(data: unknown): ScopeBuilderInput {
   };
 }
 
+export function validateAgentVerificationInput(
+  data: unknown
+): AgentVerificationInput {
+  if (!isRecord(data)) {
+    throw new Error("Request body must be a JSON object.");
+  }
+
+  if (!data.jobId || typeof data.jobId !== "string") {
+    throw new Error("Job ID is required.");
+  }
+
+  if (!data.jobTitle || typeof data.jobTitle !== "string") {
+    throw new Error("Job title is required.");
+  }
+
+  if (typeof data.deliveryText !== "string") {
+    throw new Error("Delivery text is required.");
+  }
+
+  return {
+    jobId: data.jobId,
+    jobTitle: data.jobTitle,
+    deliveryText: data.deliveryText,
+    evidenceItems: asEvidenceItems(data.evidenceItems),
+    verificationBudgetUSDC: asOptionalString(data.verificationBudgetUSDC),
+  };
+}
+
 export function normalizeRecommendationResult(
   result: unknown
 ): AgentRecommendation {
@@ -221,6 +257,74 @@ export function normalizeScopeBuilderResult(
   };
 }
 
+export function normalizeAgentVerificationResult(
+  result: unknown,
+  input?: AgentVerificationInput
+): AgentVerificationResult {
+  if (!isRecord(result)) {
+    throw new Error("Verification result must be a JSON object.");
+  }
+
+  const receipt = isRecord(result.receipt) ? result.receipt : {};
+  const fallbackCost = normalizeUSDCAmount(
+    input?.verificationBudgetUSDC,
+    input?.evidenceItems.length ? "0.01" : "0.00"
+  );
+  const costUSDC = normalizeUSDCAmount(
+    typeof result.verificationCostUSDC === "string"
+      ? result.verificationCostUSDC
+      : receipt.costUSDC,
+    fallbackCost
+  );
+  const jobId =
+    typeof receipt.jobId === "string" && receipt.jobId.trim()
+      ? receipt.jobId
+      : input?.jobId ?? "unknown";
+  const timestamp =
+    typeof receipt.timestamp === "string" && receipt.timestamp.trim()
+      ? receipt.timestamp
+      : new Date().toISOString();
+  const memo =
+    typeof receipt.memo === "string" && receipt.memo.trim()
+      ? receipt.memo
+      : `Juvra evidence verification for Arc job ${jobId}`;
+  const verificationStatus = isVerificationStatus(result.verificationStatus)
+    ? result.verificationStatus
+    : "needs_review";
+  const settlementImpact = isSettlementImpact(result.settlementImpact)
+    ? result.settlementImpact
+    : "inconclusive";
+
+  return {
+    verificationId:
+      typeof result.verificationId === "string" && result.verificationId.trim()
+        ? result.verificationId
+        : getRandomId("ver"),
+    verificationCostUSDC: costUSDC,
+    verificationStatus,
+    checkedSignals: withFallbackStrings(result.checkedSignals, [
+      "Delivery text",
+      "Evidence items",
+      "Evidence links",
+    ]),
+    findings: withFallbackStrings(result.findings, [
+      "The verification agent could not produce detailed findings. Human review is required.",
+    ]),
+    riskFlags: asStringArray(result.riskFlags)
+      .map((item) => item.trim())
+      .filter(Boolean),
+    settlementImpact,
+    receipt: {
+      jobId,
+      timestamp,
+      agent: "Juvra Verification Agent",
+      costUSDC,
+      memo,
+    },
+    safetyNotice: VERIFICATION_SAFETY_NOTICE,
+  };
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -233,6 +337,14 @@ function asStringArray(value: unknown) {
   return Array.isArray(value)
     ? value.filter((item): item is string => typeof item === "string")
     : [];
+}
+
+function asEvidenceItems(value: unknown): EvidenceItem[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter(isEvidenceItem);
 }
 
 function withFallbackStrings(value: unknown, fallback: string[]) {
@@ -250,4 +362,63 @@ function isAgentAction(value: string): value is AgentAction {
     "escalate_admin",
     "no_action",
   ].includes(value);
+}
+
+function isEvidenceItem(value: unknown): value is EvidenceItem {
+  if (!isRecord(value)) {
+    return false;
+  }
+
+  return (
+    typeof value.id === "string" &&
+    isEvidenceType(value.type) &&
+    typeof value.createdAt === "string" &&
+    (value.submittedBy === undefined || typeof value.submittedBy === "string") &&
+    (value.evidenceUrl === undefined || typeof value.evidenceUrl === "string") &&
+    (value.note === undefined || typeof value.note === "string")
+  );
+}
+
+function isEvidenceType(value: unknown): value is EvidenceType {
+  return (
+    typeof value === "string" &&
+    ["delivery", "dispute", "revision", "admin"].includes(value)
+  );
+}
+
+function isVerificationStatus(value: unknown): value is VerificationStatus {
+  return (
+    typeof value === "string" &&
+    ["passed", "warning", "failed", "needs_review"].includes(value)
+  );
+}
+
+function isSettlementImpact(value: unknown): value is SettlementImpact {
+  return (
+    typeof value === "string" &&
+    [
+      "supports_release",
+      "supports_revision",
+      "supports_dispute_review",
+      "inconclusive",
+    ].includes(value)
+  );
+}
+
+function normalizeUSDCAmount(value: unknown, fallback: string) {
+  if (typeof value !== "string" && typeof value !== "number") {
+    return fallback;
+  }
+
+  const amount = Number(value);
+
+  if (!Number.isFinite(amount) || amount < 0) {
+    return fallback;
+  }
+
+  return amount.toFixed(2);
+}
+
+function getRandomId(prefix: string) {
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }

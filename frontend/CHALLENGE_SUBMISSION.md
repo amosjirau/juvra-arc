@@ -1,71 +1,98 @@
-# Juvra — Agentic Freelance Commerce Network on Arc
+# Juvra - Agentic Freelance Commerce Network on Arc
 
-## Short Description
+## Summary
 
-Juvra is an AI-assisted escrow and dispute coordination layer for freelance commerce, built on Arc. It uses agentic workflows to structure jobs, review delivery evidence, summarize disputes, and recommend human-confirmed settlement actions, with USDC positioned as the stable settlement layer.
+Juvra upgrades freelance escrow into an agentic commerce network on Arc. Clients fund USDC-denominated escrow jobs, freelancers submit delivery evidence, and Juvra agents evaluate risk, review evidence, run advisory verification workflows, summarize disputes, and recommend safe settlement actions.
+
+Humans remain in control of final settlement. Every escrow write action requires an explicit click and wallet confirmation.
 
 ## Track
 
-Best Agentic Economy Experience on Arc
+Best Agentic Economy Experience on Arc.
 
-## Circle Products Used
+## Live Prototype
 
-- USDC: settlement rail
-- Circle Wallets: future secure agent-wallet interaction layer
-- Gateway: future treasury and routing layer
-- Nanopayments: future pay-per-verification and agentic API usage layer
+Implemented today:
 
-## Functional MVP
+- Landing page with Arc, USDC, and agentic economy narrative
+- Marketplace at `/jobs`
+- Job workspace at `/jobs/[id]`
+- Dashboard at `/dashboard`
+- Post job flow at `/post`
+- Admin and dispute console at `/admin` and `/admin/disputes`
+- Arc escrow reads and wallet-confirmed writes
+- Agent APIs for risk analysis, delivery review, dispute summary, scope building, recommendations, and evidence verification
+- Local evidence collection
+- Local agent result persistence
+- Local agent economic action ledger
+- Gemini-compatible agent provider with mock fallback
 
-- Arc escrow contract
-- Live job reads
-- Job posting
-- Job detail workspace
-- Agent risk analysis
-- Delivery review
-- Dispute summary
-- Recommendation engine
-- Evidence collection
-- Admin dispute console
-- Timeline
-- Safe manual action buttons
-- Agent Scope Builder for milestone, evidence, revision, and escrow-structure suggestions
+## Escrow Contract
+
+Correct Arc escrow contract address:
+
+```text
+0x29e093597a40EaD176BBF31fca1f9CFd76bd3b9a
+```
+
+## Agentic Economy Experience
+
+The new verification workflow makes the economic agent behavior explicit:
+
+1. A freelancer submits delivery evidence in the job workspace.
+2. Juvra Agent checks real local signals: job status, evidence count, evidence links, dispute notes, delivery language, and verification budget.
+3. The agent runs `/api/agent/verify-evidence`.
+4. The API returns a verification receipt with a USDC-denominated cost.
+5. The frontend records that receipt in the local "Agent economic action log".
+6. The agent may recommend a settlement path, but the final escrow action still requires a human wallet confirmation.
+
+This is intentionally safe: the verification action is separate from escrow funds and does not grant the agent signing power.
+
+## Circle Tools
+
+Live / implemented:
+
+- Arc smart contract escrow
+- USDC-denominated escrow logic
+- Agentic risk/recommendation backend
+- Manual wallet-confirmed settlement actions
+
+Future-ready / planned:
+
+- Circle Wallets for secure agent-prepared transaction flows
+- Paymaster for gas/user onboarding improvements
+- Nanopayments for pay-per-verification and agent-to-service commerce
+- Gateway for treasury/routing workflows
+- CCTP for cross-chain USDC settlement expansion
+
+## What Is Real
+
+- The frontend and backend routes are functional.
+- Contract reads and wallet-confirmed writes use the configured Arc escrow contract.
+- Agent APIs run locally without Gemini through mock logic.
+- Gemini can be enabled when configured and safely falls back to mock.
+- The verification workflow produces a real receipt object and stores it in a transparent local ledger.
+- The UI labels the verification action as a testnet/demo verification payment and states that escrow funds are not controlled by the agent.
+
+## What Is Future-Ready But Not Live
+
+- Circle Wallets are not fully integrated yet.
+- Paymaster is not live yet.
+- Nanopayments are represented by policy logic, USDC-denominated receipts, and a local demo ledger, not a production payment rail.
+- Gateway is not live yet.
+- CCTP is planned for cross-chain settlement expansion, not active in this MVP.
 
 ## Safety Model
 
-Juvra is agent-assisted and human-confirmed. The AI agent cannot release funds, refund funds, sign transactions, select freelancers, or resolve disputes. Every escrow write action requires an explicit user click and wallet confirmation.
+- AI never releases escrow funds automatically.
+- AI never refunds escrow funds automatically.
+- AI never signs user wallet transactions.
+- AI never selects freelancers automatically.
+- AI never resolves disputes automatically.
+- Every escrow write action requires explicit human click and wallet confirmation.
+- Agent verification is advisory only.
+- Agent economic action logs are local demo/testnet records and are not fake escrow data.
 
-## Circle Product Feedback
+## Production Path
 
-### Why USDC Fits Freelance Escrow
-
-Freelance work benefits from predictable settlement value. USDC makes funded jobs easier for clients and freelancers to reason about because escrow value is not exposed to the volatility of native tokens during negotiation, delivery, review, and dispute windows.
-
-### Why Circle Wallets Matter Next
-
-Circle Wallets are useful for future agent-safe transaction preparation. Juvra can imagine agents preparing structured transaction intents, policy checks, or settlement recommendations while the user or authorized operator still confirms the final action.
-
-### Why Gateway And Nanopayments Fit Future Workflows
-
-Gateway and nanopayment patterns fit future verification and pay-per-agent workflows. Delivery checks, reputation APIs, evidence validation, and proof services could be paid for as small commerce events without giving agents control over escrow funds.
-
-### Developer Experience Improvements
-
-Useful improvements would include clearer starter templates for agent-safe wallet flows, more sample apps combining stablecoin settlement with AI decision support, and reference architectures for separating agent recommendations from final user-confirmed transactions.
-
-## Live Versus Future Integrations
-
-Live today:
-
-- Arc smart contract escrow reads and writes
-- USDC-denominated escrow positioning and settlement UX
-- AI-assisted risk, delivery, dispute, recommendation, and scope-building workflows
-- Manual wallet-confirmed escrow actions
-
-Future-ready or planned:
-
-- Circle Wallets for secure agent-assisted transaction preparation
-- Gateway for treasury routing
-- Nanopayments for pay-per-verification and agentic API usage
-
-Agent wallets must not control escrow release or refund in this MVP.
+The path to production is to replace the local agent economic action ledger with a Circle-backed payment flow, add policy-controlled Circle Wallet transaction preparation, add Paymaster-sponsored onboarding where appropriate, and route verification service fees through Nanopayments while preserving the rule that only humans confirm escrow settlement.

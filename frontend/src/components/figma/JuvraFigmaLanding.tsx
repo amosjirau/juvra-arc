@@ -4,6 +4,7 @@ import { MotionConfig } from "motion/react";
 import { formatEther } from "viem";
 
 import { AICopilotSection } from "@/components/figma/AICopilotSection";
+import { AgenticEconomyFlowSection } from "@/components/figma/AgenticEconomyFlowSection";
 import { ArcExplainerSection } from "@/components/figma/ArcExplainerSection";
 import { CircleArcSection } from "@/components/figma/CircleArcSection";
 import { CTASection } from "@/components/figma/CTASection";
@@ -64,6 +65,7 @@ export function JuvraFigmaLanding() {
             { label: "Avg Trust Score", value: trustScore },
           ]}
         />
+        <AgenticEconomyFlowSection />
         <WhyJuvraSection />
         <OpportunitiesSection isDemo={!hasLiveJobs} jobs={jobs} />
         <HowItWorksSection />

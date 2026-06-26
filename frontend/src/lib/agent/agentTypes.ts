@@ -1,3 +1,5 @@
+import type { EvidenceItem } from "./evidence";
+
 export type RiskLevel = "low" | "medium" | "high";
 
 export type AgentAction =
@@ -93,4 +95,44 @@ export interface ScopeBuilderResult {
   suggestedEscrowStructure: string;
   reasoning: string;
   safetyNotice: string;
+}
+
+export type VerificationStatus =
+  | "passed"
+  | "warning"
+  | "failed"
+  | "needs_review";
+
+export type SettlementImpact =
+  | "supports_release"
+  | "supports_revision"
+  | "supports_dispute_review"
+  | "inconclusive";
+
+export interface AgentVerificationInput {
+  jobId: string;
+  jobTitle: string;
+  deliveryText: string;
+  evidenceItems: EvidenceItem[];
+  verificationBudgetUSDC?: string;
+}
+
+export interface AgentVerificationReceipt {
+  jobId: string;
+  timestamp: string;
+  agent: "Juvra Verification Agent";
+  costUSDC: string;
+  memo: string;
+}
+
+export interface AgentVerificationResult {
+  verificationId: string;
+  verificationCostUSDC: string;
+  verificationStatus: VerificationStatus;
+  checkedSignals: string[];
+  findings: string[];
+  riskFlags: string[];
+  settlementImpact: SettlementImpact;
+  receipt: AgentVerificationReceipt;
+  safetyNotice: "Verification is advisory only. Escrow actions require manual wallet confirmation.";
 }

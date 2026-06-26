@@ -1,5 +1,7 @@
 import {
   AgentRecommendation,
+  AgentVerificationInput,
+  AgentVerificationResult,
   DeliveryReviewInput,
   DeliveryReviewResult,
   DisputeSummaryInput,
@@ -9,6 +11,11 @@ import {
   ScopeBuilderInput,
   ScopeBuilderResult,
 } from "./agentTypes";
+import {
+  getNanopaymentMemo,
+  getVerificationCost,
+} from "./nanopaymentPolicy";
+import { VERIFICATION_SAFETY_NOTICE } from "./schemas";
 
 import {
   calculateClarityScore,
@@ -97,6 +104,152 @@ export function reviewDeliveryMock(
         : score >= 55
           ? "The submission has partial evidence but still needs clarification or revision."
           : "The submission does not provide enough evidence for safe release.",
+  };
+}
+
+export function verifyEvidenceMock(
+  input: AgentVerificationInput
+): AgentVerificationResult {
+  const evidenceItems = input.evidenceItems ?? [];
+  const deliveryText = input.deliveryText.trim();
+  const combinedText = [
+    deliveryText,
+    ...evidenceItems.map((item) => `${item.evidenceUrl ?? ""} ${item.note ?? ""}`),
+  ]
+    .join(" ")
+    .toLowerCase();
+  const evidenceUrls = evidenceItems
+    .map((item) => item.evidenceUrl?.trim())
+    .filter((item): item is string => Boolean(item));
+  const hasRepoSignal =
+    combinedText.includes("github") ||
+    combinedText.includes("repo") ||
+    evidenceUrls.some((url) => url.includes("github.com"));
+  const hasDeploymentSignal =
+    combinedText.includes("deployed") ||
+    combinedText.includes("preview") ||
+    combinedText.includes("demo") ||
+    evidenceUrls.some((url) =>
+      ["vercel.app", "netlify.app", "arcscan", "ipfs"].some((term) =>
+        url.toLowerCase().includes(term)
+      )
+    );
+  const hasScreenshotSignal =
+    combinedText.includes("screenshot") ||
+    evidenceUrls.some((url) =>
+      [".png", ".jpg", ".jpeg", ".webp"].some((extension) =>
+        url.toLowerCase().includes(extension)
+      )
+    );
+  const hasDisputeSignal =
+    evidenceItems.some((item) => item.type === "dispute") ||
+    ["refund", "scam", "not delivered", "broken", "missing"].some((term) =>
+      combinedText.includes(term)
+    );
+  const riskFlags: string[] = [];
+  const findings: string[] = [];
+
+  if (!deliveryText) {
+    riskFlags.push("Delivery text is missing.");
+  } else if (deliveryText.length < 80) {
+    riskFlags.push("Delivery text is short and may not explain completion.");
+  }
+
+  if (evidenceItems.length === 0) {
+    riskFlags.push("No evidence items were submitted for verification.");
+  } else {
+    findings.push(
+      `Reviewed ${evidenceItems.length} local evidence item${
+        evidenceItems.length === 1 ? "" : "s"
+      } for job ${input.jobId}.`
+    );
+  }
+
+  if (evidenceUrls.length === 0) {
+    riskFlags.push("No external evidence URL was attached.");
+  } else {
+    findings.push(
+      `${evidenceUrls.length} evidence URL${
+        evidenceUrls.length === 1 ? "" : "s"
+      } available for human inspection.`
+    );
+  }
+
+  if (hasRepoSignal) {
+    findings.push("Repository or source-control signal found.");
+  }
+
+  if (hasDeploymentSignal) {
+    findings.push("Deployment, demo, preview, Arcscan, or IPFS signal found.");
+  }
+
+  if (hasScreenshotSignal) {
+    findings.push("Screenshot or visual proof signal found.");
+  }
+
+  if (hasDisputeSignal) {
+    riskFlags.push("Dispute or refund language appears in the delivery context.");
+  }
+
+  if (findings.length === 0) {
+    findings.push(
+      "Verification could not confirm strong delivery signals from the current evidence."
+    );
+  }
+
+  const inferredRisk =
+    hasDisputeSignal || riskFlags.length >= 3
+      ? "high"
+      : riskFlags.length > 0
+        ? "medium"
+        : "low";
+  const policyCost = getVerificationCost(inferredRisk, evidenceItems.length);
+  const budgetCost = normalizeUSDCBudget(input.verificationBudgetUSDC);
+  const verificationCostUSDC = budgetCost ?? policyCost;
+
+  if (
+    budgetCost &&
+    Number.isFinite(Number(policyCost)) &&
+    Number(budgetCost) < Number(policyCost)
+  ) {
+    riskFlags.push(
+      `Verification budget ${budgetCost} USDC is below policy estimate ${policyCost} USDC.`
+    );
+  }
+
+  const verificationStatus = getVerificationStatus({
+    evidenceCount: evidenceItems.length,
+    hasDisputeSignal,
+    hasStrongSignal: hasRepoSignal || hasDeploymentSignal || hasScreenshotSignal,
+    riskFlagCount: riskFlags.length,
+  });
+  const timestamp = new Date().toISOString();
+  const memo = getNanopaymentMemo(input.jobId, "evidence-verification");
+
+  return {
+    verificationId: getVerificationId(input.jobId),
+    verificationCostUSDC,
+    verificationStatus,
+    checkedSignals: [
+      "Delivery note length and clarity",
+      "Submitted local evidence items",
+      "External evidence URLs",
+      "Repository and deployment indicators",
+      "Screenshot or visual proof indicators",
+      "Dispute and refund language",
+      "USDC verification budget policy",
+    ],
+    findings,
+    riskFlags,
+    settlementImpact: getSettlementImpact(verificationStatus),
+    receipt: {
+      jobId: input.jobId,
+      timestamp,
+      agent: "Juvra Verification Agent",
+      costUSDC: verificationCostUSDC,
+      memo,
+    },
+    safetyNotice: VERIFICATION_SAFETY_NOTICE,
   };
 }
 
@@ -279,4 +432,64 @@ export function buildScopeMock(input: ScopeBuilderInput): ScopeBuilderResult {
     safetyNotice:
       "These suggestions do not modify escrow. Client and freelancer must agree manually before any wallet-confirmed action.",
   };
+}
+
+function normalizeUSDCBudget(value?: string) {
+  const amount = Number(value);
+
+  if (!Number.isFinite(amount) || amount < 0) {
+    return undefined;
+  }
+
+  return amount.toFixed(2);
+}
+
+function getVerificationStatus({
+  evidenceCount,
+  hasDisputeSignal,
+  hasStrongSignal,
+  riskFlagCount,
+}: {
+  evidenceCount: number;
+  hasDisputeSignal: boolean;
+  hasStrongSignal: boolean;
+  riskFlagCount: number;
+}): AgentVerificationResult["verificationStatus"] {
+  if (evidenceCount === 0 && riskFlagCount > 0) {
+    return "needs_review";
+  }
+
+  if (hasDisputeSignal) {
+    return riskFlagCount >= 3 ? "failed" : "warning";
+  }
+
+  if (hasStrongSignal && riskFlagCount === 0) {
+    return "passed";
+  }
+
+  if (hasStrongSignal || riskFlagCount <= 2) {
+    return "warning";
+  }
+
+  return "needs_review";
+}
+
+function getSettlementImpact(
+  status: AgentVerificationResult["verificationStatus"]
+): AgentVerificationResult["settlementImpact"] {
+  switch (status) {
+    case "passed":
+      return "supports_release";
+    case "warning":
+      return "supports_revision";
+    case "failed":
+      return "supports_dispute_review";
+    case "needs_review":
+    default:
+      return "inconclusive";
+  }
+}
+
+function getVerificationId(jobId: string) {
+  return `ver-${jobId}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }

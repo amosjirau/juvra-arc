@@ -1,5 +1,7 @@
 import {
   AgentRecommendation,
+  AgentVerificationInput,
+  AgentVerificationResult,
   DeliveryReviewInput,
   DeliveryReviewResult,
   DisputeSummaryInput,
@@ -464,6 +466,62 @@ const scopeBuilderSchema = {
   ],
 };
 
+const verificationSchema = {
+  type: "OBJECT",
+  properties: {
+    verificationId: stringSchema,
+    verificationCostUSDC: stringSchema,
+    verificationStatus: {
+      type: "STRING",
+      enum: ["passed", "warning", "failed", "needs_review"],
+    },
+    checkedSignals: {
+      type: "ARRAY",
+      items: stringSchema,
+    },
+    findings: {
+      type: "ARRAY",
+      items: stringSchema,
+    },
+    riskFlags: {
+      type: "ARRAY",
+      items: stringSchema,
+    },
+    settlementImpact: {
+      type: "STRING",
+      enum: [
+        "supports_release",
+        "supports_revision",
+        "supports_dispute_review",
+        "inconclusive",
+      ],
+    },
+    receipt: {
+      type: "OBJECT",
+      properties: {
+        jobId: stringSchema,
+        timestamp: stringSchema,
+        agent: stringSchema,
+        costUSDC: stringSchema,
+        memo: stringSchema,
+      },
+      required: ["jobId", "timestamp", "agent", "costUSDC", "memo"],
+    },
+    safetyNotice: stringSchema,
+  },
+  required: [
+    "verificationId",
+    "verificationCostUSDC",
+    "verificationStatus",
+    "checkedSignals",
+    "findings",
+    "riskFlags",
+    "settlementImpact",
+    "receipt",
+    "safetyNotice",
+  ],
+};
+
 export async function analyzeJobGemini(
   input: JobAnalysisInput
 ): Promise<JobRiskAnalysis> {
@@ -519,5 +577,15 @@ export async function buildScopeGemini(
     "Act as a safe agentic freelance commerce coordinator. Suggest clearer milestones, acceptance criteria, delivery requirements, revision terms, risk notes, and escrow breakdown for this Arc escrow job. The output is advisory only. Do not claim escrow was modified. Do not select freelancers, release funds, refund funds, resolve disputes, or sign transactions.",
     input,
     scopeBuilderSchema
+  );
+}
+
+export async function verifyEvidenceGemini(
+  input: AgentVerificationInput
+): Promise<AgentVerificationResult> {
+  return callGeminiJson<AgentVerificationResult>(
+    "Run an advisory evidence verification workflow for a freelance escrow job. Review delivery text and evidence items, identify checked signals, findings, risk flags, verification status, settlement impact, and a USDC-denominated verification receipt. The agent may prepare or record a verification payment receipt, but must not release escrow, refund escrow, sign wallet transactions, select freelancers, or resolve disputes.",
+    input,
+    verificationSchema
   );
 }

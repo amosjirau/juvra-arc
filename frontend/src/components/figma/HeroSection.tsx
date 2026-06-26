@@ -29,6 +29,7 @@ const challengeBadges = [
   "USDC-native escrow",
   "Agent-assisted commerce",
   "Human-confirmed settlement",
+  "Nanopayments future-ready",
 ];
 
 function EscrowViz({ job }: { job?: JuvraJob }) {

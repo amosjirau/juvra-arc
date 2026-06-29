@@ -29,13 +29,15 @@ Live / implemented:
 - Agentic risk/recommendation backend
 - Manual wallet-confirmed settlement actions
 - Nanopayments: a real on-chain native-USDC verification fee on Arc Testnet, prepared by the agent and confirmed by the human in their wallet (tx hash + Arcscan link recorded in the ledger)
+- Autonomous agent wallet: the agent signs and sends USDC nanopayments itself from its own budgeted Arc wallet (per-tx cap, session budget, recipient allowlist, on-chain balance)
+- Agent-to-agent commerce: a distinct, signing verification service agent is paid in USDC by the orchestrator agent
+- CCTP cross-chain USDC: live, bidirectional Arc ⇄ Ethereum Sepolia (agent burns → Circle attestation → agent mints), via `/agent-treasury`
 
 Future-ready / planned:
 
 - Circle Wallets for secure agent-controlled transaction flows (needs Circle developer credentials)
 - Paymaster for sponsored-gas onboarding (Arc already uses native USDC for gas)
 - Gateway for treasury/routing workflows (contracts exist on Arc Testnet; flow is API-gated)
-- CCTP for cross-chain USDC settlement expansion (Arc is CCTP domain 26)
 
 ## Key Contract
 

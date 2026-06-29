@@ -59,13 +59,13 @@ Live / implemented:
 - Manual wallet-confirmed settlement actions
 - **Nanopayments: a real on-chain native-USDC verification fee on Arc Testnet.** The agent prepares a USDC-denominated verification payment; the human confirms it in their wallet; the real transaction hash and Arcscan link are recorded in the agent economic action ledger. This is separate from escrow and the agent never signs.
 - **Autonomous agent payments: the agent has its OWN budgeted USDC wallet on Arc and pays nanopayments autonomously — no human signature.** It decides from real signals (delivery evidence, submission status, dispute state), signs and sends the USDC itself, and is bounded by a per-transaction cap, a session budget, a recipient allowlist, and its on-chain balance. Supports verification fees and agent-to-agent/service payments. The agent's wallet is not the user's wallet and never touches escrow, which stays human-confirmed.
+- **CCTP cross-chain USDC: live and bidirectional (Arc ⇄ Ethereum Sepolia).** The agent autonomously burns USDC on the source chain, retrieves Circle's attestation, and mints on the destination chain — all agent-signed. Verified live end-to-end: burned 1 USDC on Arc (tx `0xccafe0…`) and minted it on Sepolia (tx `0xcac4c8…`).
 
 Future-ready / planned:
 
 - Circle Wallets for secure agent-controlled transaction flows (needs Circle developer credentials)
 - Paymaster for sponsored-gas onboarding (Arc already denominates gas in native USDC)
 - Gateway for treasury/routing workflows (Gateway contracts exist on Arc Testnet; the flow is API-gated)
-- CCTP for cross-chain USDC settlement expansion (Arc is CCTP domain 26; live-able once a second funded chain is wired)
 
 ## What Is Real
 
@@ -78,6 +78,7 @@ Future-ready / planned:
 - The verification fee can be paid as a real on-chain native-USDC transfer on Arc Testnet (chain 5042002), human-confirmed in the wallet, with the real tx hash and Arcscan link recorded in the ledger.
 - The agent autonomously settles USDC nanopayments from its own funded Arc wallet — verified live on-chain (e.g. tx `0x69a881…7b42`, agent-signed, no human signature), with per-tx/session/allowlist/balance guardrails. This is the autonomous-economy core of the submission.
 - Agent-to-agent commerce is live: a distinct verification service agent (its own keypair) is paid in USDC by the orchestrator agent, independently confirms the payment on-chain, performs the verification, and returns a receipt signed with its own key — verified live (e.g. tx `0xf22588…e771`, service agent received 0.02 USDC, signed receipt).
+- CCTP cross-chain USDC is live and verified end-to-end: the agent autonomously bridged 1 USDC Arc → Sepolia (burn `0xccafe0…` on Arc, Circle attestation `complete`, mint `0xcac4c8…` on Sepolia where the agent's USDC went 0.00 → 1.00). The bridge is bidirectional with a UI toggle.
 - The UI labels the verification action as a testnet/demo verification payment and states that escrow funds are not controlled by the agent.
 
 ## What Is Future-Ready But Not Live
@@ -85,9 +86,8 @@ Future-ready / planned:
 - Circle Wallets are not integrated yet (needs Circle developer credentials).
 - Paymaster is not integrated yet; Arc already denominates gas in native USDC.
 - Gateway is not wired yet (its contracts exist on Arc Testnet, but the routing/attestation flow is API-gated).
-- CCTP is not wired yet; Arc is CCTP domain 26 and the V2 contracts are known, but a live cross-chain transfer needs a second funded chain.
 
-Note: the nanopayment verification fee is now genuinely live on Arc Testnet (see the Live / implemented list), not a demo ledger entry.
+Note: the nanopayment verification fee, autonomous agent payments, agent-to-agent commerce, and CCTP cross-chain USDC are all genuinely live on testnet (see the Live / implemented list), not demo ledger entries.
 
 ## Safety Model
 

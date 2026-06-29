@@ -86,6 +86,10 @@ AGENT_SERVICE_RECIPIENTS=
 AGENT_SERVICE_AGENT_PRIVATE_KEY=
 AGENT_SERVICE_FEE_USDC=0.02
 
+# CCTP source chain RPC (Ethereum Sepolia) for agent-driven cross-chain USDC.
+# Optional; a public default is used if unset.
+SEPOLIA_RPC_URL=
+
 # Selected AI provider. Only the selected provider needs to be configured.
 AI_PROVIDER=gemini
 

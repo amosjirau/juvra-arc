@@ -42,7 +42,27 @@ type WalletStatus = {
   sessionSpentUSDC: string;
   sessionRemainingUSDC: string;
   allowlist: string[];
+  serviceAgent?: {
+    configured: boolean;
+    address: string | null;
+    feeUSDC: string;
+  };
   recentPayments: AutoPayment[];
+};
+
+type AgentToAgentResult = {
+  orchestratorAgent: string;
+  serviceAgent: string;
+  payment: { txHash: string; explorerUrl: string; amountUSDC: string; to: string };
+  paymentVerifiedByService: boolean;
+  verification: {
+    mode: string;
+    provider: string;
+    verificationStatus: string;
+    settlementImpact: string;
+    findings: string[];
+  };
+  receipt: { message: string; signature: string; signer: string };
 };
 
 type PayResponse =
@@ -80,6 +100,8 @@ export function AgentAutonomyPanel({
   const [error, setError] = useState("");
   const [decision, setDecision] = useState<string>("");
   const [lastPaid, setLastPaid] = useState<AutoPayment | null>(null);
+  const [a2aLoading, setA2aLoading] = useState(false);
+  const [a2a, setA2a] = useState<AgentToAgentResult | null>(null);
 
   const refreshWallet = useCallback(async () => {
     try {
@@ -98,10 +120,49 @@ export function AgentAutonomyPanel({
     /* eslint-disable react-hooks/set-state-in-effect */
     setDecision("");
     setLastPaid(null);
+    setA2a(null);
     setError("");
     /* eslint-enable react-hooks/set-state-in-effect */
     refreshWallet();
   }, [jobId, refreshWallet]);
+
+  async function runAgentToAgent() {
+    if (!jobId) {
+      setError("Job ID is required.");
+      return;
+    }
+
+    setA2aLoading(true);
+    setError("");
+    setA2a(null);
+
+    try {
+      const res = await fetch("/api/agent/use-verification-service", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jobId,
+          jobTitle: job?.title || "Untitled job",
+          deliveryText: buildDeliveryText(evidence),
+          evidenceItems: evidence,
+        }),
+      });
+      const data = await res.json();
+
+      if (!data.success) {
+        throw new Error(data.error ?? "Agent-to-agent verification failed.");
+      }
+
+      setA2a(data as AgentToAgentResult);
+      await refreshWallet();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Agent-to-agent verification failed."
+      );
+    } finally {
+      setA2aLoading(false);
+    }
+  }
 
   async function runAutonomous(purpose: "verification" | "service") {
     if (!jobId) {
@@ -156,7 +217,7 @@ export function AgentAutonomyPanel({
 
   const configured = wallet?.configured;
   const lowBalance = wallet ? Number(wallet.balanceUSDC) <= 0 : false;
-  const hasServiceTarget = (wallet?.allowlist?.length ?? 0) > 0;
+  const serviceConfigured = Boolean(wallet?.serviceAgent?.configured);
 
   return (
     <Card className="premium-card-hover rounded-[2rem] border-fuchsia-300/15 bg-fuchsia-300/[0.04]">
@@ -244,18 +305,39 @@ export function AgentAutonomyPanel({
                 )}
                 Run autonomous verification payment
               </Button>
-              {hasServiceTarget && (
+              {serviceConfigured && (
                 <Button
                   className="w-full sm:w-fit"
-                  disabled={loading || !jobId}
-                  onClick={() => runAutonomous("service")}
+                  disabled={a2aLoading || loading || !jobId}
+                  onClick={runAgentToAgent}
                   type="button"
                   variant="outline"
                 >
-                  Pay service agent (agent-to-agent)
+                  {a2aLoading ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <Network className="size-4" />
+                  )}
+                  Hire service agent (agent-to-agent)
                 </Button>
               )}
             </div>
+
+            {serviceConfigured && wallet?.serviceAgent?.address && (
+              <div className="rounded-xl border border-purple-300/15 bg-purple-300/[0.05] p-3 text-xs text-zinc-300">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="font-medium text-purple-100">
+                    Distinct verification service agent
+                  </span>
+                  <span className="font-mono">
+                    {wallet.serviceAgent.feeUSDC} USDC / call
+                  </span>
+                </div>
+                <p className="mt-1 break-all font-mono text-purple-100/80">
+                  {wallet.serviceAgent.address}
+                </p>
+              </div>
+            )}
 
             {error && (
               <p className="rounded-xl border border-rose-300/20 bg-rose-300/10 p-3 text-sm text-rose-100">
@@ -288,6 +370,55 @@ export function AgentAutonomyPanel({
                   To {shortAddress(lastPaid.to)} · {lastPaid.purpose}
                 </p>
                 <ArcscanLink hash={lastPaid.txHash as `0x${string}`} />
+              </div>
+            )}
+
+            {a2a && (
+              <div className="space-y-3 rounded-xl border border-purple-300/20 bg-purple-300/10 p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="flex items-center gap-2 text-sm font-medium text-purple-50">
+                    <Network className="size-4" />
+                    Agent-to-agent commerce settled
+                  </h3>
+                  <Badge className="border-purple-300/20 bg-purple-300/10 text-purple-100">
+                    {a2a.payment.amountUSDC} USDC
+                  </Badge>
+                </div>
+
+                <div className="flex items-center gap-2 text-xs text-zinc-300">
+                  <span className="font-mono">{shortAddress(a2a.orchestratorAgent)}</span>
+                  <span className="text-purple-200">— paid →</span>
+                  <span className="font-mono">{shortAddress(a2a.serviceAgent)}</span>
+                </div>
+
+                <div className="grid gap-2 sm:grid-cols-3">
+                  <WalletMetric
+                    label="Payment confirmed"
+                    value={a2a.paymentVerifiedByService ? "by service ✓" : "pending"}
+                  />
+                  <WalletMetric
+                    label="Verification"
+                    value={`${a2a.verification.verificationStatus} (${a2a.verification.provider})`}
+                  />
+                  <WalletMetric
+                    label="Impact"
+                    value={a2a.verification.settlementImpact.replaceAll("_", " ")}
+                  />
+                </div>
+
+                <div className="rounded-lg border border-white/10 bg-black/25 p-2">
+                  <p className="text-xs font-medium text-zinc-400">
+                    Service agent signed receipt
+                  </p>
+                  <p className="mt-1 break-all font-mono text-[0.7rem] text-emerald-100/80">
+                    {a2a.receipt.signature}
+                  </p>
+                  <p className="mt-1 text-[0.7rem] text-zinc-500">
+                    signer {shortAddress(a2a.receipt.signer)}
+                  </p>
+                </div>
+
+                <ArcscanLink hash={a2a.payment.txHash as `0x${string}`} />
               </div>
             )}
 
@@ -336,6 +467,22 @@ export function AgentAutonomyPanel({
       </CardContent>
     </Card>
   );
+}
+
+function buildDeliveryText(evidence: EvidenceItem[]): string {
+  const lines = evidence
+    .map((item) =>
+      [
+        `Evidence: ${item.type}`,
+        item.evidenceUrl ? `URL: ${item.evidenceUrl}` : "",
+        item.note ? `Note: ${item.note}` : "",
+      ]
+        .filter(Boolean)
+        .join(" | ")
+    )
+    .filter(Boolean);
+
+  return lines.join("\n") || "Delivery submitted for verification.";
 }
 
 function WalletMetric({

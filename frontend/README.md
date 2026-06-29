@@ -81,6 +81,11 @@ AGENT_SESSION_BUDGET_USDC=1.00
 # Optional distinct service/agent addresses for agent-to-agent payments (CSV).
 AGENT_SERVICE_RECIPIENTS=
 
+# Distinct verification service agent (its own keypair; server-only, gitignored).
+# It receives USDC from the orchestrator agent and signs verification receipts.
+AGENT_SERVICE_AGENT_PRIVATE_KEY=
+AGENT_SERVICE_FEE_USDC=0.02
+
 # Selected AI provider. Only the selected provider needs to be configured.
 AI_PROVIDER=gemini
 

@@ -77,6 +77,7 @@ Future-ready / planned:
 - The verification workflow produces a real receipt object and stores it in a transparent local ledger.
 - The verification fee can be paid as a real on-chain native-USDC transfer on Arc Testnet (chain 5042002), human-confirmed in the wallet, with the real tx hash and Arcscan link recorded in the ledger.
 - The agent autonomously settles USDC nanopayments from its own funded Arc wallet — verified live on-chain (e.g. tx `0x69a881…7b42`, agent-signed, no human signature), with per-tx/session/allowlist/balance guardrails. This is the autonomous-economy core of the submission.
+- Agent-to-agent commerce is live: a distinct verification service agent (its own keypair) is paid in USDC by the orchestrator agent, independently confirms the payment on-chain, performs the verification, and returns a receipt signed with its own key — verified live (e.g. tx `0xf22588…e771`, service agent received 0.02 USDC, signed receipt).
 - The UI labels the verification action as a testnet/demo verification payment and states that escrow funds are not controlled by the agent.
 
 ## What Is Future-Ready But Not Live

@@ -11,6 +11,11 @@ import {
   getAutonomousPayments,
   getSessionSpentUSDC,
 } from "@/lib/agent/autonomousLedger";
+import {
+  getServiceAgentAddress,
+  getServiceFeeUSDC,
+  isServiceAgentConfigured,
+} from "@/lib/agent/serviceAgent";
 import { arcTestnet } from "@/lib/arc";
 
 // Reports the autonomous agent wallet status. Never returns the private key.
@@ -48,6 +53,11 @@ export async function GET() {
     sessionSpentUSDC: spent.toFixed(2),
     sessionRemainingUSDC: Math.max(0, sessionBudget - spent).toFixed(2),
     allowlist: getRecipientAllowlist(),
+    serviceAgent: {
+      configured: isServiceAgentConfigured(),
+      address: getServiceAgentAddress(),
+      feeUSDC: getServiceFeeUSDC(),
+    },
     recentPayments: getAutonomousPayments().slice(0, 10),
   });
 }

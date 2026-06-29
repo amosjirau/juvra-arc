@@ -9,6 +9,7 @@ import {
   getVerificationCost,
   getVerificationFeeRecipient,
 } from "./nanopaymentPolicy";
+import { getServiceAgentAddress } from "./serviceAgent";
 
 export type AutonomousPurpose = "verification" | "service";
 
@@ -44,6 +45,12 @@ export function getRecipientAllowlist(): Address[] {
   const fee = getVerificationFeeRecipient();
 
   byKey.set(fee.toLowerCase(), fee);
+
+  // The distinct verification service agent is always an allowed counterparty.
+  const serviceAgent = getServiceAgentAddress();
+  if (serviceAgent) {
+    byKey.set(serviceAgent.toLowerCase(), serviceAgent);
+  }
 
   for (const recipient of getServiceRecipients()) {
     byKey.set(recipient.toLowerCase(), recipient);

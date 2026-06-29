@@ -1,8 +1,9 @@
-// Agent-driven CCTP V2: the agent autonomously bridges USDC from Ethereum
-// Sepolia INTO Arc (Arc as a settlement hub). Burn on Sepolia -> Circle
-// attestation -> mint on Arc. Server-only; signs with the agent wallet key.
+// Agent-driven CCTP V2 — BIDIRECTIONAL cross-chain USDC between Ethereum
+// Sepolia and Arc. Burn on the source chain -> Circle attestation -> mint on
+// the destination chain. Server-only; the agent signs with its own wallet key.
 //
 // Verified against Circle's "Transfer USDC from Ethereum to Arc" V2 quickstart.
+// CCTP USDC is 6 decimals on both chains (on Arc via the ERC-20 interface).
 
 import "server-only";
 
@@ -17,6 +18,7 @@ import {
   pad,
   parseUnits,
   type Address,
+  type Chain,
   type Hash,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
@@ -24,31 +26,91 @@ import { sepolia } from "viem/chains";
 
 import { arcExplorerUrl, arcRpcUrl, arcTestnet } from "@/lib/arc";
 
-export function arcExplorerTx(hash: string): string {
-  return `${arcExplorerUrl}/tx/${hash}`;
-}
+export type CctpDirection = "sepolia_to_arc" | "arc_to_sepolia";
 
-export const CCTP = {
-  // Same deterministic addresses on every CCTP V2 chain (incl. Sepolia + Arc).
-  tokenMessengerV2: "0x8FE6B999Dc680CcFDD5Bf7EB0974218be2542DAA" as Address,
-  messageTransmitterV2: "0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275" as Address,
-  sepolia: {
-    domain: 0,
-    usdc: "0x1c7d4b196cb0c7b01d743fbc6116a902379c7238" as Address,
-  },
-  arc: {
-    domain: 26,
-    usdc: "0x3600000000000000000000000000000000000000" as Address,
-  },
-  attestationBase: "https://iris-api-sandbox.circle.com",
-} as const;
+const TOKEN_MESSENGER_V2 =
+  "0x8FE6B999Dc680CcFDD5Bf7EB0974218be2542DAA" as Address;
+const MESSAGE_TRANSMITTER_V2 =
+  "0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275" as Address;
 
 const ZERO_BYTES32 =
   "0x0000000000000000000000000000000000000000000000000000000000000000" as const;
 
-// Fast Transfer params (per the Arc quickstart).
+// Fast Transfer params (per the Arc quickstart). USDC is 6 decimals.
 const MAX_FEE = 500n; // 0.0005 USDC
 const MIN_FINALITY_THRESHOLD = 1000;
+
+const SEPOLIA_RPC =
+  process.env.SEPOLIA_RPC_URL?.trim() ||
+  "https://ethereum-sepolia-rpc.publicnode.com";
+
+type ChainConfig = {
+  key: "sepolia" | "arc";
+  label: string;
+  domain: number;
+  usdc: Address;
+  chain: Chain;
+  rpc: string;
+  gasAsset: string;
+  explorerTx: (hash: string) => string;
+};
+
+const CHAINS: Record<"sepolia" | "arc", ChainConfig> = {
+  sepolia: {
+    key: "sepolia",
+    label: "Ethereum Sepolia",
+    domain: 0,
+    usdc: "0x1c7d4b196cb0c7b01d743fbc6116a902379c7238" as Address,
+    chain: sepolia,
+    rpc: SEPOLIA_RPC,
+    gasAsset: "ETH",
+    explorerTx: (hash) => `https://sepolia.etherscan.io/tx/${hash}`,
+  },
+  arc: {
+    key: "arc",
+    label: "Arc Testnet",
+    domain: 26,
+    // Arc USDC ERC-20 interface (6 decimals); native USDC is the gas token.
+    usdc: "0x3600000000000000000000000000000000000000" as Address,
+    chain: arcTestnet,
+    rpc: arcRpcUrl,
+    gasAsset: "USDC",
+    explorerTx: (hash) => `${arcExplorerUrl}/tx/${hash}`,
+  },
+};
+
+export function arcExplorerTx(hash: string): string {
+  return CHAINS.arc.explorerTx(hash);
+}
+
+function directionChains(direction: CctpDirection): {
+  src: ChainConfig;
+  dst: ChainConfig;
+} {
+  return direction === "sepolia_to_arc"
+    ? { src: CHAINS.sepolia, dst: CHAINS.arc }
+    : { src: CHAINS.arc, dst: CHAINS.sepolia };
+}
+
+export function getDirectionInfo(direction: CctpDirection) {
+  const { src, dst } = directionChains(direction);
+  return {
+    direction,
+    sourceLabel: src.label,
+    destLabel: dst.label,
+    sourceDomain: src.domain,
+    destDomain: dst.domain,
+    sourceGasAsset: src.gasAsset,
+  };
+}
+
+export function sourceExplorerTx(direction: CctpDirection, hash: string): string {
+  return directionChains(direction).src.explorerTx(hash);
+}
+
+export function destExplorerTx(direction: CctpDirection, hash: string): string {
+  return directionChains(direction).dst.explorerTx(hash);
+}
 
 const depositForBurnAbi = [
   {
@@ -93,48 +155,41 @@ export function isCctpConfigured(): boolean {
   return Boolean(getAgentKey());
 }
 
-const sepoliaRpc =
-  process.env.SEPOLIA_RPC_URL?.trim() ||
-  "https://ethereum-sepolia-rpc.publicnode.com";
-
-function sepoliaPublicClient() {
-  return createPublicClient({ chain: sepolia, transport: http(sepoliaRpc) });
-}
-
-function sepoliaWalletClient() {
-  const key = getAgentKey();
-  if (!key) throw new Error("AGENT_WALLET_PRIVATE_KEY is not configured.");
-  return createWalletClient({
-    account: privateKeyToAccount(key),
-    chain: sepolia,
-    transport: http(sepoliaRpc),
-  });
-}
-
-function arcPublicClient() {
-  return createPublicClient({ chain: arcTestnet, transport: http(arcRpcUrl) });
-}
-
-function arcWalletClient() {
-  const key = getAgentKey();
-  if (!key) throw new Error("AGENT_WALLET_PRIVATE_KEY is not configured.");
-  return createWalletClient({
-    account: privateKeyToAccount(key),
-    chain: arcTestnet,
-    transport: http(arcRpcUrl),
-  });
-}
-
 export function getCctpAgentAddress(): Address | null {
   const key = getAgentKey();
   return key ? privateKeyToAccount(key).address : null;
+}
+
+function publicClientFor(c: ChainConfig) {
+  return createPublicClient({ chain: c.chain, transport: http(c.rpc) });
+}
+
+function walletClientFor(c: ChainConfig) {
+  const key = getAgentKey();
+  if (!key) throw new Error("AGENT_WALLET_PRIVATE_KEY is not configured.");
+  return createWalletClient({
+    account: privateKeyToAccount(key),
+    chain: c.chain,
+    transport: http(c.rpc),
+  });
+}
+
+async function usdcBalance(c: ChainConfig, address: Address): Promise<bigint> {
+  return publicClientFor(c)
+    .readContract({
+      address: c.usdc,
+      abi: erc20Abi,
+      functionName: "balanceOf",
+      args: [address],
+    })
+    .catch(() => 0n);
 }
 
 export type CctpStatus = {
   configured: boolean;
   agentAddress: Address | null;
   sepolia: { usdcUSDC: string; ethBalance: string; domain: number };
-  arc: { usdcUSDC: string; domain: number };
+  arc: { usdcUSDC: string; nativeUSDC: string; domain: number };
 };
 
 export async function getCctpStatus(): Promise<CctpStatus> {
@@ -144,26 +199,16 @@ export async function getCctpStatus(): Promise<CctpStatus> {
     return {
       configured: false,
       agentAddress: null,
-      sepolia: { usdcUSDC: "0.00", ethBalance: "0.0000", domain: CCTP.sepolia.domain },
-      arc: { usdcUSDC: "0.0000", domain: CCTP.arc.domain },
+      sepolia: { usdcUSDC: "0.00", ethBalance: "0.0000", domain: 0 },
+      arc: { usdcUSDC: "0.00", nativeUSDC: "0.0000", domain: 26 },
     };
   }
 
-  const sepoliaPublic = sepoliaPublicClient();
-  const arcPublic = arcPublicClient();
-
-  const [sepoliaUsdc, sepoliaEth, arcUsdc] = await Promise.all([
-    sepoliaPublic
-      .readContract({
-        address: CCTP.sepolia.usdc,
-        abi: erc20Abi,
-        functionName: "balanceOf",
-        args: [agentAddress],
-      })
-      .catch(() => 0n),
-    sepoliaPublic.getBalance({ address: agentAddress }).catch(() => 0n),
-    // On Arc, USDC is the native gas token (18 decimals).
-    arcPublic.getBalance({ address: agentAddress }).catch(() => 0n),
+  const [sepoliaUsdc, sepoliaEth, arcUsdcErc20, arcNative] = await Promise.all([
+    usdcBalance(CHAINS.sepolia, agentAddress),
+    publicClientFor(CHAINS.sepolia).getBalance({ address: agentAddress }).catch(() => 0n),
+    usdcBalance(CHAINS.arc, agentAddress),
+    publicClientFor(CHAINS.arc).getBalance({ address: agentAddress }).catch(() => 0n),
   ]);
 
   return {
@@ -172,54 +217,74 @@ export async function getCctpStatus(): Promise<CctpStatus> {
     sepolia: {
       usdcUSDC: Number(formatUnits(sepoliaUsdc, 6)).toFixed(2),
       ethBalance: Number(formatEther(sepoliaEth)).toFixed(4),
-      domain: CCTP.sepolia.domain,
+      domain: CHAINS.sepolia.domain,
     },
     arc: {
-      usdcUSDC: Number(formatEther(arcUsdc)).toFixed(4),
-      domain: CCTP.arc.domain,
+      // ERC-20 view (6 decimals) is what CCTP burns; native (18) is the gas view.
+      usdcUSDC: Number(formatUnits(arcUsdcErc20, 6)).toFixed(2),
+      nativeUSDC: Number(formatEther(arcNative)).toFixed(4),
+      domain: CHAINS.arc.domain,
     },
   };
 }
 
-/** Burn USDC on Sepolia, targeting the agent address on Arc. Returns the burn tx hash. */
-export async function burnOnSepolia(amountUSDC: string): Promise<{
-  burnTxHash: Hash;
-  approveTxHash: Hash;
-  amount: bigint;
-}> {
+/** Source-chain USDC balance (6-decimal CCTP units) for the chosen direction. */
+export async function getSourceUsdcUSDC(direction: CctpDirection): Promise<string> {
+  const agentAddress = getCctpAgentAddress();
+  if (!agentAddress) return "0.00";
+  const { src } = directionChains(direction);
+  const bal = await usdcBalance(src, agentAddress);
+  return Number(formatUnits(bal, 6)).toFixed(2);
+}
+
+/** Source-chain gas balance (native) for the chosen direction. */
+export async function getSourceGas(direction: CctpDirection): Promise<{ gas: string; asset: string }> {
+  const agentAddress = getCctpAgentAddress();
+  const { src } = directionChains(direction);
+  if (!agentAddress) return { gas: "0.0000", asset: src.gasAsset };
+  const bal = await publicClientFor(src).getBalance({ address: agentAddress }).catch(() => 0n);
+  return { gas: Number(formatEther(bal)).toFixed(4), asset: src.gasAsset };
+}
+
+/** Burn USDC on the source chain, targeting the agent on the destination chain. */
+export async function burn(
+  direction: CctpDirection,
+  amountUSDC: string
+): Promise<{ burnTxHash: Hash; approveTxHash: Hash; srcDomain: number }> {
   const agentAddress = getCctpAgentAddress();
   if (!agentAddress) throw new Error("Agent wallet is not configured.");
 
-  const amount = parseUnits(amountUSDC, 6); // Sepolia USDC has 6 decimals.
+  const { src, dst } = directionChains(direction);
+  const amount = parseUnits(amountUSDC, 6); // CCTP USDC: 6 decimals on both chains.
   if (amount <= 0n) throw new Error("Amount must be greater than zero.");
   if (amount <= MAX_FEE) throw new Error("Amount must exceed the CCTP max fee.");
 
-  const wallet = sepoliaWalletClient();
-  const publicClient = sepoliaPublicClient();
+  const wallet = walletClientFor(src);
+  const publicClient = publicClientFor(src);
 
-  // 1) Approve the TokenMessenger to spend the agent's USDC.
+  // 1) Approve the TokenMessenger to spend the agent's USDC on the source chain.
   const approveTxHash = await wallet.sendTransaction({
-    to: CCTP.sepolia.usdc,
+    to: src.usdc,
     data: encodeFunctionData({
       abi: erc20Abi,
       functionName: "approve",
-      args: [CCTP.tokenMessengerV2, amount],
+      args: [TOKEN_MESSENGER_V2, amount],
     }),
   });
   await publicClient.waitForTransactionReceipt({ hash: approveTxHash });
 
-  // 2) depositForBurn -> burns on Sepolia, mints to the agent on Arc (domain 26).
+  // 2) depositForBurn -> burns on source, mints to the agent on the destination.
   const mintRecipient = pad(agentAddress, { size: 32 });
   const burnTxHash = await wallet.sendTransaction({
-    to: CCTP.tokenMessengerV2,
+    to: TOKEN_MESSENGER_V2,
     data: encodeFunctionData({
       abi: depositForBurnAbi,
       functionName: "depositForBurn",
       args: [
         amount,
-        CCTP.arc.domain,
+        dst.domain,
         mintRecipient,
-        CCTP.sepolia.usdc,
+        src.usdc,
         ZERO_BYTES32, // destinationCaller: anyone may mint
         MAX_FEE,
         MIN_FINALITY_THRESHOLD,
@@ -228,7 +293,7 @@ export async function burnOnSepolia(amountUSDC: string): Promise<{
   });
   await publicClient.waitForTransactionReceipt({ hash: burnTxHash });
 
-  return { burnTxHash, approveTxHash, amount };
+  return { burnTxHash, approveTxHash, srcDomain: src.domain };
 }
 
 type Attestation = { status: string; message?: `0x${string}`; attestation?: `0x${string}` };
@@ -238,7 +303,7 @@ export async function fetchAttestation(
   srcDomain: number,
   burnTxHash: Hash
 ): Promise<Attestation> {
-  const url = `${CCTP.attestationBase}/v2/messages/${srcDomain}?transactionHash=${burnTxHash}`;
+  const url = `https://iris-api-sandbox.circle.com/v2/messages/${srcDomain}?transactionHash=${burnTxHash}`;
   const res = await fetch(url, { method: "GET" });
 
   if (!res.ok) {
@@ -259,16 +324,18 @@ export async function fetchAttestation(
   };
 }
 
-/** Mint on Arc by submitting the message + attestation to the MessageTransmitter. */
-export async function mintOnArc(
+/** Mint on the destination chain via receiveMessage(message, attestation). */
+export async function mint(
+  direction: CctpDirection,
   message: `0x${string}`,
   attestation: `0x${string}`
 ): Promise<Hash> {
-  const wallet = arcWalletClient();
-  const publicClient = arcPublicClient();
+  const { dst } = directionChains(direction);
+  const wallet = walletClientFor(dst);
+  const publicClient = publicClientFor(dst);
 
   const mintTxHash = await wallet.sendTransaction({
-    to: CCTP.messageTransmitterV2,
+    to: MESSAGE_TRANSMITTER_V2,
     data: encodeFunctionData({
       abi: receiveMessageAbi,
       functionName: "receiveMessage",

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { CCTP, getCctpStatus, isCctpConfigured } from "@/lib/agent/cctp";
+import { getCctpStatus, isCctpConfigured } from "@/lib/agent/cctp";
 
 // Cross-chain treasury status for the agent: Sepolia USDC/ETH and Arc USDC.
 export async function GET() {
@@ -13,17 +13,7 @@ export async function GET() {
 
   try {
     const status = await getCctpStatus();
-
-    return NextResponse.json({
-      success: true,
-      ...status,
-      contracts: {
-        tokenMessengerV2: CCTP.tokenMessengerV2,
-        messageTransmitterV2: CCTP.messageTransmitterV2,
-        sepoliaUsdc: CCTP.sepolia.usdc,
-        arcUsdc: CCTP.arc.usdc,
-      },
-    });
+    return NextResponse.json({ success: true, ...status });
   } catch (error) {
     return NextResponse.json(
       {

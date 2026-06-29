@@ -9,29 +9,35 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
-import { ArcscanLink } from "@/components/arcscan-link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { shortAddress } from "@/lib/format";
+
+type Direction = "sepolia_to_arc" | "arc_to_sepolia";
 
 type CctpStatus = {
   configured: boolean;
   agentAddress: string | null;
   sepolia: { usdcUSDC: string; ethBalance: string; domain: number };
-  arc: { usdcUSDC: string; domain: number };
+  arc: { usdcUSDC: string; nativeUSDC: string; domain: number };
 };
 
 type Phase = "idle" | "burning" | "attesting" | "minted" | "error";
 
+const DIRECTIONS: Record<Direction, { label: string; source: string; dest: string }> = {
+  arc_to_sepolia: { label: "Arc → Sepolia", source: "arc", dest: "sepolia" },
+  sepolia_to_arc: { label: "Sepolia → Arc", source: "sepolia", dest: "arc" },
+};
+
 export function AgentCctpPanel() {
   const [status, setStatus] = useState<CctpStatus | null>(null);
+  const [direction, setDirection] = useState<Direction>("arc_to_sepolia");
   const [amount, setAmount] = useState("1");
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState("");
-  const [burnTx, setBurnTx] = useState("");
-  const [mintTx, setMintTx] = useState("");
+  const [burnUrl, setBurnUrl] = useState("");
+  const [mintUrl, setMintUrl] = useState("");
 
   const refreshStatus = useCallback(async () => {
     try {
@@ -47,22 +53,17 @@ export function AgentCctpPanel() {
     refreshStatus();
   }, [refreshStatus]);
 
-  async function completeMint(hash: string) {
+  async function completeMint(burnTxHash: string) {
     for (let i = 0; i < 8; i++) {
       const res = await fetch("/api/agent/cctp/complete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ burnTxHash: hash }),
+        body: JSON.stringify({ direction, burnTxHash }),
       });
       const data = await res.json();
 
-      if (!data.success) {
-        throw new Error(data.error ?? "Mint failed.");
-      }
-
-      if (!data.pending && data.mintTxHash) {
-        return data.mintTxHash as string;
-      }
+      if (!data.success) throw new Error(data.error ?? "Mint failed.");
+      if (!data.pending && data.mintExplorerUrl) return data.mintExplorerUrl as string;
     }
 
     throw new Error(
@@ -72,27 +73,25 @@ export function AgentCctpPanel() {
 
   async function bridge() {
     setError("");
-    setBurnTx("");
-    setMintTx("");
+    setBurnUrl("");
+    setMintUrl("");
     setPhase("burning");
 
     try {
       const res = await fetch("/api/agent/cctp/bridge", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amountUSDC: amount }),
+        body: JSON.stringify({ direction, amountUSDC: amount }),
       });
       const data = await res.json();
 
-      if (!data.success) {
-        throw new Error(data.error ?? "Bridge failed.");
-      }
+      if (!data.success) throw new Error(data.error ?? "Bridge failed.");
 
-      setBurnTx(data.burnTxHash);
+      setBurnUrl(data.burnExplorerUrl);
       setPhase("attesting");
 
-      const hash = await completeMint(data.burnTxHash);
-      setMintTx(hash);
+      const minted = await completeMint(data.burnTxHash);
+      setMintUrl(minted);
       setPhase("minted");
       await refreshStatus();
     } catch (err) {
@@ -102,9 +101,11 @@ export function AgentCctpPanel() {
   }
 
   const busy = phase === "burning" || phase === "attesting";
-  const needsSepoliaFunds =
-    status &&
-    (Number(status.sepolia.usdcUSDC) <= 0 || Number(status.sepolia.ethBalance) <= 0);
+  const sourceUsdc =
+    DIRECTIONS[direction].source === "arc"
+      ? status?.arc.usdcUSDC
+      : status?.sepolia.usdcUSDC;
+  const lowSource = status ? Number(sourceUsdc ?? "0") <= 0 : false;
 
   return (
     <Card className="premium-card-hover rounded-[2rem] border-sky-300/15 bg-sky-300/[0.04]">
@@ -116,16 +117,15 @@ export function AgentCctpPanel() {
               Cross-chain (CCTP)
             </div>
             <CardTitle className="text-white">
-              Agent treasury: bridge USDC into Arc
+              Agent treasury: bridge USDC across chains
             </CardTitle>
             <p className="mt-2 text-sm leading-5 text-zinc-400">
-              The agent autonomously bridges USDC from Ethereum Sepolia into Arc
-              using Circle CCTP (burn → attestation → mint). Arc as the settlement
-              hub. No human signature.
+              The agent autonomously bridges USDC between Ethereum Sepolia and Arc
+              using Circle CCTP (burn → attestation → mint). No human signature.
             </p>
           </div>
           <Badge className="border-sky-300/20 bg-sky-300/10 text-sky-100">
-            Sepolia → Arc
+            {DIRECTIONS[direction].label}
           </Badge>
         </div>
       </CardHeader>
@@ -136,24 +136,48 @@ export function AgentCctpPanel() {
           </p>
         ) : (
           <>
-            <div className="grid gap-2 sm:grid-cols-3">
-              <CctpMetric label="Sepolia USDC" value={`${status.sepolia.usdcUSDC}`} />
-              <CctpMetric label="Sepolia ETH (gas)" value={`${status.sepolia.ethBalance}`} />
-              <CctpMetric label="Arc USDC" value={`${status.arc.usdcUSDC}`} />
+            <div className="inline-flex rounded-xl border border-white/10 bg-black/25 p-1">
+              {(Object.keys(DIRECTIONS) as Direction[]).map((dir) => (
+                <button
+                  className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+                    direction === dir
+                      ? "bg-sky-400/20 text-sky-100"
+                      : "text-zinc-400 hover:text-zinc-200"
+                  }`}
+                  disabled={busy}
+                  key={dir}
+                  onClick={() => setDirection(dir)}
+                  type="button"
+                >
+                  {DIRECTIONS[dir].label}
+                </button>
+              ))}
             </div>
 
-            {needsSepoliaFunds && status.agentAddress && (
+            <div className="grid gap-2 sm:grid-cols-3">
+              <CctpMetric label="Sepolia USDC" value={status.sepolia.usdcUSDC} />
+              <CctpMetric label="Sepolia ETH (gas)" value={status.sepolia.ethBalance} />
+              <CctpMetric label="Arc USDC" value={status.arc.usdcUSDC} />
+            </div>
+
+            {lowSource && status.agentAddress && (
               <div className="rounded-xl border border-amber-200/20 bg-amber-200/10 p-3 text-sm text-amber-100">
                 <div className="flex gap-2">
                   <AlertTriangle className="mt-0.5 size-4 shrink-0" />
                   <div>
-                    <p className="font-medium">Fund the agent on Sepolia to bridge</p>
+                    <p className="font-medium">
+                      No USDC on{" "}
+                      {DIRECTIONS[direction].source === "arc" ? "Arc" : "Sepolia"} to
+                      bridge from
+                    </p>
                     <p className="mt-1 break-all font-mono text-xs">
                       {status.agentAddress}
                     </p>
                     <p className="mt-1 text-xs">
-                      Get testnet USDC at faucet.circle.com (Ethereum Sepolia) and
-                      a little Sepolia ETH for gas.
+                      Fund the agent with USDC on the source chain
+                      {DIRECTIONS[direction].dest === "sepolia"
+                        ? " (mint on Sepolia also needs a little Sepolia ETH for gas)."
+                        : "."}
                     </p>
                   </div>
                 </div>
@@ -180,46 +204,34 @@ export function AgentCctpPanel() {
                   <ArrowRightLeft className="size-4" />
                 )}
                 {phase === "burning"
-                  ? "Burning on Sepolia..."
+                  ? "Burning on source..."
                   : phase === "attesting"
                     ? "Awaiting attestation..."
-                    : `Bridge ${amount || "0"} USDC to Arc`}
+                    : `Bridge ${amount || "0"} USDC (${DIRECTIONS[direction].label})`}
               </Button>
             </div>
 
-            {(burnTx || mintTx) && (
+            {(burnUrl || mintUrl) && (
               <div className="space-y-2 rounded-xl border border-white/10 bg-black/20 p-3 text-sm">
-                <Step
-                  done={Boolean(burnTx)}
-                  label="Burned on Sepolia"
-                  link={
-                    burnTx
-                      ? `https://sepolia.etherscan.io/tx/${burnTx}`
-                      : undefined
-                  }
-                />
+                <Step done={Boolean(burnUrl)} label="Burned on source" link={burnUrl} />
                 <Step
                   active={phase === "attesting"}
-                  done={Boolean(mintTx)}
+                  done={Boolean(mintUrl)}
                   label={
-                    phase === "attesting" && !mintTx
+                    phase === "attesting" && !mintUrl
                       ? "Awaiting Circle attestation..."
                       : "Attested by Circle"
                   }
                 />
-                {mintTx ? (
-                  <div className="flex items-center gap-2 text-emerald-100">
-                    <CheckCircle2 className="size-4" />
-                    <span>Minted on Arc</span>
-                    <ArcscanLink hash={mintTx as `0x${string}`} />
-                  </div>
+                {mintUrl ? (
+                  <Step done label="Minted on destination" link={mintUrl} />
                 ) : null}
               </div>
             )}
 
             {phase === "minted" && (
               <p className="rounded-xl border border-emerald-200/20 bg-emerald-200/10 p-3 text-sm text-emerald-100">
-                Cross-chain settlement complete. USDC moved Sepolia → Arc,
+                Cross-chain settlement complete — USDC moved {DIRECTIONS[direction].label},
                 agent-signed, via CCTP.
               </p>
             )}

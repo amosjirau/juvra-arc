@@ -54,17 +54,18 @@ This is intentionally safe: the verification action is separate from escrow fund
 Live / implemented:
 
 - Arc smart contract escrow
-- USDC-denominated escrow logic
+- USDC-denominated escrow logic (native USDC, the Arc gas token)
 - Agentic risk/recommendation backend
 - Manual wallet-confirmed settlement actions
+- **Nanopayments: a real on-chain native-USDC verification fee on Arc Testnet.** The agent prepares a USDC-denominated verification payment; the human confirms it in their wallet; the real transaction hash and Arcscan link are recorded in the agent economic action ledger. This is separate from escrow and the agent never signs.
+- **Autonomous agent payments: the agent has its OWN budgeted USDC wallet on Arc and pays nanopayments autonomously — no human signature.** It decides from real signals (delivery evidence, submission status, dispute state), signs and sends the USDC itself, and is bounded by a per-transaction cap, a session budget, a recipient allowlist, and its on-chain balance. Supports verification fees and agent-to-agent/service payments. The agent's wallet is not the user's wallet and never touches escrow, which stays human-confirmed.
 
 Future-ready / planned:
 
-- Circle Wallets for secure agent-prepared transaction flows
-- Paymaster for gas/user onboarding improvements
-- Nanopayments for pay-per-verification and agent-to-service commerce
-- Gateway for treasury/routing workflows
-- CCTP for cross-chain USDC settlement expansion
+- Circle Wallets for secure agent-controlled transaction flows (needs Circle developer credentials)
+- Paymaster for sponsored-gas onboarding (Arc already denominates gas in native USDC)
+- Gateway for treasury/routing workflows (Gateway contracts exist on Arc Testnet; the flow is API-gated)
+- CCTP for cross-chain USDC settlement expansion (Arc is CCTP domain 26; live-able once a second funded chain is wired)
 
 ## What Is Real
 
@@ -74,15 +75,18 @@ Future-ready / planned:
 - If the live provider fails, the API returns `success: false` with a clear error ("Live AI provider failed. Check API key, quota, model, or billing.") and never substitutes a fake result. Error details are development-only and API keys are never exposed.
 - `mock` mode (`AGENT_RUNTIME_MODE=mock`) is for local testing only and is clearly labeled `mode: "mock"`, `provider: "mock"`.
 - The verification workflow produces a real receipt object and stores it in a transparent local ledger.
+- The verification fee can be paid as a real on-chain native-USDC transfer on Arc Testnet (chain 5042002), human-confirmed in the wallet, with the real tx hash and Arcscan link recorded in the ledger.
+- The agent autonomously settles USDC nanopayments from its own funded Arc wallet — verified live on-chain (e.g. tx `0x69a881…7b42`, agent-signed, no human signature), with per-tx/session/allowlist/balance guardrails. This is the autonomous-economy core of the submission.
 - The UI labels the verification action as a testnet/demo verification payment and states that escrow funds are not controlled by the agent.
 
 ## What Is Future-Ready But Not Live
 
-- Circle Wallets are not fully integrated yet.
-- Paymaster is not live yet.
-- Nanopayments are represented by policy logic, USDC-denominated receipts, and a local demo ledger, not a production payment rail.
-- Gateway is not live yet.
-- CCTP is planned for cross-chain settlement expansion, not active in this MVP.
+- Circle Wallets are not integrated yet (needs Circle developer credentials).
+- Paymaster is not integrated yet; Arc already denominates gas in native USDC.
+- Gateway is not wired yet (its contracts exist on Arc Testnet, but the routing/attestation flow is API-gated).
+- CCTP is not wired yet; Arc is CCTP domain 26 and the V2 contracts are known, but a live cross-chain transfer needs a second funded chain.
+
+Note: the nanopayment verification fee is now genuinely live on Arc Testnet (see the Live / implemented list), not a demo ledger entry.
 
 ## Safety Model
 

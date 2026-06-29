@@ -20,6 +20,7 @@ import AgentPanel from "@/components/agent/AgentPanel";
 import { AgentFlagsPanel } from "@/components/agent/AgentFlagsPanel";
 import { AgentGuidedActions } from "@/components/agent/AgentGuidedActions";
 import { AgentTimeline } from "@/components/agent/AgentTimeline";
+import { AgentAutonomyPanel } from "@/components/agent/AgentAutonomyPanel";
 import { AgentVerificationPanel } from "@/components/agent/AgentVerificationPanel";
 import { EvidencePanel } from "@/components/agent/EvidencePanel";
 import { AgentScopeBuilder } from "@/components/agent/AgentScopeBuilder";
@@ -324,6 +325,8 @@ export default function JobDetailPage() {
           />
 
           <AgentVerificationPanel evidence={evidenceItems} job={agentJob} />
+
+          <AgentAutonomyPanel evidence={evidenceItems} job={agentJob} />
 
           <AgentTimeline evidence={evidenceItems} job={job} />
         </section>

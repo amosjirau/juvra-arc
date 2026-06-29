@@ -8,12 +8,18 @@ import {
   Loader2,
   ReceiptText,
   Trash2,
+  Wallet,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useAccount, useSwitchChain } from "wagmi";
 
+import { ArcscanLink } from "@/components/arcscan-link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useNativePayment } from "@/hooks/use-native-payment";
+import { useTransactionSuccess } from "@/hooks/use-transaction-success";
+import { arcExplorerUrl, arcTestnet } from "@/lib/arc";
 import type {
   AgentProviderName,
   AgentRuntimeMode,
@@ -32,8 +38,11 @@ import type { EvidenceItem } from "@/lib/agent/evidence";
 import {
   getNanopaymentMemo,
   getVerificationCost,
+  getVerificationFeeRecipient,
   shouldRunVerification,
+  toNativeUSDCValue,
 } from "@/lib/agent/nanopaymentPolicy";
+import { errorMessage, shortAddress } from "@/lib/format";
 
 type VerificationResult = {
   verificationId: string;
@@ -111,6 +120,64 @@ export function AgentVerificationPanel({
     evidence
   );
   const canRun = Boolean(jobId && evidence.length > 0);
+
+  const { address, isConnected, chainId } = useAccount();
+  const { switchChain, isPending: isSwitching } = useSwitchChain();
+  const payment = useNativePayment();
+  const [payError, setPayError] = useState("");
+  const feeRecipient = getVerificationFeeRecipient();
+  const onArcTestnet = chainId === arcTestnet.id;
+  const feeValue = toNativeUSDCValue(estimatedCost);
+
+  useTransactionSuccess(payment.transactionHash, payment.isSuccess, () => {
+    if (!jobId || !payment.transactionHash) {
+      return;
+    }
+
+    saveAgentEconomicAction({
+      id: `agent-payment-${payment.transactionHash}`,
+      jobId,
+      type: "verification_payment",
+      amountUSDC: estimatedCost,
+      status: "completed",
+      createdAt: new Date().toISOString(),
+      description:
+        "On-chain native USDC verification fee paid on Arc Testnet (human-confirmed). The agent prepared the payment; escrow funds are not controlled by the agent.",
+      receipt: {
+        txHash: payment.transactionHash,
+        explorerUrl: `${arcExplorerUrl}/tx/${payment.transactionHash}`,
+        from: address,
+        to: feeRecipient,
+        amountUSDC: estimatedCost,
+        asset: "USDC (native, 18 decimals)",
+        chainId: arcTestnet.id,
+        network: "Arc Testnet",
+        verificationId: result?.verificationId,
+        memo: getNanopaymentMemo(jobId, "evidence-verification"),
+      },
+    });
+    setLedger(loadAgentEconomicActions(jobId));
+  });
+
+  function payVerificationFee() {
+    if (!isConnected) {
+      setPayError("Connect your wallet to pay the verification fee.");
+      return;
+    }
+
+    if (!onArcTestnet) {
+      setPayError("Switch to Arc Testnet to pay in native USDC.");
+      return;
+    }
+
+    if (feeValue <= 0n) {
+      setPayError("Add delivery evidence so a verification fee can be calculated.");
+      return;
+    }
+
+    setPayError("");
+    payment.sendTransaction({ to: feeRecipient, value: feeValue });
+  }
 
   useEffect(() => {
     /* eslint-disable react-hooks/set-state-in-effect */
@@ -299,6 +366,78 @@ export function AgentVerificationPanel({
 
         {result && <VerificationResultBlock result={result} />}
 
+        <div className="rounded-xl border border-emerald-200/15 bg-emerald-200/[0.05] p-3">
+          <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h3 className="flex items-center gap-2 text-sm font-medium text-white">
+                <Wallet className="size-4 text-emerald-200" />
+                On-chain verification fee
+              </h3>
+              <p className="mt-1 text-xs leading-5 text-zinc-400">
+                Pay a real native-USDC verification fee on Arc Testnet. You confirm
+                it in your wallet. This is separate from escrow, and the agent
+                never signs.
+              </p>
+            </div>
+            <Badge className="border-emerald-200/20 bg-emerald-200/10 text-emerald-100">
+              {estimatedCost} USDC
+            </Badge>
+          </div>
+
+          <div className="grid gap-2 sm:grid-cols-2">
+            <SignalMetric label="Recipient" value={shortAddress(feeRecipient)} />
+            <SignalMetric label="Network" value="Arc Testnet · native USDC" />
+          </div>
+
+          {!isConnected ? (
+            <p className="mt-3 text-sm text-zinc-500">
+              Connect your wallet to pay the verification fee.
+            </p>
+          ) : !onArcTestnet ? (
+            <Button
+              className="mt-3 w-full sm:w-fit"
+              disabled={isSwitching}
+              onClick={() => switchChain({ chainId: arcTestnet.id })}
+              type="button"
+              variant="outline"
+            >
+              {isSwitching ? <Loader2 className="size-4 animate-spin" /> : null}
+              Switch to Arc Testnet
+            </Button>
+          ) : (
+            <Button
+              className="mt-3 w-full sm:w-fit"
+              disabled={payment.isPending || feeValue <= 0n}
+              onClick={payVerificationFee}
+              type="button"
+            >
+              {payment.isPending ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Wallet className="size-4" />
+              )}
+              {payment.isPending
+                ? "Confirm in wallet..."
+                : `Pay ${estimatedCost} USDC verification fee`}
+            </Button>
+          )}
+
+          {payError && <p className="mt-2 text-xs text-rose-300">{payError}</p>}
+          {payment.error && (
+            <p className="mt-2 text-xs text-rose-300">
+              {errorMessage(payment.error)}
+            </p>
+          )}
+          {payment.isSuccess && payment.transactionHash && (
+            <div className="mt-3 flex flex-col gap-1 rounded-lg border border-emerald-200/20 bg-emerald-200/10 p-2">
+              <span className="text-xs font-medium text-emerald-100">
+                Verification fee paid on Arc Testnet (human-confirmed).
+              </span>
+              <ArcscanLink hash={payment.transactionHash} />
+            </div>
+          )}
+        </div>
+
         <div className="rounded-xl border border-white/10 bg-black/20 p-3">
           <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -352,9 +491,14 @@ export function AgentVerificationPanel({
                       </p>
                     </div>
                   </div>
-                  <p className="mt-2 text-xs text-zinc-500">
-                    {formatDateTime(action.createdAt)}
-                  </p>
+                  <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-xs text-zinc-500">
+                      {formatDateTime(action.createdAt)}
+                    </p>
+                    {getReceiptTxHash(action.receipt) && (
+                      <ArcscanLink hash={getReceiptTxHash(action.receipt)} />
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -551,6 +695,14 @@ function formatSettlementImpact(impact: SettlementImpact) {
 
 function formatActionType(type: AgentEconomicAction["type"]) {
   return type.replaceAll("_", " ");
+}
+
+function getReceiptTxHash(receipt: object): `0x${string}` | undefined {
+  const value = (receipt as { txHash?: unknown }).txHash;
+
+  return typeof value === "string" && /^0x[a-fA-F0-9]{64}$/.test(value)
+    ? (value as `0x${string}`)
+    : undefined;
 }
 
 function formatDateTime(timestamp: string) {

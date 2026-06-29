@@ -25,17 +25,17 @@ Build on Arc / Circle hackathon - Agentic Economy Experience on Arc.
 Live / implemented:
 
 - Arc smart contract escrow
-- USDC-denominated escrow logic
+- USDC-denominated escrow logic (native USDC, the Arc gas token)
 - Agentic risk/recommendation backend
 - Manual wallet-confirmed settlement actions
+- Nanopayments: a real on-chain native-USDC verification fee on Arc Testnet, prepared by the agent and confirmed by the human in their wallet (tx hash + Arcscan link recorded in the ledger)
 
 Future-ready / planned:
 
-- Circle Wallets for secure agent-prepared transaction flows
-- Paymaster for gas/user onboarding improvements
-- Nanopayments for pay-per-verification and agent-to-service commerce
-- Gateway for treasury/routing workflows
-- CCTP for cross-chain USDC settlement expansion
+- Circle Wallets for secure agent-controlled transaction flows (needs Circle developer credentials)
+- Paymaster for sponsored-gas onboarding (Arc already uses native USDC for gas)
+- Gateway for treasury/routing workflows (contracts exist on Arc Testnet; flow is API-gated)
+- CCTP for cross-chain USDC settlement expansion (Arc is CCTP domain 26)
 
 ## Key Contract
 
@@ -66,6 +66,20 @@ AGENT_RUNTIME_MODE=live
 NEXT_PUBLIC_JUVRA_ESCROW_ADDRESS=
 NEXT_PUBLIC_ARC_RPC_URL=
 NEXT_PUBLIC_AGENT_MODE=live
+
+# Recipient of the on-chain native-USDC verification fee (Nanopayments).
+# Falls back to the project default if unset.
+NEXT_PUBLIC_VERIFICATION_FEE_RECIPIENT=
+
+# Autonomous agent wallet (server-only, NEVER commit). The agent signs and
+# sends USDC nanopayments from this wallet. Generate a fresh key, fund the
+# address with a little Arc testnet USDC, and keep it in .env.local only.
+AGENT_WALLET_PRIVATE_KEY=
+# Autonomy guardrails (optional; sensible defaults if unset).
+AGENT_MAX_PAYMENT_USDC=0.10
+AGENT_SESSION_BUDGET_USDC=1.00
+# Optional distinct service/agent addresses for agent-to-agent payments (CSV).
+AGENT_SERVICE_RECIPIENTS=
 
 # Selected AI provider. Only the selected provider needs to be configured.
 AI_PROVIDER=gemini

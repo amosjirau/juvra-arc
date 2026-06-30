@@ -33,11 +33,11 @@ Live / implemented:
 - Agent-to-agent commerce: a distinct, signing verification service agent is paid in USDC by the orchestrator agent
 - CCTP cross-chain USDC: live, bidirectional Arc ⇄ Ethereum Sepolia (agent burns → Circle attestation → agent mints), via `/agent-treasury`
 - Circle Programmable Wallets: the agent's wallet can run as a Circle developer-controlled wallet on `ARC-TESTNET` (`AGENT_WALLET_PROVIDER=circle`); autonomous payments are Circle-signed (verified on-chain)
+- Circle Gateway: agent-driven unified USDC balance — deposit on Arc, then instant crosschain spend (burn intent → attestation → mint), verified Arc → Sepolia, via `/agent-treasury`
 
-Future-ready / planned:
+Not applicable:
 
-- Paymaster for sponsored-gas onboarding (Arc already uses native USDC for gas)
-- Gateway for treasury/routing workflows (contracts exist on Arc Testnet; flow is API-gated)
+- Paymaster — Circle Paymaster sponsors gas in USDC where gas is otherwise ETH; Arc already uses native USDC for gas, so it is unnecessary here
 
 ## Key Contract
 

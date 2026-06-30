@@ -61,11 +61,11 @@ Live / implemented:
 - **Autonomous agent payments: the agent has its OWN budgeted USDC wallet on Arc and pays nanopayments autonomously — no human signature.** It decides from real signals (delivery evidence, submission status, dispute state), signs and sends the USDC itself, and is bounded by a per-transaction cap, a session budget, a recipient allowlist, and its on-chain balance. Supports verification fees and agent-to-agent/service payments. The agent's wallet is not the user's wallet and never touches escrow, which stays human-confirmed.
 - **CCTP cross-chain USDC: live and bidirectional (Arc ⇄ Ethereum Sepolia).** The agent autonomously burns USDC on the source chain, retrieves Circle's attestation, and mints on the destination chain — all agent-signed. Verified live end-to-end: burned 1 USDC on Arc (tx `0xccafe0…`) and minted it on Sepolia (tx `0xcac4c8…`).
 - **Circle Programmable Wallets (developer-controlled) on Arc.** The agent's wallet can run as a Circle Wallet (entity-secret signed, custodied by Circle) via a swappable `AgentWallet` provider — set `AGENT_WALLET_PROVIDER=circle`. Verified live: an autonomous nanopayment signed by the Circle wallet on `ARC-TESTNET` (tx `0x2e0e7a…`, from the Circle wallet `0x4d92…fce8`).
+- **Circle Gateway: a unified USDC balance with instant crosschain spend.** The agent autonomously deposits USDC into the Gateway Wallet on Arc (unified balance), then signs an EIP-712 burn intent, gets Circle's attestation, and mints on another chain. Verified live end-to-end: deposited 5 USDC on Arc, then transferred 4 USDC Arc → Sepolia (mint tx `0x1f77c5…`, Sepolia USDC 1.00 → 5.00). This is Circle's "nanopayments powered by Gateway" agentic rail.
 
 Future-ready / planned:
 
-- Paymaster for sponsored-gas onboarding (Arc already denominates gas in native USDC)
-- Gateway for treasury/routing workflows (Gateway contracts exist on Arc Testnet; the flow is API-gated)
+- Paymaster — not applicable on Arc: Circle Paymaster lets users pay gas in USDC on chains where gas is otherwise ETH, but Arc already denominates gas in native USDC, so it is unnecessary here.
 
 ## What Is Real
 
@@ -80,14 +80,14 @@ Future-ready / planned:
 - Agent-to-agent commerce is live: a distinct verification service agent (its own keypair) is paid in USDC by the orchestrator agent, independently confirms the payment on-chain, performs the verification, and returns a receipt signed with its own key — verified live (e.g. tx `0xf22588…e771`, service agent received 0.02 USDC, signed receipt).
 - CCTP cross-chain USDC is live and verified end-to-end: the agent autonomously bridged 1 USDC Arc → Sepolia (burn `0xccafe0…` on Arc, Circle attestation `complete`, mint `0xcac4c8…` on Sepolia where the agent's USDC went 0.00 → 1.00). The bridge is bidirectional with a UI toggle.
 - Circle Programmable Wallets are live: with `AGENT_WALLET_PROVIDER=circle`, the agent's autonomous payments are signed by a Circle developer-controlled wallet on `ARC-TESTNET` — verified on-chain (tx `0x2e0e7a…` from the Circle wallet `0x4d92…fce8`). The local-key wallet remains as a swappable alternative.
+- Circle Gateway is live: the agent deposited 5 USDC into the Gateway unified balance on Arc and spent 4 USDC of it on Sepolia (burn intent → Circle attestation → `gatewayMint`, tx `0x1f77c5…`), all agent-signed. EIP-712 burn-intent types are used verbatim from Circle's official Gateway skill.
 - The UI labels the verification action as a testnet/demo verification payment and states that escrow funds are not controlled by the agent.
 
-## What Is Future-Ready But Not Live
+## What Is Not Applicable
 
-- Paymaster is not integrated yet; Arc already denominates gas in native USDC.
-- Gateway is not wired yet (its contracts exist on Arc Testnet, but the routing/attestation flow is API-gated).
+- Paymaster: Circle Paymaster sponsors gas in USDC on chains where gas is otherwise ETH. Arc denominates gas in native USDC already, so Paymaster is unnecessary on Arc — included here for completeness, not as a gap.
 
-Note: the nanopayment verification fee, autonomous agent payments, agent-to-agent commerce, CCTP cross-chain USDC, and Circle Programmable Wallets are all genuinely live on testnet (see the Live / implemented list), not demo ledger entries.
+Note: the nanopayment verification fee, autonomous agent payments, agent-to-agent commerce, CCTP cross-chain USDC, Circle Programmable Wallets, and Circle Gateway are all genuinely live on testnet (see the Live / implemented list), not demo ledger entries.
 
 ## Safety Model
 

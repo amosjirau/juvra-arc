@@ -20,6 +20,7 @@ import {
 import { privateKeyToAccount } from "viem/accounts";
 
 import { arcRpcUrl, arcTestnet } from "@/lib/arc";
+import { getCircleAgentWallet } from "./circleAgentWallet";
 
 export type AgentWalletKind = "local-key" | "circle";
 
@@ -92,9 +93,17 @@ class LocalKeyAgentWallet implements AgentWallet {
 const localKeyAgentWallet = new LocalKeyAgentWallet();
 
 /**
- * Returns the active agent wallet. Today this is the local-key wallet; swapping
- * in a Circle Programmable Wallet later means returning a CircleAgentWallet here.
+ * Returns the active agent wallet. Set AGENT_WALLET_PROVIDER=circle to run the
+ * agent's autonomous payments through a Circle Programmable Wallet (when it is
+ * configured); otherwise the local-key wallet is used.
  */
 export function getAgentWallet(): AgentWallet {
+  if (process.env.AGENT_WALLET_PROVIDER?.trim().toLowerCase() === "circle") {
+    const circle = getCircleAgentWallet();
+    if (circle.isConfigured()) {
+      return circle;
+    }
+  }
+
   return localKeyAgentWallet;
 }

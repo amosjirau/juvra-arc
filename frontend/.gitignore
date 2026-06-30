@@ -44,3 +44,8 @@ next-env.d.ts
 # local secrets
 .env.local
 .env*.local
+
+# Circle wallet recovery (sensitive)
+circle-recovery.json
+circle-setup.mjs
+recovery_file_*.dat

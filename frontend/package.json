@@ -12,6 +12,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@circle-fin/developer-controlled-wallets": "^10.7.1",
     "@rainbow-me/rainbowkit": "^2.2.11",
     "@tanstack/react-query": "^5.100.10",
     "class-variance-authority": "^0.7.1",

@@ -32,10 +32,10 @@ Live / implemented:
 - Autonomous agent wallet: the agent signs and sends USDC nanopayments itself from its own budgeted Arc wallet (per-tx cap, session budget, recipient allowlist, on-chain balance)
 - Agent-to-agent commerce: a distinct, signing verification service agent is paid in USDC by the orchestrator agent
 - CCTP cross-chain USDC: live, bidirectional Arc ⇄ Ethereum Sepolia (agent burns → Circle attestation → agent mints), via `/agent-treasury`
+- Circle Programmable Wallets: the agent's wallet can run as a Circle developer-controlled wallet on `ARC-TESTNET` (`AGENT_WALLET_PROVIDER=circle`); autonomous payments are Circle-signed (verified on-chain)
 
 Future-ready / planned:
 
-- Circle Wallets for secure agent-controlled transaction flows (needs Circle developer credentials)
 - Paymaster for sponsored-gas onboarding (Arc already uses native USDC for gas)
 - Gateway for treasury/routing workflows (contracts exist on Arc Testnet; flow is API-gated)
 
@@ -91,6 +91,17 @@ AGENT_SERVICE_FEE_USDC=0.02
 # CCTP source chain RPC (Ethereum Sepolia) for agent-driven cross-chain USDC.
 # Optional; a public default is used if unset.
 SEPOLIA_RPC_URL=
+
+# Circle Programmable Wallets (developer-controlled). Set the provider to
+# "circle" to route the agent's payments through a Circle wallet; otherwise the
+# local-key wallet is used. All values are server-only and gitignored.
+# The entity secret + wallet ids are produced by the one-time Circle setup.
+AGENT_WALLET_PROVIDER=circle
+CIRCLE_API_KEY=
+CIRCLE_ENTITY_SECRET=
+CIRCLE_WALLET_SET_ID=
+CIRCLE_WALLET_ID=
+CIRCLE_WALLET_ADDRESS=
 
 # Selected AI provider. Only the selected provider needs to be configured.
 AI_PROVIDER=gemini

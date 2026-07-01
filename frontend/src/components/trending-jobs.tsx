@@ -67,6 +67,43 @@ function normalizeCategory(category: string): Exclude<Category, "All"> {
   return "Other";
 }
 
+// A job is "closed" once it reaches a terminal state (approved / refunded /
+// cancelled). Everything else (open, assigned, submitted, disputed) is still live.
+const CLOSED_STATUSES = new Set([3, 5, 6]);
+
+function isJobClosed(status: number): boolean {
+  return CLOSED_STATUSES.has(status);
+}
+
+function SectionHeading({
+  count,
+  label,
+  tone,
+}: {
+  count: number;
+  label: string;
+  tone: "open" | "closed";
+}) {
+  return (
+    <div className="flex items-center gap-2.5">
+      <span
+        className={cn(
+          "size-2 rounded-full",
+          tone === "open"
+            ? "bg-emerald-300 shadow-[0_0_12px_rgba(110,231,183,0.7)]"
+            : "bg-zinc-500",
+        )}
+      />
+      <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-white">
+        {label}
+      </h3>
+      <span className="rounded-full border border-white/10 bg-white/[0.06] px-2 py-0.5 text-xs text-zinc-400">
+        {count}
+      </span>
+    </div>
+  );
+}
+
 function TrendingJobSkeleton({ deck = false }: { deck?: boolean }) {
   return (
     <div className={cn("rounded-[1.75rem] border border-white/10 bg-white/[0.06] p-3 shadow-xl shadow-black/10", deck && "h-[440px] w-[310px] shrink-0")}>
@@ -223,6 +260,17 @@ export function TrendingJobs({
       .slice(0, limit ?? jobs.length);
   }, [activeCategory, jobs, limit, query]);
 
+  const { openJobs, closedJobs } = useMemo(() => {
+    const open: JuvraJob[] = [];
+    const closed: JuvraJob[] = [];
+
+    for (const job of visibleJobs) {
+      (isJobClosed(job.status) ? closed : open).push(job);
+    }
+
+    return { openJobs: open, closedJobs: closed };
+  }, [visibleJobs]);
+
   const deckJobs = visibleJobs.length > 0 ? [...visibleJobs, ...visibleJobs] : [];
   const isCarousel = variant === "carousel";
 
@@ -280,8 +328,10 @@ export function TrendingJobs({
       {/* Result count */}
       {!isLoading && !isError && (
         <p className="mt-4 text-sm text-zinc-500">
-          {visibleJobs.length} {visibleJobs.length === 1 ? "job" : "jobs"}
-          {activeCategory !== "All" ? ` in ${activeCategory}` : " available"}
+          <span className="text-emerald-200/90">{openJobs.length} open</span>
+          {" · "}
+          {closedJobs.length} closed
+          {activeCategory !== "All" ? ` in ${activeCategory}` : ""}
         </p>
       )}
 
@@ -311,10 +361,28 @@ export function TrendingJobs({
       )}
 
       {!isLoading && visibleJobs.length > 0 && !isCarousel && (
-        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {visibleJobs.map((job) => (
-            <TrendingJobCard job={job} key={job.id.toString()} />
-          ))}
+        <div className="mt-6 space-y-10">
+          {openJobs.length > 0 && (
+            <section>
+              <SectionHeading count={openJobs.length} label="Open jobs" tone="open" />
+              <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {openJobs.map((job) => (
+                  <TrendingJobCard job={job} key={job.id.toString()} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {closedJobs.length > 0 && (
+            <section>
+              <SectionHeading count={closedJobs.length} label="Closed jobs" tone="closed" />
+              <div className="mt-4 grid gap-5 opacity-75 transition-opacity hover:opacity-100 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {closedJobs.map((job) => (
+                  <TrendingJobCard job={job} key={job.id.toString()} />
+                ))}
+              </div>
+            </section>
+          )}
         </div>
       )}
 

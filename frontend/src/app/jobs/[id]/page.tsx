@@ -16,14 +16,8 @@ import { useCallback, useMemo, useState } from "react";
 import { formatEther } from "viem";
 import { useAccount } from "wagmi";
 
-import AgentPanel from "@/components/agent/AgentPanel";
+import { AgentConsole } from "@/components/agent/AgentConsole";
 import { AgentFlagsPanel } from "@/components/agent/AgentFlagsPanel";
-import { AgentGuidedActions } from "@/components/agent/AgentGuidedActions";
-import { AgentTimeline } from "@/components/agent/AgentTimeline";
-import { AgentAutonomyPanel } from "@/components/agent/AgentAutonomyPanel";
-import { AgentVerificationPanel } from "@/components/agent/AgentVerificationPanel";
-import { EvidencePanel } from "@/components/agent/EvidencePanel";
-import { AgentScopeBuilder } from "@/components/agent/AgentScopeBuilder";
 import { ApplyButton } from "@/components/apply-button";
 import { DisputePanel } from "@/components/DisputePanel";
 import { JobStatusBadge } from "@/components/JobStatusBadge";
@@ -318,39 +312,27 @@ export default function JobDetailPage() {
             </div>
           </GlassCard>
 
-          <EvidencePanel
-            jobId={job.id.toString()}
+          <AgentConsole
+            agentJob={agentJob}
+            arbitrator={arbitratorQuery.data as `0x${string}` | undefined}
+            address={address}
+            evidence={evidenceItems}
+            job={job}
             onEvidenceChange={updateEvidenceItems}
-            submittedBy={address}
+            onSettled={refresh}
           />
-
-          <AgentVerificationPanel evidence={evidenceItems} job={agentJob} />
-
-          <AgentAutonomyPanel evidence={evidenceItems} job={agentJob} />
-
-          <AgentTimeline evidence={evidenceItems} job={job} />
         </section>
 
         <aside className="space-y-5">
-          <section className="space-y-3">
-            <div>
-              <p className="text-sm font-medium text-cyan-100/80">Escrow Intelligence</p>
-              <h2 className="font-display mt-1 text-2xl font-semibold text-white">Agent workspace</h2>
-              <p className="mt-2 rounded-xl border border-amber-200/20 bg-amber-200/10 p-3 text-sm text-amber-100">
-                Juvra Agent provides decision support only. Every escrow action still requires
-                explicit wallet confirmation.
-              </p>
-            </div>
-            <AgentPanel evidence={evidenceItems} job={agentJob} />
-            <AgentScopeBuilder evidence={evidenceItems} job={agentJob} />
-          </section>
-
-          <AgentGuidedActions
-            arbitrator={arbitratorQuery.data as `0x${string}` | undefined}
-            job={job}
-            onSettled={refresh}
-            walletAddress={address}
-          />
+          <div>
+            <p className="text-sm font-medium text-emerald-200/80">Escrow Intelligence</p>
+            <h2 className="font-display mt-1 text-2xl font-semibold text-white">Agent workspace</h2>
+            <p className="mt-3 rounded-xl border border-amber-200/20 bg-amber-200/[0.06] p-3 text-sm leading-6 text-amber-100/90">
+              The Juvra agent provides decision support and runs its own budgeted payments.
+              Every escrow release, refund, or dispute action still requires an explicit
+              human wallet confirmation.
+            </p>
+          </div>
 
           <GlassCard className="p-6">
             <h2 className="font-heading text-base font-semibold text-white">Actions</h2>

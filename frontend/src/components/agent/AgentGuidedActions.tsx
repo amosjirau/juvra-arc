@@ -252,7 +252,7 @@ function renderGuidedAction({
 
     return (
       <Button
-        className="w-full border-sky-300/30 bg-sky-300/10 text-sky-100 hover:bg-sky-300/20"
+        className="w-full border-cyan-300/30 bg-cyan-300/10 text-cyan-100 hover:bg-cyan-300/20"
         disabled={job.status !== 4 || resolveTx.isPending}
         onClick={() =>
           resolveTx.writeContract({

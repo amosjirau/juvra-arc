@@ -94,11 +94,11 @@ export function AgentGatewayPanel() {
   }
 
   return (
-    <Card className="premium-card-hover rounded-[2rem] border-violet-300/15 bg-violet-300/[0.04]">
+    <Card className="premium-card-hover rounded-[2rem] border-emerald-300/15 bg-emerald-300/[0.04]">
       <CardHeader>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-violet-300/25 bg-violet-300/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.16em] text-violet-100">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-emerald-300/25 bg-emerald-300/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.16em] text-emerald-100">
               <Layers className="size-3.5" />
               Unified balance (Gateway)
             </div>
@@ -111,7 +111,7 @@ export function AgentGatewayPanel() {
               No human signature; escrow is never touched.
             </p>
           </div>
-          <Badge className="border-violet-300/20 bg-violet-300/10 text-violet-100">
+          <Badge className="border-emerald-300/20 bg-emerald-300/10 text-emerald-100">
             unified: {status?.unified.total ?? "0.00"} USDC
           </Badge>
         </div>
@@ -157,7 +157,7 @@ export function AgentGatewayPanel() {
                   value={transferAmt}
                 />
                 <Button
-                  className="bg-gradient-to-r from-violet-400 to-fuchsia-400 text-slate-950 hover:from-violet-300 hover:to-fuchsia-300"
+                  className="bg-gradient-to-r from-emerald-400 to-emerald-500 text-slate-950 hover:from-emerald-300 hover:to-emerald-400"
                   disabled={busy !== "" || !transferAmt || Number(status.unified.arc) <= 0}
                   onClick={transfer}
                   type="button"
@@ -205,7 +205,7 @@ function Metric({ label, value }: { label: string; value: string }) {
 function TxLink({ url, label }: { url: string; label: string }) {
   return (
     <a
-      className="inline-flex items-center gap-1 text-xs text-violet-200 hover:text-violet-100"
+      className="inline-flex items-center gap-1 text-xs text-emerald-200 hover:text-emerald-100"
       href={url}
       rel="noreferrer"
       target="_blank"

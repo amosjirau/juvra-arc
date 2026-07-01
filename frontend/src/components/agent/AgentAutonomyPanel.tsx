@@ -220,16 +220,16 @@ export function AgentAutonomyPanel({
   const serviceConfigured = Boolean(wallet?.serviceAgent?.configured);
 
   return (
-    <Card className="premium-card-hover rounded-[2rem] border-fuchsia-300/15 bg-fuchsia-300/[0.04]">
+    <Card className="premium-card-hover rounded-[2rem] border-emerald-300/15 bg-emerald-300/[0.04]">
       <CardHeader>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-fuchsia-300/25 bg-fuchsia-300/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.16em] text-fuchsia-100">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-emerald-300/25 bg-emerald-300/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.16em] text-emerald-100">
               <Zap className="size-3.5" />
               Autonomous agent
             </div>
             <CardTitle className="flex items-center gap-2 text-white">
-              <BotMessageSquare className="size-5 text-fuchsia-200" />
+              <BotMessageSquare className="size-5 text-emerald-200" />
               Agent wallet &amp; autonomous payments
             </CardTitle>
             <p className="mt-2 text-sm leading-5 text-zinc-400">
@@ -238,7 +238,7 @@ export function AgentAutonomyPanel({
               escrow, which stays human-confirmed.
             </p>
           </div>
-          <Badge className="border-fuchsia-300/20 bg-fuchsia-300/10 text-fuchsia-100">
+          <Badge className="border-emerald-300/20 bg-emerald-300/10 text-emerald-100">
             {wallet?.kind ?? "local-key"}
           </Badge>
         </div>
@@ -293,7 +293,7 @@ export function AgentAutonomyPanel({
 
             <div className="flex flex-col gap-2 sm:flex-row">
               <Button
-                className="w-full bg-gradient-to-r from-fuchsia-400 to-purple-500 text-white hover:from-fuchsia-300 hover:to-purple-400 sm:w-fit"
+                className="w-full bg-gradient-to-r from-emerald-400 to-emerald-500 text-white hover:from-emerald-300 hover:to-emerald-400 sm:w-fit"
                 disabled={loading || !jobId}
                 onClick={() => runAutonomous("verification")}
                 type="button"
@@ -324,16 +324,16 @@ export function AgentAutonomyPanel({
             </div>
 
             {serviceConfigured && wallet?.serviceAgent?.address && (
-              <div className="rounded-xl border border-purple-300/15 bg-purple-300/[0.05] p-3 text-xs text-zinc-300">
+              <div className="rounded-xl border border-emerald-300/15 bg-emerald-300/[0.05] p-3 text-xs text-zinc-300">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="font-medium text-purple-100">
+                  <span className="font-medium text-emerald-100">
                     Distinct verification service agent
                   </span>
                   <span className="font-mono">
                     {wallet.serviceAgent.feeUSDC} USDC / call
                   </span>
                 </div>
-                <p className="mt-1 break-all font-mono text-purple-100/80">
+                <p className="mt-1 break-all font-mono text-emerald-100/80">
                   {wallet.serviceAgent.address}
                 </p>
               </div>
@@ -346,7 +346,7 @@ export function AgentAutonomyPanel({
             )}
 
             {decision && (
-              <div className="rounded-xl border border-sky-300/20 bg-sky-300/10 p-3 text-sm text-sky-100">
+              <div className="rounded-xl border border-cyan-300/20 bg-cyan-300/10 p-3 text-sm text-cyan-100">
                 <p className="font-medium">Agent decided not to spend</p>
                 <p className="mt-1 text-xs leading-5">{decision}</p>
               </div>
@@ -374,20 +374,20 @@ export function AgentAutonomyPanel({
             )}
 
             {a2a && (
-              <div className="space-y-3 rounded-xl border border-purple-300/20 bg-purple-300/10 p-3">
+              <div className="space-y-3 rounded-xl border border-emerald-300/20 bg-emerald-300/10 p-3">
                 <div className="flex items-center justify-between gap-3">
-                  <h3 className="flex items-center gap-2 text-sm font-medium text-purple-50">
+                  <h3 className="flex items-center gap-2 text-sm font-medium text-emerald-50">
                     <Network className="size-4" />
                     Agent-to-agent commerce settled
                   </h3>
-                  <Badge className="border-purple-300/20 bg-purple-300/10 text-purple-100">
+                  <Badge className="border-emerald-300/20 bg-emerald-300/10 text-emerald-100">
                     {a2a.payment.amountUSDC} USDC
                   </Badge>
                 </div>
 
                 <div className="flex items-center gap-2 text-xs text-zinc-300">
                   <span className="font-mono">{shortAddress(a2a.orchestratorAgent)}</span>
-                  <span className="text-purple-200">— paid →</span>
+                  <span className="text-emerald-200">— paid →</span>
                   <span className="font-mono">{shortAddress(a2a.serviceAgent)}</span>
                 </div>
 

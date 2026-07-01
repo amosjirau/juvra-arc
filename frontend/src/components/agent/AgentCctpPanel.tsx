@@ -108,11 +108,11 @@ export function AgentCctpPanel() {
   const lowSource = status ? Number(sourceUsdc ?? "0") <= 0 : false;
 
   return (
-    <Card className="premium-card-hover rounded-[2rem] border-sky-300/15 bg-sky-300/[0.04]">
+    <Card className="premium-card-hover rounded-[2rem] border-cyan-300/15 bg-cyan-300/[0.04]">
       <CardHeader>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-sky-300/25 bg-sky-300/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.16em] text-sky-100">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-cyan-300/25 bg-cyan-300/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.16em] text-cyan-100">
               <ArrowRightLeft className="size-3.5" />
               Cross-chain (CCTP)
             </div>
@@ -124,7 +124,7 @@ export function AgentCctpPanel() {
               using Circle CCTP (burn → attestation → mint). No human signature.
             </p>
           </div>
-          <Badge className="border-sky-300/20 bg-sky-300/10 text-sky-100">
+          <Badge className="border-cyan-300/20 bg-cyan-300/10 text-cyan-100">
             {DIRECTIONS[direction].label}
           </Badge>
         </div>
@@ -141,7 +141,7 @@ export function AgentCctpPanel() {
                 <button
                   className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
                     direction === dir
-                      ? "bg-sky-400/20 text-sky-100"
+                      ? "bg-cyan-400/20 text-cyan-100"
                       : "text-zinc-400 hover:text-zinc-200"
                   }`}
                   disabled={busy}
@@ -193,7 +193,7 @@ export function AgentCctpPanel() {
                 value={amount}
               />
               <Button
-                className="bg-gradient-to-r from-sky-400 to-cyan-400 text-slate-950 hover:from-sky-300 hover:to-cyan-300"
+                className="bg-gradient-to-r from-cyan-400 to-cyan-400 text-slate-950 hover:from-cyan-300 hover:to-cyan-300"
                 disabled={busy || !amount}
                 onClick={bridge}
                 type="button"
@@ -278,14 +278,14 @@ function Step({
       {done ? (
         <CheckCircle2 className="size-4 text-emerald-300" />
       ) : active ? (
-        <Loader2 className="size-4 animate-spin text-sky-200" />
+        <Loader2 className="size-4 animate-spin text-cyan-200" />
       ) : (
         <span className="size-2 rounded-full bg-zinc-600" />
       )}
       <span>{label}</span>
       {link && (
         <a
-          className="inline-flex items-center gap-1 text-xs text-sky-300 hover:text-sky-200"
+          className="inline-flex items-center gap-1 text-xs text-cyan-300 hover:text-cyan-200"
           href={link}
           rel="noreferrer"
           target="_blank"

@@ -26,3 +26,7 @@ frontend/.vercel/
 node_modules/
 .next/
 .vercel/
+
+# Local skill installs (tooling)
+.agents/
+skills-lock.json

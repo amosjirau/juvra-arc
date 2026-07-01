@@ -119,7 +119,7 @@ export function AgentScopeBuilder({
       <CardContent className="space-y-4">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <Button
-            className="bg-gradient-to-r from-cyan-300 to-sky-400 text-slate-950 hover:from-cyan-200 hover:to-sky-300"
+            className="bg-gradient-to-r from-cyan-300 to-cyan-400 text-slate-950 hover:from-cyan-200 hover:to-cyan-300"
             disabled={loading}
             onClick={buildScope}
             type="button"

@@ -11,6 +11,7 @@ const EDITORIAL_ROUTES = new Set([
   "/",
   "/jobs",
   "/post",
+  "/how-it-works",
   "/about",
   "/docs",
   "/privacy",

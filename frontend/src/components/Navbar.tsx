@@ -7,7 +7,15 @@ import { Navbar as AppNavbar } from "@/components/figma/Navbar";
 // Routes on the warm editorial system render their own light nav (via
 // EditorialShell / SiteLanding), so the global dark app nav is suppressed there.
 // Routes not yet migrated keep the dark app nav.
-const EDITORIAL_ROUTES = new Set(["/", "/jobs"]);
+const EDITORIAL_ROUTES = new Set([
+  "/",
+  "/jobs",
+  "/post",
+  "/about",
+  "/docs",
+  "/privacy",
+  "/terms",
+]);
 
 export function Navbar() {
   const pathname = usePathname();

@@ -1,9 +1,7 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
-import { AppShell } from "@/components/shell/AppShell";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { GlassCard } from "@/components/ui/glass-card";
+import { EditorialHeader, EditorialShell } from "@/components/shell/EditorialShell";
 
 type InfoSection = {
   title: string;
@@ -19,27 +17,30 @@ type InfoPageProps = {
 
 export function InfoPage({ description, eyebrow, sections, title }: InfoPageProps) {
   return (
-    <AppShell contentClassName="max-w-4xl">
+    <EditorialShell>
       <Link
+        className="inline-flex items-center gap-2 text-sm font-medium text-ink-soft transition-colors hover:text-ink"
         href="/"
-        className="inline-flex items-center gap-2 text-sm font-medium text-zinc-400 transition-colors hover:text-white focus-visible:text-white focus-visible:outline-none"
       >
         <ArrowLeft className="size-4" />
         Back to Juvra
       </Link>
 
       <div className="mt-6">
-        <PageHeader eyebrow={eyebrow} title={title} description={description} />
+        <EditorialHeader description={description} eyebrow={eyebrow} title={title} />
       </div>
 
       <div className="mt-10 grid gap-4">
         {sections.map((section) => (
-          <GlassCard key={section.title} className="scroll-reveal p-6">
-            <h2 className="font-heading text-base font-semibold text-white">{section.title}</h2>
-            <p className="mt-2 text-sm leading-relaxed text-zinc-400">{section.body}</p>
-          </GlassCard>
+          <div
+            className="rounded-2xl border border-line bg-paper-raised p-6"
+            key={section.title}
+          >
+            <h2 className="font-serif text-xl text-ink">{section.title}</h2>
+            <p className="mt-2 text-sm leading-relaxed text-ink-soft">{section.body}</p>
+          </div>
         ))}
       </div>
-    </AppShell>
+    </EditorialShell>
   );
 }

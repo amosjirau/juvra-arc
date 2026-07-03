@@ -485,7 +485,7 @@ function StateCard({
   const toneClass =
     tone === "rose"
       ? "border-rose-300/40 bg-rose-500/[0.06] text-rose-700"
-      : "border-line bg-white/[0.05] text-ink";
+      : "border-line bg-paper-raised text-ink";
 
   return (
     <EditorialShell>

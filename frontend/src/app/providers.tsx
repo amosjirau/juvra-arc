@@ -2,7 +2,7 @@
 
 import "@rainbow-me/rainbowkit/styles.css";
 
-import { RainbowKitProvider, darkTheme, getDefaultConfig } from "@rainbow-me/rainbowkit";
+import { RainbowKitProvider, getDefaultConfig, lightTheme } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { WagmiProvider, http } from "wagmi";
@@ -32,10 +32,10 @@ export function Providers({
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider
           initialChain={arcTestnet}
-          theme={darkTheme({
-            accentColor: "#22c55e",
-            accentColorForeground: "#04130a",
-            borderRadius: "medium",
+          theme={lightTheme({
+            accentColor: "#1c1917",
+            accentColorForeground: "#f6f3ec",
+            borderRadius: "large",
             fontStack: "system",
           })}
         >

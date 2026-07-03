@@ -44,7 +44,7 @@ export function SubmitWorkDialog({
           Submit work
         </Button>
       </DialogTrigger>
-      <DialogContent className="border-line bg-[#0b101a]/95 text-ink shadow-2xl shadow-black/40 backdrop-blur-xl">
+      <DialogContent className="border-line bg-paper-raised text-ink shadow-xl">
         <DialogHeader>
           <DialogTitle>Submit work</DialogTitle>
           <DialogDescription>

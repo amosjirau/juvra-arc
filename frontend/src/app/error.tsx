@@ -4,10 +4,8 @@ import { ArrowLeft, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useEffect } from "react";
 
-import { AppShell } from "@/components/shell/AppShell";
-import { CTAButton } from "@/components/ui/cta-button";
-import { GlassCard } from "@/components/ui/glass-card";
-import { GlowButton } from "@/components/ui/glow-button";
+import { EditorialShell } from "@/components/shell/EditorialShell";
+import { Button } from "@/components/ui/button";
 
 export default function Error({
   error,
@@ -21,32 +19,32 @@ export default function Error({
   }, [error]);
 
   return (
-    <AppShell contentClassName="max-w-2xl" showFooter={false}>
-      <GlassCard className="p-10 text-center">
+    <EditorialShell>
+      <div className="mx-auto max-w-2xl rounded-3xl border border-line bg-paper-raised p-10 text-center">
         <div className="mx-auto flex size-14 items-center justify-center rounded-2xl border border-rose-300/40 bg-rose-500/[0.06] text-rose-700">
           <RefreshCw className="size-7" />
         </div>
-        <h1 className="mt-6 text-display-2 font-semibold text-white">Something went wrong</h1>
-        <p className="mx-auto mt-4 max-w-md text-sm leading-6 text-zinc-400">
-          An unexpected error interrupted this page. Your wallet and on-chain escrow are unaffected  - 
+        <h1 className="mt-6 font-serif text-3xl font-semibold text-ink">Something went wrong</h1>
+        <p className="mx-auto mt-4 max-w-md text-sm leading-6 text-ink-soft">
+          An unexpected error interrupted this page. Your wallet and on-chain escrow are unaffected —
           you can retry or return home.
         </p>
         {error?.digest ? (
-          <p className="mt-3 font-mono text-xs text-zinc-600">Reference: {error.digest}</p>
+          <p className="mt-3 font-mono text-xs text-ink-faint">Reference: {error.digest}</p>
         ) : null}
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-          <CTAButton type="button" onClick={() => reset()}>
+          <Button onClick={() => reset()} type="button">
             <RefreshCw className="size-4" />
             Try again
-          </CTAButton>
-          <GlowButton asChild>
+          </Button>
+          <Button asChild variant="outline">
             <Link href="/">
               <ArrowLeft className="size-4" />
               Back home
             </Link>
-          </GlowButton>
+          </Button>
         </div>
-      </GlassCard>
-    </AppShell>
+      </div>
+    </EditorialShell>
   );
 }

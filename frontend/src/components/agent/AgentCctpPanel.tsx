@@ -9,11 +9,6 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-
 type Direction = "sepolia_to_arc" | "arc_to_sepolia";
 
 type CctpStatus = {
@@ -108,41 +103,38 @@ export function AgentCctpPanel() {
   const lowSource = status ? Number(sourceUsdc ?? "0") <= 0 : false;
 
   return (
-    <Card className="premium-card-hover rounded-[2rem] border-cyan-300/15 bg-cyan-300/[0.04]">
-      <CardHeader>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-cyan-300/25 bg-cyan-300/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.16em] text-cyan-100">
-              <ArrowRightLeft className="size-3.5" />
-              Cross-chain (CCTP)
-            </div>
-            <CardTitle className="text-white">
-              Agent treasury: bridge USDC across chains
-            </CardTitle>
-            <p className="mt-2 text-sm leading-5 text-zinc-400">
-              The agent autonomously bridges USDC between Ethereum Sepolia and Arc
-              using Circle CCTP (burn → attestation → mint). No human signature.
-            </p>
+    <div className="rounded-2xl border border-line bg-paper-raised p-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-line px-3 py-1 text-xs font-medium uppercase tracking-[0.16em] text-ink-soft">
+            <ArrowRightLeft className="size-3.5" />
+            Cross-chain (CCTP)
           </div>
-          <Badge className="border-cyan-300/20 bg-cyan-300/10 text-cyan-100">
-            {DIRECTIONS[direction].label}
-          </Badge>
+          <h3 className="font-serif text-xl text-ink">Bridge USDC across chains</h3>
+          <p className="mt-2 text-sm leading-6 text-ink-soft">
+            The agent autonomously bridges USDC between Ethereum Sepolia and Arc
+            using Circle CCTP (burn → attestation → mint). No human signature.
+          </p>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
+        <span className="shrink-0 rounded-full border border-line px-3 py-1 text-xs text-ink">
+          {DIRECTIONS[direction].label}
+        </span>
+      </div>
+
+      <div className="mt-5 space-y-4">
         {!status?.configured ? (
-          <p className="rounded-xl border border-amber-200/20 bg-amber-200/10 p-3 text-sm text-amber-100">
+          <p className="rounded-xl border border-line bg-paper p-3 text-sm text-ink-soft">
             Agent wallet is not configured.
           </p>
         ) : (
           <>
-            <div className="inline-flex rounded-xl border border-white/10 bg-black/25 p-1">
+            <div className="inline-flex rounded-xl border border-line bg-paper p-1">
               {(Object.keys(DIRECTIONS) as Direction[]).map((dir) => (
                 <button
                   className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
                     direction === dir
-                      ? "bg-cyan-400/20 text-cyan-100"
-                      : "text-zinc-400 hover:text-zinc-200"
+                      ? "bg-ink text-paper"
+                      : "text-ink-soft hover:text-ink"
                   }`}
                   disabled={busy}
                   key={dir}
@@ -161,19 +153,19 @@ export function AgentCctpPanel() {
             </div>
 
             {lowSource && status.agentAddress && (
-              <div className="rounded-xl border border-amber-200/20 bg-amber-200/10 p-3 text-sm text-amber-100">
+              <div className="rounded-xl border border-accent-orange/30 bg-accent-orange/[0.06] p-3 text-sm text-ink">
                 <div className="flex gap-2">
-                  <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+                  <AlertTriangle className="mt-0.5 size-4 shrink-0 text-accent-orange" />
                   <div>
                     <p className="font-medium">
                       No USDC on{" "}
                       {DIRECTIONS[direction].source === "arc" ? "Arc" : "Sepolia"} to
                       bridge from
                     </p>
-                    <p className="mt-1 break-all font-mono text-xs">
+                    <p className="mt-1 break-all font-mono text-xs text-ink-soft">
                       {status.agentAddress}
                     </p>
-                    <p className="mt-1 text-xs">
+                    <p className="mt-1 text-xs text-ink-soft">
                       Fund the agent with USDC on the source chain
                       {DIRECTIONS[direction].dest === "sepolia"
                         ? " (mint on Sepolia also needs a little Sepolia ETH for gas)."
@@ -185,15 +177,15 @@ export function AgentCctpPanel() {
             )}
 
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <Input
-                className="sm:max-w-[140px]"
+              <input
+                className="h-11 w-full rounded-xl border border-line bg-paper px-3 text-sm text-ink placeholder:text-ink-faint focus:border-ink/40 focus:outline-none sm:max-w-[140px]"
                 inputMode="decimal"
                 onChange={(event) => setAmount(event.target.value)}
                 placeholder="1"
                 value={amount}
               />
-              <Button
-                className="bg-gradient-to-r from-cyan-400 to-cyan-400 text-slate-950 hover:from-cyan-300 hover:to-cyan-300"
+              <button
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper transition-transform duration-300 hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-50"
                 disabled={busy || !amount}
                 onClick={bridge}
                 type="button"
@@ -204,22 +196,22 @@ export function AgentCctpPanel() {
                   <ArrowRightLeft className="size-4" />
                 )}
                 {phase === "burning"
-                  ? "Burning on source..."
+                  ? "Burning on source…"
                   : phase === "attesting"
-                    ? "Awaiting attestation..."
+                    ? "Awaiting attestation…"
                     : `Bridge ${amount || "0"} USDC (${DIRECTIONS[direction].label})`}
-              </Button>
+              </button>
             </div>
 
             {(burnUrl || mintUrl) && (
-              <div className="space-y-2 rounded-xl border border-white/10 bg-black/20 p-3 text-sm">
+              <div className="space-y-2 rounded-xl border border-line bg-paper p-3 text-sm">
                 <Step done={Boolean(burnUrl)} label="Burned on source" link={burnUrl} />
                 <Step
                   active={phase === "attesting"}
                   done={Boolean(mintUrl)}
                   label={
                     phase === "attesting" && !mintUrl
-                      ? "Awaiting Circle attestation..."
+                      ? "Awaiting Circle attestation…"
                       : "Attested by Circle"
                   }
                 />
@@ -230,34 +222,34 @@ export function AgentCctpPanel() {
             )}
 
             {phase === "minted" && (
-              <p className="rounded-xl border border-emerald-200/20 bg-emerald-200/10 p-3 text-sm text-emerald-100">
+              <p className="rounded-xl border border-line bg-paper p-3 text-sm text-ink">
                 Cross-chain settlement complete — USDC moved {DIRECTIONS[direction].label},
                 agent-signed, via CCTP.
               </p>
             )}
 
             {error && (
-              <p className="rounded-xl border border-rose-300/20 bg-rose-300/10 p-3 text-sm text-rose-100">
+              <p className="rounded-xl border border-rose-300/40 bg-rose-500/[0.06] p-3 text-sm text-rose-700">
                 {error}
               </p>
             )}
 
-            <p className="text-xs leading-5 text-zinc-500">
+            <p className="text-xs leading-5 text-ink-soft">
               CCTP V2 burn/mint with Circle&apos;s attestation. The agent signs from
               its own wallet; escrow funds are never touched.
             </p>
           </>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 
 function CctpMetric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-white/10 bg-black/25 p-3">
-      <p className="text-xs text-zinc-500">{label}</p>
-      <p className="mt-1 break-words text-sm font-medium text-white">{value}</p>
+    <div className="rounded-lg border border-line bg-paper p-3">
+      <p className="text-xs text-ink-soft">{label}</p>
+      <p className="mt-1 break-words text-sm font-medium text-ink">{value}</p>
     </div>
   );
 }
@@ -274,18 +266,18 @@ function Step({
   link?: string;
 }) {
   return (
-    <div className="flex items-center gap-2 text-zinc-300">
+    <div className="flex items-center gap-2 text-ink">
       {done ? (
-        <CheckCircle2 className="size-4 text-emerald-300" />
+        <CheckCircle2 className="size-4 text-accent-orange" />
       ) : active ? (
-        <Loader2 className="size-4 animate-spin text-cyan-200" />
+        <Loader2 className="size-4 animate-spin text-ink-soft" />
       ) : (
-        <span className="size-2 rounded-full bg-zinc-600" />
+        <span className="size-2 rounded-full bg-ink-faint" />
       )}
       <span>{label}</span>
       {link && (
         <a
-          className="inline-flex items-center gap-1 text-xs text-cyan-300 hover:text-cyan-200"
+          className="inline-flex items-center gap-1 text-xs text-accent-purple hover:opacity-80"
           href={link}
           rel="noreferrer"
           target="_blank"

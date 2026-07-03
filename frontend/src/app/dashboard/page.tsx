@@ -5,7 +5,6 @@ import {
   Banknote,
   BriefcaseBusiness,
   CheckCircle2,
-  LayoutDashboard,
   Scale,
   UserCheck,
   Wallet,
@@ -19,14 +18,11 @@ import AgentRiskPreview from "@/components/agent/AgentRiskPreview";
 import { EmptyState } from "@/components/empty-state";
 import { JobCard } from "@/components/JobCard";
 import { JobCardSkeleton, MetricCardSkeleton } from "@/components/loading-skeleton";
-import { AppShell } from "@/components/shell/AppShell";
-import { PageHeader } from "@/components/shell/PageHeader";
+import { EditorialHeader, EditorialShell } from "@/components/shell/EditorialShell";
 import { Badge } from "@/components/ui/badge";
 import { ErrorState } from "@/components/ui/error-state";
-import { GlassCard } from "@/components/ui/glass-card";
 import { MetricCard } from "@/components/ui/metric-card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { WalletStatusCard } from "@/components/ui/wallet-status-card";
 import { useJobCount } from "@/hooks/use-juvra-escrow";
 import { getEscrowReadErrorMessage } from "@/lib/contract";
 import { formatDate, formatUsdc } from "@/lib/format";
@@ -103,37 +99,28 @@ export default function DashboardPage() {
   const readErrorMessage = getEscrowReadErrorMessage(readError);
 
   return (
-    <AppShell>
-      <PageHeader
-        eyebrow="Mission control"
-        eyebrowIcon={LayoutDashboard}
-        title="Dashboard"
-        description="Track every escrow where your wallet is the client or the selected freelancer."
+    <EditorialShell>
+      <EditorialHeader
         actions={<ConnectButton accountStatus="address" chainStatus="icon" showBalance={false} />}
+        description="Track every escrow where your wallet is the client or the selected freelancer."
+        eyebrow="Mission control"
+        title="Dashboard"
       />
 
-      <div className="mt-8">
-        <WalletStatusCard
-          isConnected={isConnected}
-          address={address}
-          networkName="Arc Testnet"
-        />
-      </div>
-
       {!isConnected && (
-        <GlassCard className="mt-6 p-8 text-center">
-          <div className="mx-auto flex size-12 items-center justify-center rounded-2xl border border-[#10b981]/25 bg-[#10b981]/10 text-[#34d399]">
+        <div className="mt-12 rounded-2xl border border-line bg-paper-raised p-10 text-center">
+          <div className="mx-auto flex size-12 items-center justify-center rounded-2xl border border-line text-ink">
             <Wallet className="size-6" />
           </div>
-          <h2 className="mt-5 text-lg font-semibold text-white">Connect your wallet</h2>
-          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-400">
+          <h2 className="mt-5 font-serif text-2xl text-ink">Connect your wallet</h2>
+          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-ink-soft">
             Connect your Arc Testnet wallet to load your client jobs, freelancer assignments,
             disputes, and escrow totals.
           </p>
           <div className="mt-6 flex justify-center">
             <ConnectButton accountStatus="address" chainStatus="full" showBalance={false} />
           </div>
-        </GlassCard>
+        </div>
       )}
 
       {isConnected && (
@@ -184,22 +171,31 @@ export default function DashboardPage() {
           </div>
 
           <Tabs className="mt-8" defaultValue="client">
-            <TabsList className="h-auto w-full justify-start overflow-x-auto border border-white/10 bg-white/[0.04] p-1 sm:w-fit">
-              <TabsTrigger className="min-w-fit px-3 py-1.5" value="client">
+            <TabsList className="h-auto w-full justify-start overflow-x-auto rounded-full border border-line bg-paper-raised p-1 sm:w-fit">
+              <TabsTrigger
+                className="min-w-fit rounded-full px-4 py-1.5 text-ink-soft data-[state=active]:bg-ink data-[state=active]:text-paper data-[state=active]:shadow-none"
+                value="client"
+              >
                 Client Jobs
-                <Badge className="border-status-open/20 bg-status-open/10 text-status-open">
+                <Badge className="border-line bg-transparent text-current">
                   {clientJobs.length}
                 </Badge>
               </TabsTrigger>
-              <TabsTrigger className="min-w-fit px-3 py-1.5" value="freelancer">
+              <TabsTrigger
+                className="min-w-fit rounded-full px-4 py-1.5 text-ink-soft data-[state=active]:bg-ink data-[state=active]:text-paper data-[state=active]:shadow-none"
+                value="freelancer"
+              >
                 Freelancer Jobs
-                <Badge className="border-status-assigned/20 bg-status-assigned/10 text-status-assigned">
+                <Badge className="border-line bg-transparent text-current">
                   {freelancerJobs.length}
                 </Badge>
               </TabsTrigger>
-              <TabsTrigger className="min-w-fit px-3 py-1.5" value="disputes">
+              <TabsTrigger
+                className="min-w-fit rounded-full px-4 py-1.5 text-ink-soft data-[state=active]:bg-ink data-[state=active]:text-paper data-[state=active]:shadow-none"
+                value="disputes"
+              >
                 Disputes
-                <Badge className="border-status-disputed/20 bg-status-disputed/10 text-status-disputed">
+                <Badge className="border-line bg-transparent text-current">
                   {disputedJobs.length}
                 </Badge>
               </TabsTrigger>
@@ -232,7 +228,7 @@ export default function DashboardPage() {
           </Tabs>
         </>
       )}
-    </AppShell>
+    </EditorialShell>
   );
 }
 

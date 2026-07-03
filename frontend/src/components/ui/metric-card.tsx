@@ -5,47 +5,21 @@ import { motion } from "motion/react";
 import type { ReactNode } from "react";
 
 import { CountUp } from "@/components/ui/count-up";
-import { GlassCard } from "@/components/ui/glass-card";
 import { fadeUp, viewportOnce } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
-const tones = {
-  emerald: {
-    chip: "border-status-open/20 bg-status-open/10 text-status-open",
-    bar: "from-[#10b981] to-[#34d399]",
-    spark: "bg-[#34d399]",
-  },
-  sky: {
-    chip: "border-status-assigned/20 bg-status-assigned/10 text-status-assigned",
-    bar: "from-[#0ea5e9] to-[#38bdf8]",
-    spark: "bg-[#38bdf8]",
-  },
-  blue: {
-    chip: "border-status-submitted/20 bg-status-submitted/10 text-status-submitted",
-    bar: "from-[#3b82f6] to-[#60a5fa]",
-    spark: "bg-[#60a5fa]",
-  },
-  amber: {
-    chip: "border-status-disputed/25 bg-status-disputed/10 text-status-disputed",
-    bar: "from-[#f59e0b] to-[#fbbf24]",
-    spark: "bg-[#fbbf24]",
-  },
-  teal: {
-    chip: "border-brand-mint/25 bg-brand-mint/10 text-brand-mint",
-    bar: "from-[#0d9488] to-[#2dd4bf]",
-    spark: "bg-[#2dd4bf]",
-  },
-  violet: {
-    chip: "border-brand-violet/25 bg-brand-violet/10 text-brand-violet",
-    bar: "from-[#7c3aed] to-[#a78bfa]",
-    spark: "bg-[#a78bfa]",
-  },
-} as const;
+type Tone =
+  | "emerald"
+  | "sky"
+  | "blue"
+  | "amber"
+  | "teal"
+  | "violet";
 
 /**
- * Premium stat card. Pass `countTo` (a number) to animate a count-up reveal,
- * or `value` (any node) for static content such as a formatted USDC amount.
- * Optional `trend` renders a small sparkline; `delta` renders a change chip.
+ * Editorial stat card. Neutral paper surface with a single accent. Pass
+ * `countTo` for an animated count-up, or `value` for static content. `tone` is
+ * accepted for call-site compatibility but no longer drives multi-color styling.
  */
 export function MetricCard({
   label,
@@ -55,7 +29,6 @@ export function MetricCard({
   prefix = "",
   suffix = "",
   icon: Icon,
-  tone = "emerald",
   hint,
   trend,
   delta,
@@ -68,34 +41,29 @@ export function MetricCard({
   prefix?: string;
   suffix?: string;
   icon?: LucideIcon;
-  tone?: keyof typeof tones;
+  tone?: Tone;
   hint?: ReactNode;
   trend?: number[];
   delta?: { value: ReactNode; positive?: boolean };
   className?: string;
 }) {
-  const t = tones[tone];
   const maxTrend = trend && trend.length ? Math.max(...trend, 1) : 1;
 
   return (
-    <motion.div
-      variants={fadeUp}
-      initial="hidden"
-      whileInView="visible"
-      viewport={viewportOnce}
-    >
-      <GlassCard interactive className={cn("p-5", className)}>
-        {/* tone accent bar */}
-        <span
-          aria-hidden
-          className={cn("absolute inset-x-0 top-0 h-px bg-gradient-to-r opacity-70", t.bar)}
-        />
+    <motion.div initial="hidden" variants={fadeUp} viewport={viewportOnce} whileInView="visible">
+      <div
+        className={cn(
+          "relative h-full overflow-hidden rounded-2xl border border-line bg-paper-raised p-5",
+          className,
+        )}
+      >
+        <span aria-hidden className="absolute inset-x-0 top-0 h-px bg-accent-orange/60" />
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <p className="text-sm text-zinc-400">{label}</p>
-            <p className="count-pop mt-2 text-2xl font-semibold tracking-tight text-white tabular-nums sm:text-3xl">
+            <p className="text-sm text-ink-soft">{label}</p>
+            <p className="mt-2 font-serif text-3xl tracking-tight text-ink tabular-nums">
               {typeof countTo === "number" ? (
-                <CountUp value={countTo} decimals={decimals} prefix={prefix} suffix={suffix} />
+                <CountUp decimals={decimals} prefix={prefix} suffix={suffix} value={countTo} />
               ) : (
                 <>
                   {prefix}
@@ -107,10 +75,8 @@ export function MetricCard({
             {delta ? (
               <span
                 className={cn(
-                  "mt-2 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium",
-                  delta.positive === false
-                    ? "border-rose-400/25 bg-rose-500/10 text-rose-200"
-                    : "border-status-open/20 bg-status-open/10 text-status-open",
+                  "mt-2 inline-flex items-center gap-1 rounded-full border border-line px-2 py-0.5 text-xs font-medium",
+                  delta.positive === false ? "text-rose-600" : "text-ink",
                 )}
               >
                 {delta.positive === false ? (
@@ -121,15 +87,10 @@ export function MetricCard({
                 {delta.value}
               </span>
             ) : null}
-            {hint ? <p className="mt-1 text-xs text-zinc-500">{hint}</p> : null}
+            {hint ? <p className="mt-1 text-xs text-ink-faint">{hint}</p> : null}
           </div>
           {Icon ? (
-            <span
-              className={cn(
-                "flex size-11 shrink-0 items-center justify-center rounded-xl border shadow-lg shadow-black/20",
-                t.chip,
-              )}
-            >
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-line text-ink">
               <Icon className="size-5" />
             </span>
           ) : null}
@@ -139,14 +100,14 @@ export function MetricCard({
           <div className="mt-4 flex h-8 items-end gap-1">
             {trend.map((point, i) => (
               <span
+                className="flex-1 rounded-sm bg-ink/15"
                 key={i}
-                className={cn("flex-1 rounded-sm opacity-70", t.spark)}
                 style={{ height: `${Math.max(12, (point / maxTrend) * 100)}%` }}
               />
             ))}
           </div>
         ) : null}
-      </GlassCard>
+      </div>
     </motion.div>
   );
 }

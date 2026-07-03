@@ -81,10 +81,10 @@ export default function AgentRiskPreview({ job }: { job?: AgentJob | null }) {
   }
 
   return (
-    <div className="rounded-lg border border-cyan-200/10 bg-black/25 p-2.5 shadow-inner shadow-black/10">
+    <div className="rounded-lg border border-line bg-paper p-2.5">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <div className="flex items-center gap-1.5 text-[0.62rem] font-medium uppercase tracking-[0.14em] text-cyan-100/70">
+          <div className="flex items-center gap-1.5 text-[0.62rem] font-medium uppercase tracking-[0.14em] text-ink-soft">
             <Bot className="size-3.5 shrink-0" />
             Agent risk
           </div>
@@ -98,13 +98,13 @@ export default function AgentRiskPreview({ job }: { job?: AgentJob | null }) {
               <MiniMetric label="Clarity" value={`${result.clarityScore}/100`} />
             </div>
           ) : (
-            <p className="mt-1 text-[0.72rem] leading-4 text-zinc-400">
+            <p className="mt-1 text-[0.72rem] leading-4 text-ink-soft">
               Compact decision-support check.
             </p>
           )}
         </div>
         <Button
-          className="h-7 shrink-0 px-2 text-[0.68rem]"
+          className="h-7 shrink-0 border-line bg-paper-raised px-2 text-[0.68rem] text-ink hover:bg-ink/[0.04]"
           disabled={loading}
           onClick={analyzeRisk}
           size="sm"
@@ -121,19 +121,19 @@ export default function AgentRiskPreview({ job }: { job?: AgentJob | null }) {
       </div>
 
       {result && (
-        <p className="mt-2 line-clamp-2 text-[0.72rem] leading-4 text-zinc-300">
+        <p className="mt-2 line-clamp-2 text-[0.72rem] leading-4 text-ink">
           {result.summary}
         </p>
       )}
 
       {error && (
-        <div className="mt-2 flex gap-1.5 rounded-md border border-rose-300/20 bg-rose-300/10 p-2 text-[0.68rem] leading-4 text-rose-100">
+        <div className="mt-2 flex gap-1.5 rounded-md border border-rose-300/40 bg-rose-500/[0.06] p-2 text-[0.68rem] leading-4 text-rose-700">
           <AlertTriangle className="mt-0.5 size-3 shrink-0" />
           <p>{error}</p>
         </div>
       )}
 
-      <p className="mt-2 text-[0.62rem] leading-4 text-amber-100/80">
+      <p className="mt-2 text-[0.62rem] leading-4 text-ink-soft">
         Decision support only. No fund movement.
       </p>
     </div>
@@ -143,15 +143,15 @@ export default function AgentRiskPreview({ job }: { job?: AgentJob | null }) {
 function MiniMetric({
   label,
   value,
-  valueClassName = "text-white",
+  valueClassName = "text-ink",
 }: {
   label: string;
   value: string;
   valueClassName?: string;
 }) {
   return (
-    <div className="rounded-md border border-white/10 bg-white/[0.035] px-2 py-1">
-      <p className="text-[0.58rem] text-zinc-500">{label}</p>
+    <div className="rounded-md border border-line bg-paper-raised px-2 py-1">
+      <p className="text-[0.58rem] text-ink-soft">{label}</p>
       <p className={`mt-0.5 text-xs font-semibold leading-4 ${valueClassName}`}>
         {value}
       </p>

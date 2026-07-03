@@ -23,7 +23,7 @@ export default function Error({
   return (
     <AppShell contentClassName="max-w-2xl" showFooter={false}>
       <GlassCard className="p-10 text-center">
-        <div className="mx-auto flex size-14 items-center justify-center rounded-2xl border border-rose-400/25 bg-rose-500/10 text-rose-300">
+        <div className="mx-auto flex size-14 items-center justify-center rounded-2xl border border-rose-300/40 bg-rose-500/[0.06] text-rose-700">
           <RefreshCw className="size-7" />
         </div>
         <h1 className="mt-6 text-display-2 font-semibold text-white">Something went wrong</h1>

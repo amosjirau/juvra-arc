@@ -32,20 +32,20 @@ export function DisputePanel({
   useTransactionSuccess(resolveTx.transactionHash, resolveTx.isSuccess, onSettled);
 
   return (
-    <Card className="premium-card-hover border-white/10 bg-white/[0.045]">
+    <Card className="premium-card-hover border-line bg-paper-raised">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-white">
-          <ShieldAlert className="size-5 text-amber-200" />
+        <CardTitle className="flex items-center gap-2 text-ink">
+          <ShieldAlert className="size-5 text-accent-orange" />
           Dispute center
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-sm text-zinc-400">
+        <p className="text-sm text-ink-soft">
           Clients or selected freelancers can raise a dispute after assignment. The configured
           arbitrator can resolve funds to either side.
         </p>
         <Button
-          className="w-full border-amber-300/30 bg-amber-300/10 text-amber-100 hover:bg-amber-300/20"
+          className="w-full border-accent-orange/30 bg-accent-orange/[0.06] text-accent-orange hover:bg-accent-orange/[0.06]"
           disabled={!canRaise || disputeTx.isPending}
           onClick={() =>
             disputeTx.writeContract({
@@ -60,9 +60,9 @@ export function DisputePanel({
           <Gavel className="size-4" />
           {disputeTx.isPending ? "Raising dispute..." : "Raise dispute"}
         </Button>
-        {disputeTx.isSuccess && <p className="text-xs text-emerald-300">Dispute raised.</p>}
+        {disputeTx.isSuccess && <p className="text-xs text-emerald-700">Dispute raised.</p>}
         {disputeTx.error && (
-          <p className="text-xs text-rose-300">{errorMessage(disputeTx.error)}</p>
+          <p className="text-xs text-rose-700">{errorMessage(disputeTx.error)}</p>
         )}
         <ArcscanLink hash={disputeTx.transactionHash} />
 
@@ -83,7 +83,7 @@ export function DisputePanel({
               Client wins
             </Button>
             <Button
-              className="bg-gradient-to-r from-emerald-300 to-cyan-300 text-slate-950"
+              className="bg-gradient-to-r from-emerald-500 to-accent-purple text-white"
               disabled={!canResolve || resolveTx.isPending}
               onClick={() =>
                 resolveTx.writeContract({
@@ -98,9 +98,9 @@ export function DisputePanel({
             </Button>
           </div>
         )}
-        {resolveTx.isSuccess && <p className="text-xs text-emerald-300">Dispute resolved.</p>}
+        {resolveTx.isSuccess && <p className="text-xs text-emerald-700">Dispute resolved.</p>}
         {resolveTx.error && (
-          <p className="text-xs text-rose-300">{errorMessage(resolveTx.error)}</p>
+          <p className="text-xs text-rose-700">{errorMessage(resolveTx.error)}</p>
         )}
         <ArcscanLink hash={resolveTx.transactionHash} />
       </CardContent>

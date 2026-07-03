@@ -30,8 +30,8 @@ export function WalletStatusCard({
   const state = !isConnected ? "disconnected" : isWrongNetwork ? "wrong" : "connected";
 
   const tone = {
-    disconnected: "border-white/10 bg-white/[0.05] text-zinc-300",
-    wrong: "border-rose-400/25 bg-rose-500/10 text-rose-200",
+    disconnected: "border-line bg-white/[0.05] text-ink",
+    wrong: "border-rose-300/40 bg-rose-500/[0.06] text-rose-700",
     connected: "border-status-open/25 bg-status-open/10 text-status-open",
   }[state];
 
@@ -57,8 +57,8 @@ export function WalletStatusCard({
             <Icon className="size-5" />
           </span>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-white">{heading}</p>
-            <p className="mt-0.5 truncate font-mono text-xs text-zinc-400">{detail}</p>
+            <p className="text-sm font-semibold text-ink">{heading}</p>
+            <p className="mt-0.5 truncate font-mono text-xs text-ink-soft">{detail}</p>
           </div>
         </div>
         {action ? <div className="shrink-0">{action}</div> : null}

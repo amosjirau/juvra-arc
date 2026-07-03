@@ -35,19 +35,19 @@ export function AdminGate({ children }: { children: ReactNode }) {
         {/* radar/scan halo */}
         <div className="relative mx-auto flex size-20 items-center justify-center">
           <span className="radar-sweep absolute inset-0 overflow-hidden rounded-full opacity-70" />
-          <span className="absolute inset-0 rounded-full border border-emerald-300/20" />
-          <span className="absolute inset-2 rounded-full border border-emerald-300/15" />
+          <span className="absolute inset-0 rounded-full border border-emerald-600/25" />
+          <span className="absolute inset-2 rounded-full border border-emerald-600/25" />
           <motion.span
             initial={{ scale: 0.7, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.15, type: "spring", stiffness: 240, damping: 16 }}
-            className="relative flex size-12 items-center justify-center rounded-2xl border border-[#10b981]/30 bg-[#10b981]/12 text-[#34d399] shadow-lg shadow-emerald-950/40"
+            className="relative flex size-12 items-center justify-center rounded-2xl border border-[#10b981]/30 bg-[#10b981]/12 text-[#34d399] shadow-lg "
           >
             <Icon className={checking ? "size-6 animate-spin" : "size-6"} />
           </motion.span>
         </div>
 
-        <h1 className="mt-6 text-xl font-semibold text-white">
+        <h1 className="mt-6 text-xl font-semibold text-ink">
           {checking
             ? "Verifying admin access…"
             : isConnected
@@ -55,7 +55,7 @@ export function AdminGate({ children }: { children: ReactNode }) {
               : "Admin access required"}
         </h1>
 
-        <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-zinc-400">
+        <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-ink-soft">
           {checking
             ? "Confirming your wallet against the on-chain arbitrator address."
             : isConnected
@@ -77,8 +77,8 @@ export function AdminGate({ children }: { children: ReactNode }) {
         ) : null}
 
         {isConnected && !checking ? (
-          <p className="mt-7 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5 text-xs text-zinc-400">
-            <ShieldCheck className="size-3.5 text-emerald-300" />
+          <p className="mt-7 inline-flex items-center gap-2 rounded-full border border-line bg-white/[0.05] px-3 py-1.5 text-xs text-ink-soft">
+            <ShieldCheck className="size-3.5 text-emerald-700" />
             Gating verified on-chain via the escrow arbitrator
           </p>
         ) : null}

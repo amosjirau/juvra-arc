@@ -250,20 +250,20 @@ export function AgentVerificationPanel({
   }
 
   return (
-    <Card className="premium-card-hover rounded-[2rem] border-white/10 bg-white/[0.045]">
+    <Card className="premium-card-hover rounded-[2rem] border-line bg-paper-raised">
       <CardHeader>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <CardTitle className="flex items-center gap-2 text-white">
-              <FileCheck2 className="size-5 text-emerald-200" />
+            <CardTitle className="flex items-center gap-2 text-ink">
+              <FileCheck2 className="size-5 text-emerald-700" />
               Agent verification
             </CardTitle>
-            <p className="mt-2 text-sm leading-5 text-zinc-400">
+            <p className="mt-2 text-sm leading-5 text-ink-soft">
               Juvra Agent can run a USDC-denominated verification workflow before
               recommending settlement. This does not move escrow funds.
             </p>
           </div>
-          <Badge className="border-emerald-200/20 bg-emerald-200/10 text-emerald-100">
+          <Badge className="border-emerald-600/25 bg-emerald-500/[0.06] text-emerald-700">
             {estimatedCost} USDC
           </Badge>
         </div>
@@ -278,15 +278,15 @@ export function AgentVerificationPanel({
           <SignalMetric label="Status" value={jobStatusLabel(job?.status)} />
         </div>
 
-        <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+        <div className="rounded-xl border border-line bg-paper p-3">
           <div className="mb-3 flex items-center justify-between gap-3">
-            <h3 className="text-sm font-medium text-white">Evidence items</h3>
-            <span className="text-xs text-zinc-500">
+            <h3 className="text-sm font-medium text-ink">Evidence items</h3>
+            <span className="text-xs text-ink-soft">
               Testnet/demo verification payment
             </span>
           </div>
           {evidence.length === 0 ? (
-            <p className="text-sm text-zinc-500">
+            <p className="text-sm text-ink-soft">
               No evidence is attached yet. The agent will not spend verification
               budget until delivery evidence exists.
             </p>
@@ -294,24 +294,24 @@ export function AgentVerificationPanel({
             <div className="space-y-2">
               {evidence.map((item) => (
                 <div
-                  className="rounded-lg border border-white/10 bg-white/[0.035] p-3"
+                  className="rounded-lg border border-line bg-paper p-3"
                   key={item.id}
                 >
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full border border-cyan-200/15 bg-cyan-200/10 px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-[0.14em] text-cyan-100">
+                    <span className="rounded-full border border-accent-purple/25 bg-accent-purple/[0.06] px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-[0.14em] text-accent-purple">
                       {item.type}
                     </span>
-                    <span className="text-xs text-zinc-500">
+                    <span className="text-xs text-ink-soft">
                       {formatDateTime(item.createdAt)}
                     </span>
                   </div>
                   {item.evidenceUrl && (
-                    <p className="mt-2 break-all font-mono text-xs text-emerald-100">
+                    <p className="mt-2 break-all font-mono text-xs text-emerald-700">
                       {item.evidenceUrl}
                     </p>
                   )}
                   {item.note && (
-                    <p className="mt-2 text-sm leading-5 text-zinc-300">
+                    <p className="mt-2 text-sm leading-5 text-ink">
                       {item.note}
                     </p>
                   )}
@@ -322,7 +322,7 @@ export function AgentVerificationPanel({
         </div>
 
         {localRiskFlags.length > 0 && (
-          <div className="rounded-xl border border-amber-200/20 bg-amber-200/10 p-3 text-sm text-amber-100">
+          <div className="rounded-xl border border-accent-orange/30 bg-accent-orange/[0.06] p-3 text-sm text-accent-orange">
             <div className="flex gap-2">
               <AlertTriangle className="mt-0.5 size-4 shrink-0" />
               <div>
@@ -338,7 +338,7 @@ export function AgentVerificationPanel({
         )}
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs leading-5 text-zinc-500">
+          <p className="text-xs leading-5 text-ink-soft">
             Escrow funds are not controlled by the agent. Final release, refund,
             cancellation, and dispute actions still require a human click and wallet
             confirmation.
@@ -359,27 +359,27 @@ export function AgentVerificationPanel({
         </div>
 
         {error && (
-          <p className="rounded-xl border border-rose-300/20 bg-rose-300/10 p-3 text-sm text-rose-100">
+          <p className="rounded-xl border border-rose-300/40 bg-rose-500/[0.06] p-3 text-sm text-rose-700">
             {error}
           </p>
         )}
 
         {result && <VerificationResultBlock result={result} />}
 
-        <div className="rounded-xl border border-emerald-200/15 bg-emerald-200/[0.05] p-3">
+        <div className="rounded-xl border border-emerald-600/25 bg-emerald-500/[0.06] p-3">
           <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <h3 className="flex items-center gap-2 text-sm font-medium text-white">
-                <Wallet className="size-4 text-emerald-200" />
+              <h3 className="flex items-center gap-2 text-sm font-medium text-ink">
+                <Wallet className="size-4 text-emerald-700" />
                 On-chain verification fee
               </h3>
-              <p className="mt-1 text-xs leading-5 text-zinc-400">
+              <p className="mt-1 text-xs leading-5 text-ink-soft">
                 Pay a real native-USDC verification fee on Arc Testnet. You confirm
                 it in your wallet. This is separate from escrow, and the agent
                 never signs.
               </p>
             </div>
-            <Badge className="border-emerald-200/20 bg-emerald-200/10 text-emerald-100">
+            <Badge className="border-emerald-600/25 bg-emerald-500/[0.06] text-emerald-700">
               {estimatedCost} USDC
             </Badge>
           </div>
@@ -390,7 +390,7 @@ export function AgentVerificationPanel({
           </div>
 
           {!isConnected ? (
-            <p className="mt-3 text-sm text-zinc-500">
+            <p className="mt-3 text-sm text-ink-soft">
               Connect your wallet to pay the verification fee.
             </p>
           ) : !onArcTestnet ? (
@@ -422,15 +422,15 @@ export function AgentVerificationPanel({
             </Button>
           )}
 
-          {payError && <p className="mt-2 text-xs text-rose-300">{payError}</p>}
+          {payError && <p className="mt-2 text-xs text-rose-700">{payError}</p>}
           {payment.error && (
-            <p className="mt-2 text-xs text-rose-300">
+            <p className="mt-2 text-xs text-rose-700">
               {errorMessage(payment.error)}
             </p>
           )}
           {payment.isSuccess && payment.transactionHash && (
-            <div className="mt-3 flex flex-col gap-1 rounded-lg border border-emerald-200/20 bg-emerald-200/10 p-2">
-              <span className="text-xs font-medium text-emerald-100">
+            <div className="mt-3 flex flex-col gap-1 rounded-lg border border-emerald-600/25 bg-emerald-500/[0.06] p-2">
+              <span className="text-xs font-medium text-emerald-700">
                 Verification fee paid on Arc Testnet (human-confirmed).
               </span>
               <ArcscanLink hash={payment.transactionHash} />
@@ -438,20 +438,20 @@ export function AgentVerificationPanel({
           )}
         </div>
 
-        <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+        <div className="rounded-xl border border-line bg-paper p-3">
           <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h3 className="flex items-center gap-2 text-sm font-medium text-white">
-                <ReceiptText className="size-4 text-cyan-100" />
+              <h3 className="flex items-center gap-2 text-sm font-medium text-ink">
+                <ReceiptText className="size-4 text-accent-purple" />
                 Agent economic action log
               </h3>
-              <p className="mt-1 text-xs text-zinc-500">
+              <p className="mt-1 text-xs text-ink-soft">
                 Transparent local ledger for demo/testnet agent verification
                 workflow.
               </p>
             </div>
             <Button
-              className="h-8 px-2 text-rose-100 hover:text-rose-50"
+              className="h-8 px-2 text-rose-700 hover:text-rose-700"
               disabled={ledger.length === 0}
               onClick={clearLedger}
               size="sm"
@@ -463,36 +463,36 @@ export function AgentVerificationPanel({
             </Button>
           </div>
           {ledger.length === 0 ? (
-            <p className="text-sm text-zinc-500">
+            <p className="text-sm text-ink-soft">
               No agent economic actions have been recorded for this job.
             </p>
           ) : (
             <div className="space-y-2">
               {ledger.map((action) => (
                 <div
-                  className="rounded-lg border border-white/10 bg-white/[0.035] p-3"
+                  className="rounded-lg border border-line bg-paper p-3"
                   key={action.id}
                 >
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                      <p className="text-sm font-medium text-white">
+                      <p className="text-sm font-medium text-ink">
                         {formatActionType(action.type)}
                       </p>
-                      <p className="mt-1 text-xs leading-5 text-zinc-400">
+                      <p className="mt-1 text-xs leading-5 text-ink-soft">
                         {action.description}
                       </p>
                     </div>
                     <div className="text-left sm:text-right">
-                      <p className="font-mono text-sm text-emerald-100">
+                      <p className="font-mono text-sm text-emerald-700">
                         {action.amountUSDC} USDC
                       </p>
-                      <p className="mt-1 text-xs capitalize text-zinc-500">
+                      <p className="mt-1 text-xs capitalize text-ink-soft">
                         {action.status}
                       </p>
                     </div>
                   </div>
                   <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-ink-soft">
                       {formatDateTime(action.createdAt)}
                     </p>
                     {getReceiptTxHash(action.receipt) && (
@@ -511,14 +511,14 @@ export function AgentVerificationPanel({
 
 function VerificationResultBlock({ result }: { result: VerificationView }) {
   return (
-    <div className="space-y-3 rounded-xl border border-emerald-200/20 bg-emerald-200/10 p-3">
+    <div className="space-y-3 rounded-xl border border-emerald-600/25 bg-emerald-500/[0.06] p-3">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h3 className="flex items-center gap-2 text-sm font-medium text-emerald-50">
+          <h3 className="flex items-center gap-2 text-sm font-medium text-emerald-700">
             <CheckCircle2 className="size-4" />
             Verification receipt
           </h3>
-          <p className="mt-1 break-all font-mono text-xs text-emerald-100/80">
+          <p className="mt-1 break-all font-mono text-xs text-emerald-700">
             {result.verificationId}
           </p>
         </div>
@@ -542,7 +542,7 @@ function VerificationResultBlock({ result }: { result: VerificationView }) {
         <ResultList items={result.riskFlags} label="Risk flags" />
       )}
 
-      <p className="rounded-lg border border-amber-200/20 bg-amber-200/10 p-2 text-xs leading-5 text-amber-100">
+      <p className="rounded-lg border border-accent-orange/30 bg-accent-orange/[0.06] p-2 text-xs leading-5 text-accent-orange">
         {result.safetyNotice}
       </p>
     </div>
@@ -551,9 +551,9 @@ function VerificationResultBlock({ result }: { result: VerificationView }) {
 
 function SignalMetric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-white/10 bg-black/25 p-3">
-      <p className="text-xs text-zinc-500">{label}</p>
-      <p className="mt-1 break-words text-sm font-medium text-white">{value}</p>
+    <div className="rounded-lg border border-line bg-paper p-3">
+      <p className="text-xs text-ink-soft">{label}</p>
+      <p className="mt-1 break-words text-sm font-medium text-ink">{value}</p>
     </div>
   );
 }
@@ -561,10 +561,10 @@ function SignalMetric({ label, value }: { label: string; value: string }) {
 function ResultList({ items, label }: { items: string[]; label: string }) {
   return (
     <div>
-      <p className="mb-1 text-xs font-medium uppercase tracking-[0.14em] text-zinc-500">
+      <p className="mb-1 text-xs font-medium uppercase tracking-[0.14em] text-ink-soft">
         {label}
       </p>
-      <ul className="list-disc space-y-1 pl-4 text-sm leading-5 text-zinc-200">
+      <ul className="list-disc space-y-1 pl-4 text-sm leading-5 text-ink">
         {items.map((item) => (
           <li key={item}>{item}</li>
         ))}
@@ -674,14 +674,14 @@ function jobStatusLabel(status: number | undefined) {
 function statusBadgeClass(status: VerificationStatus) {
   switch (status) {
     case "passed":
-      return "border-emerald-200/20 bg-emerald-200/10 text-emerald-100";
+      return "border-emerald-600/25 bg-emerald-500/[0.06] text-emerald-700";
     case "warning":
-      return "border-amber-200/20 bg-amber-200/10 text-amber-100";
+      return "border-accent-orange/30 bg-accent-orange/[0.06] text-accent-orange";
     case "failed":
-      return "border-rose-300/20 bg-rose-300/10 text-rose-100";
+      return "border-rose-300/40 bg-rose-500/[0.06] text-rose-700";
     case "needs_review":
     default:
-      return "border-cyan-200/20 bg-cyan-200/10 text-cyan-100";
+      return "border-accent-purple/25 bg-accent-purple/[0.06] text-accent-purple";
   }
 }
 

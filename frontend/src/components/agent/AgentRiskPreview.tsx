@@ -187,9 +187,9 @@ function capitalize(value: string) {
 
 function riskTextClass(riskLevel: RiskLevel) {
   const classes = {
-    low: "text-emerald-100",
-    medium: "text-amber-100",
-    high: "text-rose-100",
+    low: "text-emerald-700",
+    medium: "text-accent-orange",
+    high: "text-rose-700",
   } as const;
 
   return classes[riskLevel];

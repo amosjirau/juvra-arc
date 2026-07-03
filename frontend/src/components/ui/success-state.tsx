@@ -51,9 +51,9 @@ export function SuccessState({
           <Icon className="size-6" />
         </motion.span>
       </div>
-      <h3 className="mt-5 text-lg font-semibold text-white">{title}</h3>
+      <h3 className="mt-5 text-lg font-semibold text-ink">{title}</h3>
       {description ? (
-        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-400">{description}</p>
+        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-ink-soft">{description}</p>
       ) : null}
       {action ? <div className="mt-6 flex justify-center">{action}</div> : null}
     </motion.div>

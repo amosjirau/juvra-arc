@@ -109,7 +109,7 @@ export function PostJobForm() {
     <Card className="border-white/10 bg-white/[0.05] shadow-2xl shadow-black/20">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-white">
-          <CircleDollarSign className="size-5 text-emerald-300" />
+          <CircleDollarSign className="size-5 text-emerald-700" />
           Lock funds and post a job
         </CardTitle>
       </CardHeader>
@@ -181,9 +181,9 @@ export function PostJobForm() {
             <PlusCircle className="size-4" />
             {tx.isPending ? "Posting job..." : "Post job with native USDC"}
           </Button>
-          {tx.isSuccess && <p className="text-sm text-emerald-300">Job posted successfully.</p>}
+          {tx.isSuccess && <p className="text-sm text-emerald-700">Job posted successfully.</p>}
           {(formError || tx.error) && (
-            <p className="text-sm text-rose-300">{formError || errorMessage(tx.error)}</p>
+            <p className="text-sm text-rose-700">{formError || errorMessage(tx.error)}</p>
           )}
           <ArcscanLink hash={tx.transactionHash} />
         </form>

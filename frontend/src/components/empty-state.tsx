@@ -26,7 +26,7 @@ export function EmptyState({
       viewport={{ once: true, amount: 0.3 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       className={cn(
-        "relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-10 text-center shadow-2xl shadow-black/20 backdrop-blur-xl",
+        "relative overflow-hidden rounded-2xl border border-line bg-paper-raised p-10 text-center shadow-2xl shadow-black/20 backdrop-blur-xl",
         className,
       )}
     >
@@ -41,13 +41,13 @@ export function EmptyState({
           whileInView={{ scale: 1, opacity: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.1, type: "spring", stiffness: 260, damping: 18 }}
-          className="flex size-14 items-center justify-center rounded-2xl border border-emerald-300/25 bg-emerald-300/10 text-emerald-200 shadow-lg shadow-emerald-950/30"
+          className="flex size-14 items-center justify-center rounded-2xl border border-emerald-600/25 bg-emerald-500/[0.06] text-emerald-700 shadow-lg "
         >
           <Icon className="size-6" />
         </motion.span>
       </div>
-      <h3 className="mt-5 text-lg font-semibold text-white">{title}</h3>
-      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-400">{description}</p>
+      <h3 className="mt-5 text-lg font-semibold text-ink">{title}</h3>
+      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-ink-soft">{description}</p>
       {action ? <div className="mt-6 flex justify-center">{action}</div> : null}
     </motion.div>
   );

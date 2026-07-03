@@ -404,33 +404,33 @@ export default function AgentPanel({
   }
 
   return (
-    <div className="rounded-lg border border-cyan-200/10 bg-black/25 p-2.5 shadow-inner shadow-black/10">
+    <div className="rounded-lg border border-accent-purple/25 bg-paper p-2.5 ">
       <div className="space-y-2.5">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <div className="flex items-center gap-1.5 text-[0.62rem] font-medium uppercase tracking-[0.16em] text-cyan-100/70">
+            <div className="flex items-center gap-1.5 text-[0.62rem] font-medium uppercase tracking-[0.16em] text-accent-purple">
               <Bot className="size-3.5" />
               Escrow Intelligence
             </div>
-            <h3 className="font-display mt-1 text-base font-semibold text-white">
+            <h3 className="font-serif mt-1 text-base font-semibold text-ink">
               Juvra Agent
             </h3>
-            <p className="mt-0.5 max-w-2xl text-[0.72rem] leading-4 text-zinc-400">
+            <p className="mt-0.5 max-w-2xl text-[0.72rem] leading-4 text-ink-soft">
               {statusGuidance.guidance}
             </p>
           </div>
-          <Badge className="h-5 shrink-0 border-cyan-200/20 bg-cyan-200/10 px-1.5 text-[0.62rem] text-cyan-100">
+          <Badge className="h-5 shrink-0 border-accent-purple/25 bg-accent-purple/[0.06] px-1.5 text-[0.62rem] text-accent-purple">
             {statusGuidance.title}
           </Badge>
         </div>
 
-        <div className="grid grid-cols-2 gap-1 rounded-md border border-white/10 bg-white/[0.035] p-1 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-1 rounded-md border border-line bg-paper p-1 sm:grid-cols-4">
           {(["risk", "delivery", "dispute", "recommendation"] as const).map((item) => (
             <button
               className={`rounded px-2 py-1 text-[0.68rem] font-medium transition ${
                 mode === item
-                  ? "bg-cyan-200/15 text-cyan-100"
-                  : "text-zinc-400 hover:bg-white/[0.04] hover:text-zinc-200"
+                  ? "bg-accent-purple/[0.06] text-accent-purple"
+                  : "text-ink-soft hover:bg-paper-raised hover:text-ink"
               }`}
               key={item}
               onClick={() => setMode(item)}
@@ -499,12 +499,12 @@ export default function AgentPanel({
           />
         )}
 
-        <p className="rounded-md border border-amber-200/20 bg-amber-200/10 p-2 text-[0.66rem] leading-4 text-amber-100">
+        <p className="rounded-md border border-accent-orange/30 bg-accent-orange/[0.06] p-2 text-[0.66rem] leading-4 text-accent-orange">
           Decision support only. The agent cannot release or refund funds.
         </p>
 
         <Button
-          className="h-8 w-full border-rose-300/20 bg-rose-300/5 px-2 text-[0.68rem] text-rose-100 hover:bg-rose-300/10"
+          className="h-8 w-full border-rose-300/40 bg-rose-500/[0.06] px-2 text-[0.68rem] text-rose-700 hover:bg-rose-500/[0.06]"
           disabled={
             !jobId ||
             (!riskResult &&
@@ -553,7 +553,7 @@ function RiskMode({
         savedAt={savedAt}
       >
         <Button
-          className="h-8 w-full bg-gradient-to-r from-cyan-300 to-sky-400 px-3 text-[0.72rem] text-slate-950 hover:from-cyan-200 hover:to-sky-300 sm:w-fit"
+          className="h-8 w-full bg-gradient-to-r from-accent-purple to-accent-purple px-3 text-[0.72rem] text-white hover:from-accent-purple hover:to-accent-purple sm:w-fit"
           disabled={loading}
           onClick={onAnalyze}
           size="sm"
@@ -653,7 +653,7 @@ function DeliveryMode({
         savedAt={savedAt}
       >
         <Button
-          className="h-8 w-full bg-gradient-to-r from-cyan-300 to-sky-400 px-3 text-[0.72rem] text-slate-950 hover:from-cyan-200 hover:to-sky-300 sm:w-fit"
+          className="h-8 w-full bg-gradient-to-r from-accent-purple to-accent-purple px-3 text-[0.72rem] text-white hover:from-accent-purple hover:to-accent-purple sm:w-fit"
           disabled={loading}
           onClick={onReview}
           size="sm"
@@ -761,7 +761,7 @@ function DisputeMode({
         savedAt={savedAt}
       >
         <Button
-          className="h-8 w-full bg-gradient-to-r from-cyan-300 to-sky-400 px-3 text-[0.72rem] text-slate-950 hover:from-cyan-200 hover:to-sky-300 sm:w-fit"
+          className="h-8 w-full bg-gradient-to-r from-accent-purple to-accent-purple px-3 text-[0.72rem] text-white hover:from-accent-purple hover:to-accent-purple sm:w-fit"
           disabled={loading}
           onClick={onSummarize}
           size="sm"
@@ -845,7 +845,7 @@ function RecommendationMode({
         savedAt={savedAt}
       >
         <Button
-          className="h-8 w-full bg-gradient-to-r from-cyan-300 to-sky-400 px-3 text-[0.72rem] text-slate-950 hover:from-cyan-200 hover:to-sky-300 sm:w-fit"
+          className="h-8 w-full bg-gradient-to-r from-accent-purple to-accent-purple px-3 text-[0.72rem] text-white hover:from-accent-purple hover:to-accent-purple sm:w-fit"
           disabled={loading}
           onClick={onRecommend}
           size="sm"
@@ -887,7 +887,7 @@ function RecommendationMode({
           <ResultBlock label="Safety notice" value={result.safetyNotice} />
         </div>
       ) : (
-        <p className="rounded-md border border-white/10 bg-white/[0.035] p-2 text-[0.72rem] leading-4 text-zinc-400">
+        <p className="rounded-md border border-line bg-paper p-2 text-[0.72rem] leading-4 text-ink-soft">
           Uses the job status, deadline, submission URI, connected wallet role,
           saved agent results, and local evidence. It never triggers a contract write.
         </p>
@@ -915,7 +915,7 @@ function ActionRow({
         {children}
         {onClearSaved && (
           <Button
-            className="h-8 px-2 text-[0.68rem] text-zinc-300 hover:text-white"
+            className="h-8 px-2 text-[0.68rem] text-ink hover:text-ink"
             disabled={loading}
             onClick={onClearSaved}
             size="sm"
@@ -929,7 +929,7 @@ function ActionRow({
       </div>
       {savedAt && (
         <span
-          className="w-fit rounded-full border border-emerald-200/15 bg-emerald-200/10 px-2 py-0.5 text-[0.62rem] font-medium text-emerald-100"
+          className="w-fit rounded-full border border-emerald-600/25 bg-emerald-500/[0.06] px-2 py-0.5 text-[0.62rem] font-medium text-emerald-700"
           title={formatSavedTimestamp(savedAt)}
         >
           Saved result • last updated {formatSavedInlineDate(savedAt)}
@@ -948,7 +948,7 @@ function DetailsToggle({
 }) {
   return (
     <Button
-      className="h-7 px-2 text-[0.68rem] text-zinc-300 hover:text-white"
+      className="h-7 px-2 text-[0.68rem] text-ink hover:text-ink"
       onClick={onToggle}
       size="sm"
       type="button"
@@ -966,7 +966,7 @@ function DetailsToggle({
 
 function GuidanceLabel() {
   return (
-    <p className="text-[0.64rem] font-medium uppercase tracking-[0.14em] text-amber-100/80">
+    <p className="text-[0.64rem] font-medium uppercase tracking-[0.14em] text-accent-orange">
       Agent guidance only
     </p>
   );
@@ -987,7 +987,7 @@ function formatAgentAction(action: AgentAction) {
 
 function ErrorMessage({ message }: { message: string }) {
   return (
-    <div className="flex gap-2 rounded-md border border-rose-300/20 bg-rose-300/10 p-2 text-[0.72rem] text-rose-100">
+    <div className="flex gap-2 rounded-md border border-rose-300/40 bg-rose-500/[0.06] p-2 text-[0.72rem] text-rose-700">
       <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
       <p>{message}</p>
     </div>
@@ -997,17 +997,17 @@ function ErrorMessage({ message }: { message: string }) {
 function CompactMetric({
   label,
   value,
-  valueClassName = "text-white",
+  valueClassName = "text-ink",
 }: {
   label: string;
   value: string;
   valueClassName?: string;
 }) {
   return (
-    <div className="rounded-md border border-white/10 bg-white/[0.035] px-2 py-1.5">
-      <p className="text-[0.62rem] text-zinc-500">{label}</p>
+    <div className="rounded-md border border-line bg-paper px-2 py-1.5">
+      <p className="text-[0.62rem] text-ink-soft">{label}</p>
       <p
-        className={`font-display mt-0.5 break-words text-sm font-semibold leading-4 ${valueClassName}`}
+        className={`font-serif mt-0.5 break-words text-sm font-semibold leading-4 ${valueClassName}`}
       >
         {value}
       </p>
@@ -1017,9 +1017,9 @@ function CompactMetric({
 
 function ResultBlock({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border border-white/10 bg-white/[0.035] p-2">
-      <p className="text-[0.62rem] text-zinc-500">{label}</p>
-      <p className="mt-1 text-[0.72rem] leading-4 text-zinc-200">{value}</p>
+    <div className="rounded-md border border-line bg-paper p-2">
+      <p className="text-[0.62rem] text-ink-soft">{label}</p>
+      <p className="mt-1 text-[0.72rem] leading-4 text-ink">{value}</p>
     </div>
   );
 }
@@ -1034,19 +1034,19 @@ function ResultList({
   label: string;
 }) {
   return (
-    <div className="rounded-md border border-white/10 bg-white/[0.035] p-2">
-      <p className="text-[0.62rem] text-zinc-500">{label}</p>
+    <div className="rounded-md border border-line bg-paper p-2">
+      <p className="text-[0.62rem] text-ink-soft">{label}</p>
       {items.length > 0 ? (
-        <ul className="mt-2 space-y-1.5 text-[0.72rem] leading-4 text-zinc-200">
+        <ul className="mt-2 space-y-1.5 text-[0.72rem] leading-4 text-ink">
           {items.map((item) => (
             <li className="flex gap-2" key={item}>
-              <span className="mt-1.5 size-1 shrink-0 rounded-full bg-cyan-200" />
+              <span className="mt-1.5 size-1 shrink-0 rounded-full bg-accent-purple/[0.06]" />
               <span>{item}</span>
             </li>
           ))}
         </ul>
       ) : (
-        <p className="mt-1 text-[0.72rem] leading-4 text-zinc-400">
+        <p className="mt-1 text-[0.72rem] leading-4 text-ink-soft">
           {emptyText}
         </p>
       )}
@@ -1169,9 +1169,9 @@ function getEvidenceNotesWithPrefix(items: EvidenceItem[], prefix: string) {
 
 function riskTextClass(riskLevel: RiskLevel) {
   const classes = {
-    low: "text-emerald-100",
-    medium: "text-amber-100",
-    high: "text-rose-100",
+    low: "text-emerald-700",
+    medium: "text-accent-orange",
+    high: "text-rose-700",
   } as const;
 
   return classes[riskLevel];

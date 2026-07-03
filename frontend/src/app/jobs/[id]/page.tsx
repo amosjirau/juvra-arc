@@ -22,7 +22,7 @@ import { ApplyButton } from "@/components/apply-button";
 import { DisputePanel } from "@/components/DisputePanel";
 import { JobStatusBadge } from "@/components/JobStatusBadge";
 import { SubmitWorkDialog } from "@/components/SubmitWorkDialog";
-import { AppShell } from "@/components/shell/AppShell";
+import { EditorialShell } from "@/components/shell/EditorialShell";
 import { Button } from "@/components/ui/button";
 import { GlassCard } from "@/components/ui/glass-card";
 import { TxStatus, type TxState } from "@/components/ui/tx-status";
@@ -195,10 +195,10 @@ export default function JobDetailPage() {
         : "idle";
 
   return (
-    <AppShell>
+    <EditorialShell>
       <Link
         href="/jobs"
-        className="inline-flex items-center gap-2 text-sm font-medium text-zinc-400 transition-colors hover:text-white focus-visible:text-white focus-visible:outline-none"
+        className="inline-flex items-center gap-2 text-sm font-medium text-ink-soft transition-colors hover:text-ink focus-visible:text-ink focus-visible:outline-none"
       >
         <ArrowLeft className="size-4" />
         Back to jobs
@@ -209,17 +209,17 @@ export default function JobDetailPage() {
           <GlassCard className="p-6">
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
               <div>
-                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-cyan-200/20 bg-cyan-200/10 px-3 py-1 text-sm font-medium text-cyan-100 shadow-lg shadow-black/10">
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-accent-purple/25 bg-accent-purple/[0.06] px-3 py-1 text-sm font-medium text-accent-purple shadow-lg shadow-black/10">
                   <FileText className="size-4" />
                   Escrow Workspace
                 </div>
-                <p className="text-sm font-medium text-emerald-200/80">
+                <p className="text-sm font-medium text-emerald-700">
                   Job #{job.id.toString()}
                 </p>
-                <h1 className="font-display heading-gradient mt-2 text-3xl font-semibold">
+                <h1 className="font-serif text-ink mt-2 text-3xl font-semibold">
                   {job.title}
                 </h1>
-                <p className="mt-3 text-zinc-400">{job.category}</p>
+                <p className="mt-3 text-ink-soft">{job.category}</p>
               </div>
               <JobStatusBadge status={job.status} />
             </div>
@@ -260,39 +260,39 @@ export default function JobDetailPage() {
           <AgentFlagsPanel evidence={evidenceItems} job={job} />
 
           <GlassCard className="p-6">
-            <div className="flex items-center gap-2 text-white">
-              <UsersRound className="size-5 text-cyan-100" />
-              <h2 className="font-heading text-base font-semibold">Applicants</h2>
-              <span className="rounded-full border border-white/10 bg-white/[0.06] px-2 py-0.5 text-xs text-zinc-400">
+            <div className="flex items-center gap-2 text-ink">
+              <UsersRound className="size-5 text-accent-purple" />
+              <h2 className="font-serif text-base font-semibold">Applicants</h2>
+              <span className="rounded-full border border-line bg-paper px-2 py-0.5 text-xs text-ink-soft">
                 {applicants.length}
               </span>
             </div>
             <div className="mt-4 space-y-3">
               {applicantsQuery.isLoading && (
-                <p className="text-sm text-zinc-500">Loading applicants...</p>
+                <p className="text-sm text-ink-soft">Loading applicants...</p>
               )}
               {applicantsQuery.isError && (
-                <div className="flex gap-2 rounded-xl border border-rose-300/20 bg-rose-300/10 p-3 text-sm text-rose-100">
+                <div className="flex gap-2 rounded-xl border border-rose-300/40 bg-rose-500/[0.06] p-3 text-sm text-rose-700">
                   <AlertTriangle className="mt-0.5 size-4 shrink-0" />
                   <p>Could not read applicants for this job.</p>
                 </div>
               )}
               {!applicantsQuery.isLoading && applicants.length === 0 && (
-                <p className="text-sm text-zinc-500">No applications yet.</p>
+                <p className="text-sm text-ink-soft">No applications yet.</p>
               )}
               {applicants.map((applicant) => (
                 <div
-                  className="flex flex-col justify-between gap-3 rounded-xl border border-white/10 bg-black/25 p-3 shadow-inner shadow-black/10 sm:flex-row sm:items-center"
+                  className="flex flex-col justify-between gap-3 rounded-xl border border-line bg-paper p-3 sm:flex-row sm:items-center"
                   key={applicant}
                 >
                   <span
-                    className="break-all font-mono text-sm text-zinc-300"
+                    className="break-all font-mono text-sm text-ink"
                     title={applicant}
                   >
                     {shortAddress(applicant)}
                   </span>
                   <Button
-                    className="bg-gradient-to-r from-cyan-300 to-sky-400 text-slate-950"
+                    className="bg-gradient-to-r from-accent-purple to-accent-purple text-white"
                     disabled={!isClient || job.status !== 0 || actionTx.isPending}
                     onClick={() =>
                       actionTx.writeContract({
@@ -325,9 +325,9 @@ export default function JobDetailPage() {
 
         <aside className="space-y-5">
           <div>
-            <p className="text-sm font-medium text-emerald-200/80">Escrow Intelligence</p>
-            <h2 className="font-display mt-1 text-2xl font-semibold text-white">Agent workspace</h2>
-            <p className="mt-3 rounded-xl border border-amber-200/20 bg-amber-200/[0.06] p-3 text-sm leading-6 text-amber-100/90">
+            <p className="text-sm font-medium text-emerald-700">Escrow Intelligence</p>
+            <h2 className="font-serif mt-1 text-2xl font-semibold text-ink">Agent workspace</h2>
+            <p className="mt-3 rounded-xl border border-accent-orange/30 bg-accent-orange/[0.06] p-3 text-sm leading-6 text-accent-orange">
               The Juvra agent provides decision support and runs its own budgeted payments.
               Every escrow release, refund, or dispute action still requires an explicit
               human wallet confirmation.
@@ -335,7 +335,7 @@ export default function JobDetailPage() {
           </div>
 
           <GlassCard className="p-6">
-            <h2 className="font-heading text-base font-semibold text-white">Actions</h2>
+            <h2 className="font-serif text-base font-semibold text-ink">Actions</h2>
             <div className="mt-4 space-y-3">
               <ApplyButton job={job} onSettled={refresh} />
               <SubmitWorkDialog
@@ -359,7 +359,7 @@ export default function JobDetailPage() {
                 {actionTx.isPending ? "Confirming..." : "Approve work"}
               </Button>
               <Button
-                className="w-full border-rose-300/30 bg-rose-300/10 text-rose-100 hover:bg-rose-300/20"
+                className="w-full border-rose-300/40 bg-rose-500/[0.06] text-rose-700 hover:bg-rose-500/[0.06]"
                 disabled={!isClient || job.status !== 0 || actionTx.isPending}
                 onClick={() =>
                   actionTx.writeContract({
@@ -375,7 +375,7 @@ export default function JobDetailPage() {
                 Cancel open job
               </Button>
               <TxStatus status={actionTxState} message={actionTx.error ? errorMessage(actionTx.error) : undefined} hash={actionTx.transactionHash} />
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-ink-soft">
                 Buttons unlock based on wallet role and contract status. Agent guidance cannot
                 release or refund funds.
               </p>
@@ -390,7 +390,7 @@ export default function JobDetailPage() {
           />
         </aside>
       </div>
-    </AppShell>
+    </EditorialShell>
   );
 }
 
@@ -404,9 +404,9 @@ function Metric({
   value: string;
 }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-black/25 p-4 shadow-inner shadow-black/10">
-      <p className="text-xs text-zinc-500">{label}</p>
-      <p className="mt-2 break-all text-sm font-medium text-white" title={fullValue}>
+    <div className="rounded-xl border border-line bg-paper p-4 ">
+      <p className="text-xs text-ink-soft">{label}</p>
+      <p className="mt-2 break-all text-sm font-medium text-ink" title={fullValue}>
         {value}
       </p>
     </div>
@@ -426,13 +426,13 @@ function ResourceBlock({
 }) {
   const toneClass =
     tone === "success"
-      ? "border-emerald-300/20 bg-emerald-300/10 text-emerald-100"
-      : "border-white/10 bg-black/20 text-zinc-300";
+      ? "border-emerald-600/25 bg-emerald-500/[0.06] text-emerald-700"
+      : "border-line bg-paper text-ink";
 
   return (
     <div>
-      <h2 className="flex items-center gap-2 text-sm font-medium text-zinc-300">
-        <Icon className="size-4 text-cyan-100/80" />
+      <h2 className="flex items-center gap-2 text-sm font-medium text-ink">
+        <Icon className="size-4 text-accent-purple" />
         {label}
       </h2>
       <p className={`mt-2 break-all rounded-lg border p-4 text-sm ${toneClass}`}>
@@ -444,7 +444,7 @@ function ResourceBlock({
 
 function JobDetailSkeleton() {
   return (
-    <AppShell>
+    <EditorialShell>
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">
         <section className="surface-2 p-6">
           <div className="h-6 w-40 animate-pulse rounded-full bg-white/10" />
@@ -453,12 +453,12 @@ function JobDetailSkeleton() {
           <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {Array.from({ length: 6 }).map((_, index) => (
               <div
-                className="h-24 animate-pulse rounded-xl border border-white/10 bg-black/25"
+                className="h-24 animate-pulse rounded-xl border border-line bg-paper"
                 key={index}
               />
             ))}
           </div>
-          <div className="mt-6 h-28 animate-pulse rounded-xl border border-white/10 bg-black/25" />
+          <div className="mt-6 h-28 animate-pulse rounded-xl border border-line bg-paper" />
         </section>
         <aside className="surface-2 p-6">
           <div className="h-7 w-28 animate-pulse rounded-lg bg-white/10" />
@@ -469,7 +469,7 @@ function JobDetailSkeleton() {
           </div>
         </aside>
       </div>
-    </AppShell>
+    </EditorialShell>
   );
 }
 
@@ -484,14 +484,14 @@ function StateCard({
 }) {
   const toneClass =
     tone === "rose"
-      ? "border-rose-300/20 bg-rose-300/10 text-rose-100"
-      : "border-white/10 bg-white/[0.05] text-zinc-200";
+      ? "border-rose-300/40 bg-rose-500/[0.06] text-rose-700"
+      : "border-line bg-white/[0.05] text-ink";
 
   return (
-    <AppShell>
+    <EditorialShell>
       <div className="mx-auto max-w-2xl">
         <div className={`rounded-2xl border p-8 shadow-2xl shadow-black/20 ${toneClass}`}>
-          <h1 className="font-display text-2xl font-semibold">{title}</h1>
+          <h1 className="font-serif text-2xl font-semibold">{title}</h1>
           <p className="mt-3 text-sm opacity-80">{message}</p>
           <Button asChild className="mt-6">
             <Link href="/jobs">
@@ -501,7 +501,7 @@ function StateCard({
           </Button>
         </div>
       </div>
-    </AppShell>
+    </EditorialShell>
   );
 }
 

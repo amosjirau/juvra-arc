@@ -49,7 +49,7 @@ export function BentoCard({
         className="pointer-events-none absolute -right-10 -top-10 size-32 rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.22),transparent_70%)] opacity-0 blur-2xl transition-opacity duration-500 group-hover/bento:opacity-100"
       />
       {Icon ? (
-        <span className="relative flex size-12 items-center justify-center rounded-2xl border border-emerald-300/20 bg-gradient-to-br from-emerald-400/20 to-sky-400/10 text-[#34d399] shadow-lg shadow-emerald-950/30 transition-transform duration-300 group-hover/bento:-translate-y-0.5">
+        <span className="relative flex size-12 items-center justify-center rounded-2xl border border-emerald-600/25 bg-gradient-to-br from-emerald-500 to-accent-purple text-[#34d399] shadow-lg transition-transform duration-300 group-hover/bento:-translate-y-0.5">
           <span className="absolute inset-x-2 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
           <Icon className="size-5" />
         </span>

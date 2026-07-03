@@ -220,32 +220,32 @@ export function AgentAutonomyPanel({
   const serviceConfigured = Boolean(wallet?.serviceAgent?.configured);
 
   return (
-    <Card className="premium-card-hover rounded-[2rem] border-emerald-300/15 bg-emerald-300/[0.04]">
+    <Card className="premium-card-hover rounded-[2rem] border-emerald-600/25 bg-emerald-500/[0.06]">
       <CardHeader>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-emerald-300/25 bg-emerald-300/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.16em] text-emerald-100">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-emerald-600/25 bg-emerald-500/[0.06] px-3 py-1 text-xs font-medium uppercase tracking-[0.16em] text-emerald-700">
               <Zap className="size-3.5" />
               Autonomous agent
             </div>
-            <CardTitle className="flex items-center gap-2 text-white">
-              <BotMessageSquare className="size-5 text-emerald-200" />
+            <CardTitle className="flex items-center gap-2 text-ink">
+              <BotMessageSquare className="size-5 text-emerald-700" />
               Agent wallet &amp; autonomous payments
             </CardTitle>
-            <p className="mt-2 text-sm leading-5 text-zinc-400">
+            <p className="mt-2 text-sm leading-5 text-ink-soft">
               The agent holds its own budgeted USDC wallet on Arc and pays
               nanopayments autonomously — no human signature. It never touches
               escrow, which stays human-confirmed.
             </p>
           </div>
-          <Badge className="border-emerald-300/20 bg-emerald-300/10 text-emerald-100">
+          <Badge className="border-emerald-600/25 bg-emerald-500/[0.06] text-emerald-700">
             {wallet?.kind ?? "local-key"}
           </Badge>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
         {!configured ? (
-          <p className="rounded-xl border border-amber-200/20 bg-amber-200/10 p-3 text-sm text-amber-100">
+          <p className="rounded-xl border border-accent-orange/30 bg-accent-orange/[0.06] p-3 text-sm text-accent-orange">
             Agent wallet is not configured. Set <code>AGENT_WALLET_PRIVATE_KEY</code>{" "}
             and restart the server.
           </p>
@@ -275,7 +275,7 @@ export function AgentAutonomyPanel({
             </div>
 
             {lowBalance && wallet?.address && (
-              <div className="rounded-xl border border-amber-200/20 bg-amber-200/10 p-3 text-sm text-amber-100">
+              <div className="rounded-xl border border-accent-orange/30 bg-accent-orange/[0.06] p-3 text-sm text-accent-orange">
                 <div className="flex gap-2">
                   <AlertTriangle className="mt-0.5 size-4 shrink-0" />
                   <div>
@@ -293,7 +293,7 @@ export function AgentAutonomyPanel({
 
             <div className="flex flex-col gap-2 sm:flex-row">
               <Button
-                className="w-full bg-gradient-to-r from-emerald-400 to-emerald-500 text-white hover:from-emerald-300 hover:to-emerald-400 sm:w-fit"
+                className="w-full bg-gradient-to-r from-emerald-500 to-emerald-500 text-ink hover:from-emerald-500 hover:to-emerald-500 sm:w-fit"
                 disabled={loading || !jobId}
                 onClick={() => runAutonomous("verification")}
                 type="button"
@@ -324,49 +324,49 @@ export function AgentAutonomyPanel({
             </div>
 
             {serviceConfigured && wallet?.serviceAgent?.address && (
-              <div className="rounded-xl border border-emerald-300/15 bg-emerald-300/[0.05] p-3 text-xs text-zinc-300">
+              <div className="rounded-xl border border-emerald-600/25 bg-emerald-500/[0.06] p-3 text-xs text-ink">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="font-medium text-emerald-100">
+                  <span className="font-medium text-emerald-700">
                     Distinct verification service agent
                   </span>
                   <span className="font-mono">
                     {wallet.serviceAgent.feeUSDC} USDC / call
                   </span>
                 </div>
-                <p className="mt-1 break-all font-mono text-emerald-100/80">
+                <p className="mt-1 break-all font-mono text-emerald-700">
                   {wallet.serviceAgent.address}
                 </p>
               </div>
             )}
 
             {error && (
-              <p className="rounded-xl border border-rose-300/20 bg-rose-300/10 p-3 text-sm text-rose-100">
+              <p className="rounded-xl border border-rose-300/40 bg-rose-500/[0.06] p-3 text-sm text-rose-700">
                 {error}
               </p>
             )}
 
             {decision && (
-              <div className="rounded-xl border border-cyan-300/20 bg-cyan-300/10 p-3 text-sm text-cyan-100">
+              <div className="rounded-xl border border-accent-purple/25 bg-accent-purple/[0.06] p-3 text-sm text-accent-purple">
                 <p className="font-medium">Agent decided not to spend</p>
                 <p className="mt-1 text-xs leading-5">{decision}</p>
               </div>
             )}
 
             {lastPaid && (
-              <div className="space-y-2 rounded-xl border border-emerald-200/20 bg-emerald-200/10 p-3">
+              <div className="space-y-2 rounded-xl border border-emerald-600/25 bg-emerald-500/[0.06] p-3">
                 <div className="flex items-center justify-between gap-3">
-                  <h3 className="flex items-center gap-2 text-sm font-medium text-emerald-50">
+                  <h3 className="flex items-center gap-2 text-sm font-medium text-emerald-700">
                     <ShieldCheck className="size-4" />
                     Autonomous payment sent · agent-signed
                   </h3>
-                  <Badge className="border-emerald-200/20 bg-emerald-200/10 text-emerald-100">
+                  <Badge className="border-emerald-600/25 bg-emerald-500/[0.06] text-emerald-700">
                     {lastPaid.amountUSDC} USDC
                   </Badge>
                 </div>
-                <p className="text-xs leading-5 text-emerald-100/90">
+                <p className="text-xs leading-5 text-emerald-700">
                   {lastPaid.reason}
                 </p>
-                <p className="text-xs text-zinc-400">
+                <p className="text-xs text-ink-soft">
                   To {shortAddress(lastPaid.to)} · {lastPaid.purpose}
                 </p>
                 <ArcscanLink hash={lastPaid.txHash as `0x${string}`} />
@@ -374,20 +374,20 @@ export function AgentAutonomyPanel({
             )}
 
             {a2a && (
-              <div className="space-y-3 rounded-xl border border-emerald-300/20 bg-emerald-300/10 p-3">
+              <div className="space-y-3 rounded-xl border border-emerald-600/25 bg-emerald-500/[0.06] p-3">
                 <div className="flex items-center justify-between gap-3">
-                  <h3 className="flex items-center gap-2 text-sm font-medium text-emerald-50">
+                  <h3 className="flex items-center gap-2 text-sm font-medium text-emerald-700">
                     <Network className="size-4" />
                     Agent-to-agent commerce settled
                   </h3>
-                  <Badge className="border-emerald-300/20 bg-emerald-300/10 text-emerald-100">
+                  <Badge className="border-emerald-600/25 bg-emerald-500/[0.06] text-emerald-700">
                     {a2a.payment.amountUSDC} USDC
                   </Badge>
                 </div>
 
-                <div className="flex items-center gap-2 text-xs text-zinc-300">
+                <div className="flex items-center gap-2 text-xs text-ink">
                   <span className="font-mono">{shortAddress(a2a.orchestratorAgent)}</span>
-                  <span className="text-emerald-200">— paid →</span>
+                  <span className="text-emerald-700">— paid →</span>
                   <span className="font-mono">{shortAddress(a2a.serviceAgent)}</span>
                 </div>
 
@@ -406,14 +406,14 @@ export function AgentAutonomyPanel({
                   />
                 </div>
 
-                <div className="rounded-lg border border-white/10 bg-black/25 p-2">
-                  <p className="text-xs font-medium text-zinc-400">
+                <div className="rounded-lg border border-line bg-paper p-2">
+                  <p className="text-xs font-medium text-ink-soft">
                     Service agent signed receipt
                   </p>
-                  <p className="mt-1 break-all font-mono text-[0.7rem] text-emerald-100/80">
+                  <p className="mt-1 break-all font-mono text-[0.7rem] text-emerald-700">
                     {a2a.receipt.signature}
                   </p>
-                  <p className="mt-1 text-[0.7rem] text-zinc-500">
+                  <p className="mt-1 text-[0.7rem] text-ink-soft">
                     signer {shortAddress(a2a.receipt.signer)}
                   </p>
                 </div>
@@ -422,30 +422,30 @@ export function AgentAutonomyPanel({
               </div>
             )}
 
-            <div className="rounded-xl border border-white/10 bg-black/20 p-3">
-              <h3 className="mb-2 text-sm font-medium text-white">
+            <div className="rounded-xl border border-line bg-paper p-3">
+              <h3 className="mb-2 text-sm font-medium text-ink">
                 Autonomous payment log
               </h3>
               {(wallet?.recentPayments?.length ?? 0) === 0 ? (
-                <p className="text-sm text-zinc-500">
+                <p className="text-sm text-ink-soft">
                   No autonomous payments yet this session.
                 </p>
               ) : (
                 <div className="space-y-2">
                   {wallet?.recentPayments.map((payment) => (
                     <div
-                      className="rounded-lg border border-white/10 bg-white/[0.035] p-3"
+                      className="rounded-lg border border-line bg-paper p-3"
                       key={payment.id}
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <span className="text-sm font-medium capitalize text-white">
+                        <span className="text-sm font-medium capitalize text-ink">
                           {payment.purpose}
                         </span>
-                        <span className="font-mono text-sm text-emerald-100">
+                        <span className="font-mono text-sm text-emerald-700">
                           {payment.amountUSDC} USDC
                         </span>
                       </div>
-                      <p className="mt-1 text-xs text-zinc-500">
+                      <p className="mt-1 text-xs text-ink-soft">
                         To {shortAddress(payment.to)}
                       </p>
                       <div className="mt-1">
@@ -457,7 +457,7 @@ export function AgentAutonomyPanel({
               )}
             </div>
 
-            <p className="text-xs leading-5 text-zinc-500">
+            <p className="text-xs leading-5 text-ink-soft">
               Guardrails: per-transaction cap, session budget, recipient
               allowlist, and the wallet&apos;s on-chain balance. The agent cannot
               release, refund, or sign escrow — those remain human-confirmed.
@@ -495,12 +495,12 @@ function WalletMetric({
   value: string;
 }) {
   return (
-    <div className="rounded-lg border border-white/10 bg-black/25 p-3">
-      <p className="flex items-center gap-1.5 text-xs text-zinc-500">
+    <div className="rounded-lg border border-line bg-paper p-3">
+      <p className="flex items-center gap-1.5 text-xs text-ink-soft">
         {icon}
         {label}
       </p>
-      <p className="mt-1 break-words text-sm font-medium text-white">{value}</p>
+      <p className="mt-1 break-words text-sm font-medium text-ink">{value}</p>
     </div>
   );
 }

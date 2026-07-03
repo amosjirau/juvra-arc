@@ -51,7 +51,7 @@ export function AgentConsole({
   return (
     <Tabs defaultValue="analyze">
       <TabsList
-        className="w-full flex-wrap gap-1 rounded-2xl bg-white/[0.04] p-1.5 backdrop-blur-xl sm:h-11"
+        className="w-full flex-wrap gap-1 rounded-2xl bg-paper-raised p-1.5 backdrop-blur-xl sm:h-11"
         variant="default"
       >
         <TabsTrigger value="analyze">

@@ -39,12 +39,12 @@ export function SubmitWorkDialog({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button disabled={disabled} className="w-full bg-gradient-to-r from-cyan-300 to-sky-400 text-slate-950">
+        <Button disabled={disabled} className="w-full bg-gradient-to-r from-accent-purple to-accent-purple text-white">
           <UploadCloud className="size-4" />
           Submit work
         </Button>
       </DialogTrigger>
-      <DialogContent className="border-white/10 bg-[#0b101a]/95 text-white shadow-2xl shadow-black/40 backdrop-blur-xl">
+      <DialogContent className="border-line bg-[#0b101a]/95 text-ink shadow-2xl shadow-black/40 backdrop-blur-xl">
         <DialogHeader>
           <DialogTitle>Submit work</DialogTitle>
           <DialogDescription>
@@ -72,8 +72,8 @@ export function SubmitWorkDialog({
           >
             {tx.isPending ? "Submitting..." : "Confirm submission"}
           </Button>
-          {tx.isSuccess && <p className="text-xs text-emerald-300">Work submitted.</p>}
-          {tx.error && <p className="text-xs text-rose-300">{errorMessage(tx.error)}</p>}
+          {tx.isSuccess && <p className="text-xs text-emerald-700">Work submitted.</p>}
+          {tx.error && <p className="text-xs text-rose-700">{errorMessage(tx.error)}</p>}
           <ArcscanLink hash={tx.transactionHash} />
         </div>
       </DialogContent>

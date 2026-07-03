@@ -15,8 +15,9 @@ import { cn } from "@/lib/utils";
 export function GlassCard({
   className,
   interactive = false,
-  glow = false,
-  beam = false,
+  // glow/beam accepted for call-site compatibility; decorative effects removed.
+  glow: _glow,
+  beam: _beam,
   spotlight,
   children,
   ...props
@@ -26,6 +27,8 @@ export function GlassCard({
   beam?: boolean;
   spotlight?: boolean;
 }) {
+  void _glow;
+  void _beam;
   const ref = useRef<HTMLDivElement>(null);
   const useSpotlight = spotlight ?? interactive;
 
@@ -40,23 +43,16 @@ export function GlassCard({
 
   return (
     <div
-      ref={ref}
-      onPointerMove={onPointerMove}
       className={cn(
-        "surface-2 relative overflow-hidden ring-1 ring-white/5",
+        "relative overflow-hidden rounded-2xl border border-line bg-paper-raised text-ink",
         interactive &&
-          "transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-2xl hover:shadow-emerald-950/30",
-        useSpotlight && "spotlight-surface",
-        glow && "glow-border",
-        beam && "border-beam",
+          "transition-all duration-300 hover:-translate-y-1 hover:border-ink/20 hover:shadow-[0_28px_60px_-42px_rgba(28,25,23,0.45)]",
         className,
       )}
+      onPointerMove={onPointerMove}
+      ref={ref}
       {...props}
     >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 z-0 bg-[linear-gradient(120deg,rgba(16,185,129,0.10),transparent_40%),linear-gradient(270deg,rgba(56,189,248,0.10),transparent_46%)]"
-      />
       <div className="relative z-[1]">{children}</div>
     </div>
   );

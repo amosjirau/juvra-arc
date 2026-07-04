@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useRef, type CSSProperties, type ReactNode } from "react";
 import { useAccount } from "wagmi";
 
+import { useAdminAccess } from "@/hooks/use-admin-access";
 import { shortAddress } from "@/lib/format";
 
 /**
@@ -67,13 +68,19 @@ function ConnectPill() {
 }
 
 const NAV_LINKS = [
-  { href: "/jobs", label: "Jobs" },
   { href: "/how-it-works", label: "How it works" },
+  { href: "/jobs", label: "Jobs" },
   { href: "/agent-treasury", label: "Agent" },
-  { href: "/docs", label: "Docs" },
+  { href: "/dashboard", label: "Dashboard" },
 ];
 
 function Nav() {
+  const { isAdmin, isConnected } = useAdminAccess();
+  const links =
+    isConnected && isAdmin
+      ? [...NAV_LINKS, { href: "/admin", label: "Admin" }]
+      : NAV_LINKS;
+
   return (
     <header
       className="sticky top-0 z-50 backdrop-blur-md"
@@ -84,7 +91,7 @@ function Nav() {
           Juvra
         </Link>
         <nav className="hidden items-center gap-8 md:flex">
-          {NAV_LINKS.map((link) => (
+          {links.map((link) => (
             <Link
               className="text-sm transition-colors duration-200 hover:text-[#1C1917]"
               href={link.href}
@@ -387,7 +394,7 @@ function Footer() {
           </p>
         </div>
         <div className="flex flex-wrap gap-x-8 gap-y-3">
-          {[...NAV_LINKS, { href: "/dashboard", label: "Dashboard" }].map((link) => (
+          {[...NAV_LINKS, { href: "/docs", label: "Docs" }].map((link) => (
             <Link
               className="text-sm transition-colors duration-200 hover:text-[#1C1917]"
               href={link.href}

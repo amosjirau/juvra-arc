@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { useRef, type ReactNode } from "react";
 import { useAccount } from "wagmi";
 
+import { useAdminAccess } from "@/hooks/use-admin-access";
 import { shortAddress } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -17,10 +18,10 @@ import { cn } from "@/lib/utils";
  */
 
 const NAV_LINKS = [
-  { href: "/jobs", label: "Jobs" },
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/agent-treasury", label: "Agent" },
   { href: "/how-it-works", label: "How it works" },
+  { href: "/jobs", label: "Jobs" },
+  { href: "/agent-treasury", label: "Agent" },
+  { href: "/dashboard", label: "Dashboard" },
 ];
 
 export function Reveal({
@@ -66,6 +67,12 @@ function ConnectPill() {
 
 function EditorialNav() {
   const pathname = usePathname();
+  const { isAdmin, isConnected } = useAdminAccess();
+
+  const links =
+    isConnected && isAdmin
+      ? [...NAV_LINKS, { href: "/admin", label: "Admin" }]
+      : NAV_LINKS;
 
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-paper/75 backdrop-blur-md">
@@ -74,11 +81,15 @@ function EditorialNav() {
           Juvra
         </Link>
         <nav className="hidden items-center gap-8 md:flex">
-          {NAV_LINKS.map((link) => (
+          {links.map((link) => (
             <Link
               className={cn(
                 "text-sm transition-colors duration-200 hover:text-ink",
-                pathname === link.href ? "text-ink" : "text-ink-soft",
+                (link.href === "/admin"
+                  ? pathname.startsWith("/admin")
+                  : pathname === link.href)
+                  ? "text-ink"
+                  : "text-ink-soft",
               )}
               href={link.href}
               key={link.href}

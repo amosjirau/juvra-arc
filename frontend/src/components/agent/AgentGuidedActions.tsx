@@ -94,19 +94,19 @@ export function AgentGuidedActions({
   const isArbitrator = isSameAddress(walletAddress, arbitrator);
 
   return (
-    <Card className="premium-card-hover rounded-[2rem] border-amber-200/20 bg-amber-200/[0.055]">
+    <Card className="premium-card-hover rounded-[2rem] border-accent-orange/30 bg-accent-orange/[0.06]">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-white">
-          <ShieldAlert className="size-5 text-amber-100" />
+        <CardTitle className="flex items-center gap-2 text-ink">
+          <ShieldAlert className="size-5 text-accent-orange" />
           Agent suggested action
         </CardTitle>
-        <p className="text-xs font-medium uppercase tracking-[0.14em] text-amber-100/80">
+        <p className="text-xs font-medium uppercase tracking-[0.14em] text-accent-orange">
           Agent suggested action - manual confirmation required
         </p>
       </CardHeader>
       <CardContent className="space-y-3">
         {!recommendation && (
-          <p className="rounded-xl border border-white/10 bg-black/25 p-3 text-sm text-zinc-400">
+          <p className="rounded-xl border border-line bg-paper p-3 text-sm text-ink-soft">
             Run the Recommendation tab in the agent workspace to show guided manual actions here.
           </p>
         )}
@@ -123,7 +123,7 @@ export function AgentGuidedActions({
                 value={`${Math.round(recommendation.confidence * 100)}%`}
               />
             </div>
-            <p className="rounded-xl border border-white/10 bg-black/25 p-3 text-sm leading-5 text-zinc-300">
+            <p className="rounded-xl border border-line bg-paper p-3 text-sm leading-5 text-ink">
               {recommendation.requiredHumanAction}
             </p>
             {renderGuidedAction({
@@ -138,14 +138,14 @@ export function AgentGuidedActions({
               revisionNote,
               setRevisionNote,
             })}
-            <p className="rounded-xl border border-amber-200/20 bg-amber-200/10 p-3 text-xs leading-5 text-amber-100">
+            <p className="rounded-xl border border-accent-orange/30 bg-accent-orange/[0.06] p-3 text-xs leading-5 text-accent-orange">
               {recommendation.safetyNotice}
             </p>
           </>
         )}
 
         {(approveTx.error || disputeTx.error || resolveTx.error) && (
-          <p className="text-xs text-rose-300">
+          <p className="text-xs text-rose-700">
             {errorMessage(approveTx.error ?? disputeTx.error ?? resolveTx.error)}
           </p>
         )}
@@ -220,7 +220,7 @@ function renderGuidedAction({
 
     return (
       <Button
-        className="w-full border-amber-300/30 bg-amber-300/10 text-amber-100 hover:bg-amber-300/20"
+        className="w-full border-accent-orange/30 bg-accent-orange/[0.06] text-accent-orange hover:bg-accent-orange/[0.06]"
         disabled={!(job.status === 1 || job.status === 2) || disputeTx.isPending}
         onClick={() =>
           disputeTx.writeContract({
@@ -252,7 +252,7 @@ function renderGuidedAction({
 
     return (
       <Button
-        className="w-full border-sky-300/30 bg-sky-300/10 text-sky-100 hover:bg-sky-300/20"
+        className="w-full border-accent-purple/25 bg-accent-purple/[0.06] text-accent-purple hover:bg-accent-purple/[0.06]"
         disabled={job.status !== 4 || resolveTx.isPending}
         onClick={() =>
           resolveTx.writeContract({
@@ -284,7 +284,7 @@ function renderGuidedAction({
           placeholder="Offchain revision note"
           value={revisionNote}
         />
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-ink-soft">
           This note is offchain only. Add it to the Evidence panel if it should be saved locally.
         </p>
       </div>
@@ -293,14 +293,14 @@ function renderGuidedAction({
 
   if (action === "release_partial") {
     return (
-      <p className="rounded-xl border border-white/10 bg-black/25 p-3 text-sm text-zinc-300">
+      <p className="rounded-xl border border-line bg-paper p-3 text-sm text-ink">
         Partial release is advisory only because the current contract action surface does not support partial escrow release.
       </p>
     );
   }
 
   return (
-    <p className="rounded-xl border border-white/10 bg-black/25 p-3 text-sm text-zinc-300">
+    <p className="rounded-xl border border-line bg-paper p-3 text-sm text-ink">
       No contract action is suggested.
     </p>
   );
@@ -308,7 +308,7 @@ function renderGuidedAction({
 
 function UnauthorizedMessage() {
   return (
-    <p className="rounded-xl border border-rose-300/20 bg-rose-300/10 p-3 text-sm text-rose-100">
+    <p className="rounded-xl border border-rose-300/40 bg-rose-500/[0.06] p-3 text-sm text-rose-700">
       You are not authorized to perform this action.
     </p>
   );
@@ -316,9 +316,9 @@ function UnauthorizedMessage() {
 
 function GuidedMetric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-black/25 p-3 shadow-inner shadow-black/10">
-      <p className="text-xs text-zinc-500">{label}</p>
-      <p className="mt-1 text-sm font-semibold text-white">{value}</p>
+    <div className="rounded-xl border border-line bg-paper p-3 ">
+      <p className="text-xs text-ink-soft">{label}</p>
+      <p className="mt-1 text-sm font-semibold text-ink">{value}</p>
     </div>
   );
 }

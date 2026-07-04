@@ -47,7 +47,7 @@ export function TxStatus({
     error: {
       icon: XCircle,
       spin: false,
-      shell: "border-rose-400/25 bg-rose-500/[0.07] text-rose-200",
+      shell: "border-rose-300/40 bg-rose-500/[0.06] text-rose-700",
       label: "Transaction failed. Nothing was charged - please try again.",
       activeIndex: -1,
     },

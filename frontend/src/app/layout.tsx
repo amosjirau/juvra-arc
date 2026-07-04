@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter } from "next/font/google";
+import { Fraunces, Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 
 import { Navbar } from "@/components/Navbar";
@@ -20,6 +20,14 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Editorial high-contrast serif for display/headlines (paired with Inter for UI).
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Juvra",
   description: "The settlement layer for freelance commerce.",
@@ -35,7 +43,7 @@ export default function RootLayout({
 }) {
   return (
     <html
-      className={`dark ${inter.variable} ${geistDisplay.variable} ${geistMono.variable}`}
+      className={`dark ${inter.variable} ${geistDisplay.variable} ${geistMono.variable} ${fraunces.variable}`}
       data-scroll-behavior="smooth"
       lang="en"
     >

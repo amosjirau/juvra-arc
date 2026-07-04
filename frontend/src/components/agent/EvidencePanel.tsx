@@ -156,14 +156,14 @@ export function EvidencePanel({
   const hasFormValue = Object.values(form).some((value) => value.trim());
 
   return (
-    <Card className="premium-card-hover rounded-[2rem] border-white/10 bg-white/[0.045]">
+    <Card className="premium-card-hover rounded-[2rem] border-line bg-paper-raised">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-white">
-          <LinkIcon className="size-5 text-cyan-100" />
+        <CardTitle className="flex items-center gap-2 text-ink">
+          <LinkIcon className="size-5 text-accent-purple" />
           Evidence
         </CardTitle>
         {updatedAt && (
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-ink-soft">
             Last updated {formatEvidenceDate(updatedAt)}
           </p>
         )}
@@ -227,9 +227,9 @@ export function EvidencePanel({
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-ink-soft">
             Submitted by{" "}
-            <span className="font-mono text-zinc-300">
+            <span className="font-mono text-ink">
               {submittedBy ? shortAddress(submittedBy) : "Not connected"}
             </span>
           </p>
@@ -246,46 +246,46 @@ export function EvidencePanel({
 
         <div className="space-y-2">
           {items.length === 0 ? (
-            <p className="rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-zinc-500">
+            <p className="rounded-xl border border-line bg-paper p-3 text-sm text-ink-soft">
               No local evidence has been added for this job.
             </p>
           ) : (
             items.map((item) => (
               <div
-                className="rounded-xl border border-white/10 bg-black/25 p-3 shadow-inner shadow-black/10"
+                className="rounded-xl border border-line bg-paper p-3 "
                 key={item.id}
               >
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0 space-y-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-full border border-cyan-200/15 bg-cyan-200/10 px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-[0.14em] text-cyan-100">
+                      <span className="rounded-full border border-accent-purple/25 bg-accent-purple/[0.06] px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-[0.14em] text-accent-purple">
                         {item.type}
                       </span>
-                      <span className="text-xs text-zinc-500">
+                      <span className="text-xs text-ink-soft">
                         {formatEvidenceDate(item.createdAt)}
                       </span>
                     </div>
                     {item.evidenceUrl && (
-                      <p className="break-all font-mono text-xs text-emerald-100">
+                      <p className="break-all font-mono text-xs text-emerald-700">
                         {item.evidenceUrl}
                       </p>
                     )}
                     {item.note && (
-                      <p className="text-sm leading-5 text-zinc-300">
+                      <p className="text-sm leading-5 text-ink">
                         {item.note}
                       </p>
                     )}
                     {item.submittedBy && (
-                      <p className="text-xs text-zinc-500">
+                      <p className="text-xs text-ink-soft">
                         Submitted by{" "}
-                        <span className="font-mono text-zinc-300">
+                        <span className="font-mono text-ink">
                           {shortAddress(item.submittedBy)}
                         </span>
                       </p>
                     )}
                   </div>
                   <Button
-                    className="h-8 px-2 text-rose-100 hover:text-rose-50"
+                    className="h-8 px-2 text-rose-700 hover:text-rose-700"
                     onClick={() => removeEvidence(item.id)}
                     size="sm"
                     type="button"

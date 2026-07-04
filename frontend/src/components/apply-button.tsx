@@ -35,10 +35,10 @@ export function ApplyButton({ job, onSettled }: { job: JuvraJob; onSettled?: () 
         <Send className="size-4" />
         {tx.isPending ? "Applying..." : "Apply for job"}
       </Button>
-      {!isConnected && <p className="text-xs text-zinc-500">Connect a wallet to apply.</p>}
-      {isClient && <p className="text-xs text-zinc-500">Clients cannot apply to their own jobs.</p>}
-      {tx.isSuccess && <p className="text-xs text-emerald-300">Application submitted.</p>}
-      {tx.error && <p className="text-xs text-rose-300">{errorMessage(tx.error)}</p>}
+      {!isConnected && <p className="text-xs text-ink-soft">Connect a wallet to apply.</p>}
+      {isClient && <p className="text-xs text-ink-soft">Clients cannot apply to their own jobs.</p>}
+      {tx.isSuccess && <p className="text-xs text-emerald-700">Application submitted.</p>}
+      {tx.error && <p className="text-xs text-rose-700">{errorMessage(tx.error)}</p>}
       <ArcscanLink hash={tx.transactionHash} />
     </div>
   );

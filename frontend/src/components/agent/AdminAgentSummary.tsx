@@ -73,14 +73,14 @@ export function AdminAgentSummary({ job }: { job: JuvraJob }) {
   }, [job.id]);
 
   return (
-    <div className="space-y-3 rounded-xl border border-cyan-200/10 bg-black/20 p-3">
+    <div className="space-y-3 rounded-xl border border-accent-purple/25 bg-paper p-3">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.14em] text-cyan-100/70">
+          <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.14em] text-accent-purple">
             <Bot className="size-3.5" />
             Agent context
           </p>
-          <p className="mt-1 text-xs text-zinc-500">
+          <p className="mt-1 text-xs text-ink-soft">
             Saved locally from the job workspace.
           </p>
         </div>
@@ -122,9 +122,9 @@ function SavedBlock({
   value?: string;
 }) {
   return (
-    <div className="rounded-lg border border-white/10 bg-white/[0.035] p-3">
-      <p className="text-xs text-zinc-500">{label}</p>
-      <p className="mt-1 text-sm leading-5 text-zinc-300">
+    <div className="rounded-lg border border-line bg-paper p-3">
+      <p className="text-xs text-ink-soft">{label}</p>
+      <p className="mt-1 text-sm leading-5 text-ink">
         {value || emptyText}
       </p>
     </div>

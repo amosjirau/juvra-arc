@@ -25,8 +25,8 @@ export function StatsCard({
           className={cn(
             "flex size-11 items-center justify-center rounded-xl border shadow-lg",
             tone === "green"
-              ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-300 shadow-emerald-950/20"
-              : "border-sky-400/20 bg-sky-400/10 text-sky-300 shadow-sky-950/20",
+              ? "border-emerald-600/25 bg-emerald-500/[0.06] text-emerald-700 "
+              : "border-accent-purple/25 bg-accent-purple/[0.06] text-accent-purple ",
           )}
         >
           <Icon className="size-5" />

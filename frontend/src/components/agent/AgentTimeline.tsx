@@ -100,23 +100,23 @@ export function AgentTimeline({
   );
 
   return (
-    <section className="rounded-[2rem] border border-white/10 bg-white/[0.045] p-4 shadow-xl shadow-black/15">
+    <section className="rounded-[2rem] border border-line bg-paper-raised p-4 shadow-xl shadow-black/15">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-medium uppercase tracking-[0.14em] text-cyan-100/70">
+          <p className="text-xs font-medium uppercase tracking-[0.14em] text-accent-purple">
             Activity
           </p>
-          <h2 className="font-display mt-1 text-xl font-semibold text-white">
+          <h2 className="font-serif mt-1 text-xl font-semibold text-ink">
             Agent timeline
           </h2>
         </div>
-        <span className="rounded-full border border-white/10 bg-black/25 px-2 py-1 text-xs text-zinc-400">
+        <span className="rounded-full border border-line bg-paper px-2 py-1 text-xs text-ink-soft">
           {items.length}
         </span>
       </div>
 
       {items.length === 0 ? (
-        <p className="mt-4 rounded-xl border border-white/10 bg-black/25 p-3 text-sm text-zinc-500">
+        <p className="mt-4 rounded-xl border border-line bg-paper p-3 text-sm text-ink-soft">
           No timeline events are available yet.
         </p>
       ) : (
@@ -131,15 +131,15 @@ export function AgentTimeline({
               >
                 <item.icon className="size-4" />
               </div>
-              <div className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black/25 p-3">
+              <div className="min-w-0 flex-1 rounded-xl border border-line bg-paper p-3">
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="text-sm font-medium text-white">{item.title}</p>
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-sm font-medium text-ink">{item.title}</p>
+                  <p className="text-xs text-ink-soft">
                     {item.timestamp ? formatTimelineDate(item.timestamp) : "Time not indexed"}
                   </p>
                 </div>
                 {item.detail && (
-                  <p className="mt-1 break-words text-xs leading-5 text-zinc-400">
+                  <p className="mt-1 break-words text-xs leading-5 text-ink-soft">
                     {item.detail}
                   </p>
                 )}
@@ -328,10 +328,10 @@ function formatTimelineDate(timestamp: string) {
 
 function toneClass(tone: TimelineItem["tone"]) {
   return {
-    amber: "border-amber-200/25 bg-amber-200/10 text-amber-100",
-    cyan: "border-cyan-200/20 bg-cyan-200/10 text-cyan-100",
-    emerald: "border-emerald-300/25 bg-emerald-300/10 text-emerald-100",
-    rose: "border-rose-300/25 bg-rose-300/10 text-rose-100",
-    zinc: "border-white/10 bg-white/[0.06] text-zinc-300",
+    amber: "border-accent-orange/30 bg-accent-orange/[0.06] text-accent-orange",
+    cyan: "border-accent-purple/25 bg-accent-purple/[0.06] text-accent-purple",
+    emerald: "border-emerald-600/25 bg-emerald-500/[0.06] text-emerald-700",
+    rose: "border-rose-300/40 bg-rose-500/[0.06] text-rose-700",
+    zinc: "border-line bg-paper text-ink",
   }[tone];
 }

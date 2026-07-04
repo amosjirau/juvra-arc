@@ -93,7 +93,7 @@ export function AgentFlagsPanel({
 
   if (flags.length === 0) {
     return compact ? null : (
-      <div className={cn("rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-zinc-500", className)}>
+      <div className={cn("rounded-xl border border-line bg-paper p-3 text-sm text-ink-soft", className)}>
         No advisory flags for this job.
       </div>
     );
@@ -102,7 +102,7 @@ export function AgentFlagsPanel({
   return (
     <div className={cn("space-y-2", className)}>
       {!compact && (
-        <p className="text-xs font-medium uppercase tracking-[0.14em] text-amber-100/80">
+        <p className="text-xs font-medium uppercase tracking-[0.14em] text-ink-soft">
           Advisory flags
         </p>
       )}
@@ -123,9 +123,9 @@ function FlagBadge({ compact, flag }: { compact: boolean; flag: AgentFlag }) {
         ? AlertTriangle
         : Info;
   const toneClass = {
-    critical: "border-rose-300/25 bg-rose-300/10 text-rose-100",
-    info: "border-cyan-200/20 bg-cyan-200/10 text-cyan-100",
-    warning: "border-amber-200/25 bg-amber-200/10 text-amber-100",
+    critical: "border-rose-300/40 bg-rose-500/[0.06] text-rose-700",
+    info: "border-line bg-paper text-ink-soft",
+    warning: "border-accent-orange/30 bg-accent-orange/[0.06] text-ink",
   }[flag.severity];
 
   if (compact) {

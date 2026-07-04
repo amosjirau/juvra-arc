@@ -15,8 +15,7 @@ import { AdminAgentSummary } from "@/components/agent/AdminAgentSummary";
 import { EmptyState } from "@/components/empty-state";
 import { JobStatusBadge } from "@/components/JobStatusBadge";
 import { JobCardSkeleton } from "@/components/loading-skeleton";
-import { AppShell } from "@/components/shell/AppShell";
-import { PageHeader } from "@/components/shell/PageHeader";
+import { EditorialHeader, EditorialShell } from "@/components/shell/EditorialShell";
 import { AdminGate } from "@/components/ui/admin-gate";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -120,24 +119,23 @@ export default function AdminPage() {
   }
 
   return (
-    <AppShell>
-      <PageHeader
-        eyebrow="Arbitrator console"
-        eyebrowIcon={ShieldCheck}
-        title="Admin"
-        description="Resolve disputed Juvra escrows as the configured on-chain arbitrator."
+    <EditorialShell>
+      <EditorialHeader
         actions={<ConnectButton accountStatus="address" chainStatus="icon" showBalance={false} />}
+        description="Resolve disputed Juvra escrows as the configured on-chain arbitrator."
+        eyebrow="Arbitrator console"
+        title="Admin"
       />
 
       <div className="mt-8">
         <AdminGate>
-          <Badge className="mb-6 border-white/10 bg-white/5 font-mono text-zinc-300">
+          <Badge className="mb-6 border-line bg-paper font-mono text-ink-soft">
             Arbitrator: {shortAddress(arbitrator)}
           </Badge>
 
-          <div className="rounded-2xl border border-amber-200/20 bg-amber-200/10 p-4 text-sm text-amber-100 shadow-lg shadow-amber-950/10">
+          <div className="rounded-2xl border border-accent-orange/30 bg-accent-orange/[0.06] p-4 text-sm text-ink">
             <div className="flex gap-3">
-              <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+              <AlertTriangle className="mt-0.5 size-4 shrink-0 text-accent-orange" />
               <p>
                 Agent summaries are advisory. Admin resolution still requires manual wallet
                 confirmation. Review the job, delivery, client, and freelancer addresses before
@@ -178,12 +176,12 @@ export default function AdminPage() {
                 const isActiveJob = activeResolution?.jobId === job.id;
 
                 return (
-                  <Card className="premium-card-hover border-white/10 bg-white/[0.045]" key={job.id.toString()}>
+                  <Card className="premium-card-hover border-line bg-paper-raised" key={job.id.toString()}>
                     <CardHeader>
                       <div className="flex items-start justify-between gap-4">
                         <div>
-                          <CardTitle className="text-xl text-white">{job.title}</CardTitle>
-                          <CardDescription className="mt-2 text-zinc-400">
+                          <CardTitle className="text-xl text-ink">{job.title}</CardTitle>
+                          <CardDescription className="mt-2 text-ink-soft">
                             Job #{job.id.toString()}
                           </CardDescription>
                         </div>
@@ -202,7 +200,6 @@ export default function AdminPage() {
 
                       <div className="grid gap-3 sm:grid-cols-2">
                         <Button
-                          className="border-sky-300/30 bg-sky-300/10 text-sky-100 hover:bg-sky-300/20"
                           disabled={isBusy}
                           onClick={() => resolveDispute(job, "client")}
                           variant="outline"
@@ -215,7 +212,6 @@ export default function AdminPage() {
                           Resolve for Client
                         </Button>
                         <Button
-                          className="bg-gradient-to-r from-emerald-300 to-cyan-300 text-slate-950"
                           disabled={isBusy}
                           onClick={() => resolveDispute(job, "freelancer")}
                         >
@@ -244,15 +240,15 @@ export default function AdminPage() {
           )}
         </AdminGate>
       </div>
-    </AppShell>
+    </EditorialShell>
   );
 }
 
 function AdminMetric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-black/25 p-3 shadow-inner shadow-black/10">
-      <p className="text-xs text-zinc-500">{label}</p>
-      <p className="mt-1 break-all font-mono text-sm text-zinc-200">{value}</p>
+    <div className="rounded-xl border border-line bg-paper p-3 ">
+      <p className="text-xs text-ink-soft">{label}</p>
+      <p className="mt-1 break-all font-mono text-sm text-ink">{value}</p>
     </div>
   );
 }

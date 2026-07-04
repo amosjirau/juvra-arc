@@ -145,8 +145,8 @@ export function Navbar() {
   return (
     <header className="fixed left-1/2 top-3 z-[90] w-[calc(100%-24px)] max-w-[1520px] -translate-x-1/2 sm:top-4 sm:w-[calc(100%-48px)]">
       <div
-        className="grid h-[68px] grid-cols-[1fr_auto] items-center gap-2 rounded-full border border-white/[0.09] px-3 shadow-[0_18px_60px_rgba(0,0,0,0.34),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-[24px] backdrop-saturate-[1.35] sm:h-20 sm:px-6 lg:grid-cols-[1fr_auto_1fr]"
-        style={{ background: "rgba(10, 13, 24, 0.72)" }}
+        className="grid h-[68px] grid-cols-[1fr_auto] items-center gap-2 rounded-full border border-white/[0.09] px-3 shadow-[0_18px_60px_rgba(0,0,0,0.44),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-[28px] backdrop-saturate-[1.4] sm:h-20 sm:px-6 lg:grid-cols-[1fr_auto_1fr]"
+        style={{ background: "rgba(9, 12, 22, 0.9)" }}
       >
         <div className="flex min-w-0 items-center gap-3 justify-self-start">
           <Link

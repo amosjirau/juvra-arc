@@ -28,15 +28,15 @@ export function FormFieldGroup({
   return (
     <div className={cn("space-y-2", className)}>
       <div className="flex items-baseline justify-between gap-3">
-        <label htmlFor={htmlFor} className="text-sm font-medium text-zinc-200">
+        <label htmlFor={htmlFor} className="text-sm font-medium text-ink">
           {label}
           {required ? <span className="ml-0.5 text-[#34d399]">*</span> : null}
         </label>
-        {hint ? <span className="text-xs text-zinc-500">{hint}</span> : null}
+        {hint ? <span className="text-xs text-ink-soft">{hint}</span> : null}
       </div>
-      {description ? <p className="text-xs leading-5 text-zinc-500">{description}</p> : null}
+      {description ? <p className="text-xs leading-5 text-ink-soft">{description}</p> : null}
       {children}
-      {error ? <p className="text-xs font-medium text-rose-300">{error}</p> : null}
+      {error ? <p className="text-xs font-medium text-rose-700">{error}</p> : null}
     </div>
   );
 }

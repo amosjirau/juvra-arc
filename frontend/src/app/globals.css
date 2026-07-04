@@ -18,6 +18,18 @@
   --font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, monospace;
   --font-heading: var(--font-display);
   --font-display: var(--font-geist-display), "General Sans", "Satoshi", "Geist", Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-fraunces), ui-serif, Georgia, "Times New Roman", serif;
+
+  /* Editorial (warm off-white) design system — reusable tokens (literal so the
+     utilities inline correctly regardless of :root var resolution) */
+  --color-paper: #f6f3ec;
+  --color-paper-raised: #fbfaf6;
+  --color-ink: #1c1917;
+  --color-ink-soft: #6b655c;
+  --color-ink-faint: #9c948a;
+  --color-line: rgba(28, 25, 23, 0.12);
+  --color-accent-purple: #b46cff;
+  --color-accent-orange: #ff7a18;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -141,6 +153,16 @@
   --dur-fast: 160ms;
   --dur-med: 320ms;
   --dur-slow: 640ms;
+
+  /* Editorial (warm off-white) system values */
+  --paper: #f6f3ec;
+  --paper-raised: #fbfaf6;
+  --ink: #1c1917;
+  --ink-soft: #6b655c;
+  --ink-faint: #9c948a;
+  --line-color: rgba(28, 25, 23, 0.12);
+  --accent-purple: #b46cff;
+  --accent-orange: #ff7a18;
 }
 
 .dark {

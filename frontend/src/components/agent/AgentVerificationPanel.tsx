@@ -8,13 +8,22 @@ import {
   Loader2,
   ReceiptText,
   Trash2,
+  Wallet,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useAccount, useSwitchChain } from "wagmi";
 
+import { ArcscanLink } from "@/components/arcscan-link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { AgentProviderMode } from "@/lib/agent/provider";
+import { useNativePayment } from "@/hooks/use-native-payment";
+import { useTransactionSuccess } from "@/hooks/use-transaction-success";
+import { arcExplorerUrl, arcTestnet } from "@/lib/arc";
+import type {
+  AgentProviderName,
+  AgentRuntimeMode,
+} from "@/lib/agent/provider";
 import type {
   SettlementImpact,
   VerificationStatus,
@@ -29,34 +38,49 @@ import type { EvidenceItem } from "@/lib/agent/evidence";
 import {
   getNanopaymentMemo,
   getVerificationCost,
+  getVerificationFeeRecipient,
   shouldRunVerification,
+  toNativeUSDCValue,
 } from "@/lib/agent/nanopaymentPolicy";
+import { errorMessage, shortAddress } from "@/lib/format";
+
+type VerificationResult = {
+  verificationId: string;
+  verificationCostUSDC: string;
+  verificationStatus: VerificationStatus;
+  checkedSignals: string[];
+  findings: string[];
+  riskFlags: string[];
+  settlementImpact: SettlementImpact;
+  receipt: {
+    jobId: string;
+    timestamp: string;
+    agent: "Juvra Verification Agent";
+    costUSDC: string;
+    memo: string;
+  };
+  safetyNotice: string;
+};
 
 type VerificationResponse =
   | {
       success: true;
-      mode: AgentProviderMode;
-      verificationId: string;
-      verificationCostUSDC: string;
-      verificationStatus: VerificationStatus;
-      checkedSignals: string[];
-      findings: string[];
-      riskFlags: string[];
-      settlementImpact: SettlementImpact;
-      receipt: {
-        jobId: string;
-        timestamp: string;
-        agent: "Juvra Verification Agent";
-        costUSDC: string;
-        memo: string;
-      };
-      safetyNotice: string;
-      warning?: string;
+      mode: AgentRuntimeMode;
+      provider: AgentProviderName;
+      result: VerificationResult;
     }
   | {
       success: false;
       error?: string;
+      details?: string;
     };
+
+// Flattened view stored in component state: the result payload plus the
+// runtime mode and provider that produced it.
+type VerificationView = VerificationResult & {
+  mode: AgentRuntimeMode;
+  provider: AgentProviderName;
+};
 
 type VerificationJob = {
   id?: string;
@@ -77,9 +101,7 @@ export function AgentVerificationPanel({
   const jobId = job?.id?.toString().trim() || "";
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [result, setResult] = useState<Extract<VerificationResponse, { success: true }> | null>(
-    null
-  );
+  const [result, setResult] = useState<VerificationView | null>(null);
   const [ledger, setLedger] = useState<AgentEconomicAction[]>([]);
   const localRiskFlags = useMemo(
     () => getLocalRiskFlags(job?.status, evidence),
@@ -98,6 +120,64 @@ export function AgentVerificationPanel({
     evidence
   );
   const canRun = Boolean(jobId && evidence.length > 0);
+
+  const { address, isConnected, chainId } = useAccount();
+  const { switchChain, isPending: isSwitching } = useSwitchChain();
+  const payment = useNativePayment();
+  const [payError, setPayError] = useState("");
+  const feeRecipient = getVerificationFeeRecipient();
+  const onArcTestnet = chainId === arcTestnet.id;
+  const feeValue = toNativeUSDCValue(estimatedCost);
+
+  useTransactionSuccess(payment.transactionHash, payment.isSuccess, () => {
+    if (!jobId || !payment.transactionHash) {
+      return;
+    }
+
+    saveAgentEconomicAction({
+      id: `agent-payment-${payment.transactionHash}`,
+      jobId,
+      type: "verification_payment",
+      amountUSDC: estimatedCost,
+      status: "completed",
+      createdAt: new Date().toISOString(),
+      description:
+        "On-chain native USDC verification fee paid on Arc Testnet (human-confirmed). The agent prepared the payment; escrow funds are not controlled by the agent.",
+      receipt: {
+        txHash: payment.transactionHash,
+        explorerUrl: `${arcExplorerUrl}/tx/${payment.transactionHash}`,
+        from: address,
+        to: feeRecipient,
+        amountUSDC: estimatedCost,
+        asset: "USDC (native, 18 decimals)",
+        chainId: arcTestnet.id,
+        network: "Arc Testnet",
+        verificationId: result?.verificationId,
+        memo: getNanopaymentMemo(jobId, "evidence-verification"),
+      },
+    });
+    setLedger(loadAgentEconomicActions(jobId));
+  });
+
+  function payVerificationFee() {
+    if (!isConnected) {
+      setPayError("Connect your wallet to pay the verification fee.");
+      return;
+    }
+
+    if (!onArcTestnet) {
+      setPayError("Switch to Arc Testnet to pay in native USDC.");
+      return;
+    }
+
+    if (feeValue <= 0n) {
+      setPayError("Add delivery evidence so a verification fee can be calculated.");
+      return;
+    }
+
+    setPayError("");
+    payment.sendTransaction({ to: feeRecipient, value: feeValue });
+  }
 
   useEffect(() => {
     /* eslint-disable react-hooks/set-state-in-effect */
@@ -139,12 +219,21 @@ export function AgentVerificationPanel({
 
       if (!response.ok || !data.success) {
         throw new Error(
-          data.success ? "Verification failed." : data.error ?? "Verification failed."
+          data.success
+            ? "Verification failed."
+            : data.error ??
+              "Live AI provider failed. Check API key, quota, model, or billing."
         );
       }
 
-      setResult(data);
-      saveVerificationLedgerEntry(jobId, data);
+      const view: VerificationView = {
+        ...data.result,
+        mode: data.mode,
+        provider: data.provider,
+      };
+
+      setResult(view);
+      saveVerificationLedgerEntry(jobId, view);
       setLedger(loadAgentEconomicActions(jobId));
     } catch (err) {
       setError(
@@ -161,20 +250,20 @@ export function AgentVerificationPanel({
   }
 
   return (
-    <Card className="premium-card-hover rounded-[2rem] border-white/10 bg-white/[0.045]">
+    <Card className="premium-card-hover rounded-[2rem] border-line bg-paper-raised">
       <CardHeader>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <CardTitle className="flex items-center gap-2 text-white">
-              <FileCheck2 className="size-5 text-emerald-200" />
+            <CardTitle className="flex items-center gap-2 text-ink">
+              <FileCheck2 className="size-5 text-emerald-700" />
               Agent verification
             </CardTitle>
-            <p className="mt-2 text-sm leading-5 text-zinc-400">
+            <p className="mt-2 text-sm leading-5 text-ink-soft">
               Juvra Agent can run a USDC-denominated verification workflow before
               recommending settlement. This does not move escrow funds.
             </p>
           </div>
-          <Badge className="border-emerald-200/20 bg-emerald-200/10 text-emerald-100">
+          <Badge className="border-emerald-600/25 bg-emerald-500/[0.06] text-emerald-700">
             {estimatedCost} USDC
           </Badge>
         </div>
@@ -189,15 +278,15 @@ export function AgentVerificationPanel({
           <SignalMetric label="Status" value={jobStatusLabel(job?.status)} />
         </div>
 
-        <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+        <div className="rounded-xl border border-line bg-paper p-3">
           <div className="mb-3 flex items-center justify-between gap-3">
-            <h3 className="text-sm font-medium text-white">Evidence items</h3>
-            <span className="text-xs text-zinc-500">
+            <h3 className="text-sm font-medium text-ink">Evidence items</h3>
+            <span className="text-xs text-ink-soft">
               Testnet/demo verification payment
             </span>
           </div>
           {evidence.length === 0 ? (
-            <p className="text-sm text-zinc-500">
+            <p className="text-sm text-ink-soft">
               No evidence is attached yet. The agent will not spend verification
               budget until delivery evidence exists.
             </p>
@@ -205,24 +294,24 @@ export function AgentVerificationPanel({
             <div className="space-y-2">
               {evidence.map((item) => (
                 <div
-                  className="rounded-lg border border-white/10 bg-white/[0.035] p-3"
+                  className="rounded-lg border border-line bg-paper p-3"
                   key={item.id}
                 >
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full border border-cyan-200/15 bg-cyan-200/10 px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-[0.14em] text-cyan-100">
+                    <span className="rounded-full border border-accent-purple/25 bg-accent-purple/[0.06] px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-[0.14em] text-accent-purple">
                       {item.type}
                     </span>
-                    <span className="text-xs text-zinc-500">
+                    <span className="text-xs text-ink-soft">
                       {formatDateTime(item.createdAt)}
                     </span>
                   </div>
                   {item.evidenceUrl && (
-                    <p className="mt-2 break-all font-mono text-xs text-emerald-100">
+                    <p className="mt-2 break-all font-mono text-xs text-emerald-700">
                       {item.evidenceUrl}
                     </p>
                   )}
                   {item.note && (
-                    <p className="mt-2 text-sm leading-5 text-zinc-300">
+                    <p className="mt-2 text-sm leading-5 text-ink">
                       {item.note}
                     </p>
                   )}
@@ -233,7 +322,7 @@ export function AgentVerificationPanel({
         </div>
 
         {localRiskFlags.length > 0 && (
-          <div className="rounded-xl border border-amber-200/20 bg-amber-200/10 p-3 text-sm text-amber-100">
+          <div className="rounded-xl border border-accent-orange/30 bg-accent-orange/[0.06] p-3 text-sm text-accent-orange">
             <div className="flex gap-2">
               <AlertTriangle className="mt-0.5 size-4 shrink-0" />
               <div>
@@ -249,7 +338,7 @@ export function AgentVerificationPanel({
         )}
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs leading-5 text-zinc-500">
+          <p className="text-xs leading-5 text-ink-soft">
             Escrow funds are not controlled by the agent. Final release, refund,
             cancellation, and dispute actions still require a human click and wallet
             confirmation.
@@ -270,27 +359,99 @@ export function AgentVerificationPanel({
         </div>
 
         {error && (
-          <p className="rounded-xl border border-rose-300/20 bg-rose-300/10 p-3 text-sm text-rose-100">
+          <p className="rounded-xl border border-rose-300/40 bg-rose-500/[0.06] p-3 text-sm text-rose-700">
             {error}
           </p>
         )}
 
         {result && <VerificationResultBlock result={result} />}
 
-        <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+        <div className="rounded-xl border border-emerald-600/25 bg-emerald-500/[0.06] p-3">
+          <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h3 className="flex items-center gap-2 text-sm font-medium text-ink">
+                <Wallet className="size-4 text-emerald-700" />
+                On-chain verification fee
+              </h3>
+              <p className="mt-1 text-xs leading-5 text-ink-soft">
+                Pay a real native-USDC verification fee on Arc Testnet. You confirm
+                it in your wallet. This is separate from escrow, and the agent
+                never signs.
+              </p>
+            </div>
+            <Badge className="border-emerald-600/25 bg-emerald-500/[0.06] text-emerald-700">
+              {estimatedCost} USDC
+            </Badge>
+          </div>
+
+          <div className="grid gap-2 sm:grid-cols-2">
+            <SignalMetric label="Recipient" value={shortAddress(feeRecipient)} />
+            <SignalMetric label="Network" value="Arc Testnet · native USDC" />
+          </div>
+
+          {!isConnected ? (
+            <p className="mt-3 text-sm text-ink-soft">
+              Connect your wallet to pay the verification fee.
+            </p>
+          ) : !onArcTestnet ? (
+            <Button
+              className="mt-3 w-full sm:w-fit"
+              disabled={isSwitching}
+              onClick={() => switchChain({ chainId: arcTestnet.id })}
+              type="button"
+              variant="outline"
+            >
+              {isSwitching ? <Loader2 className="size-4 animate-spin" /> : null}
+              Switch to Arc Testnet
+            </Button>
+          ) : (
+            <Button
+              className="mt-3 w-full sm:w-fit"
+              disabled={payment.isPending || feeValue <= 0n}
+              onClick={payVerificationFee}
+              type="button"
+            >
+              {payment.isPending ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Wallet className="size-4" />
+              )}
+              {payment.isPending
+                ? "Confirm in wallet..."
+                : `Pay ${estimatedCost} USDC verification fee`}
+            </Button>
+          )}
+
+          {payError && <p className="mt-2 text-xs text-rose-700">{payError}</p>}
+          {payment.error && (
+            <p className="mt-2 text-xs text-rose-700">
+              {errorMessage(payment.error)}
+            </p>
+          )}
+          {payment.isSuccess && payment.transactionHash && (
+            <div className="mt-3 flex flex-col gap-1 rounded-lg border border-emerald-600/25 bg-emerald-500/[0.06] p-2">
+              <span className="text-xs font-medium text-emerald-700">
+                Verification fee paid on Arc Testnet (human-confirmed).
+              </span>
+              <ArcscanLink hash={payment.transactionHash} />
+            </div>
+          )}
+        </div>
+
+        <div className="rounded-xl border border-line bg-paper p-3">
           <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h3 className="flex items-center gap-2 text-sm font-medium text-white">
-                <ReceiptText className="size-4 text-cyan-100" />
+              <h3 className="flex items-center gap-2 text-sm font-medium text-ink">
+                <ReceiptText className="size-4 text-accent-purple" />
                 Agent economic action log
               </h3>
-              <p className="mt-1 text-xs text-zinc-500">
+              <p className="mt-1 text-xs text-ink-soft">
                 Transparent local ledger for demo/testnet agent verification
                 workflow.
               </p>
             </div>
             <Button
-              className="h-8 px-2 text-rose-100 hover:text-rose-50"
+              className="h-8 px-2 text-rose-700 hover:text-rose-700"
               disabled={ledger.length === 0}
               onClick={clearLedger}
               size="sm"
@@ -302,37 +463,42 @@ export function AgentVerificationPanel({
             </Button>
           </div>
           {ledger.length === 0 ? (
-            <p className="text-sm text-zinc-500">
+            <p className="text-sm text-ink-soft">
               No agent economic actions have been recorded for this job.
             </p>
           ) : (
             <div className="space-y-2">
               {ledger.map((action) => (
                 <div
-                  className="rounded-lg border border-white/10 bg-white/[0.035] p-3"
+                  className="rounded-lg border border-line bg-paper p-3"
                   key={action.id}
                 >
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                      <p className="text-sm font-medium text-white">
+                      <p className="text-sm font-medium text-ink">
                         {formatActionType(action.type)}
                       </p>
-                      <p className="mt-1 text-xs leading-5 text-zinc-400">
+                      <p className="mt-1 text-xs leading-5 text-ink-soft">
                         {action.description}
                       </p>
                     </div>
                     <div className="text-left sm:text-right">
-                      <p className="font-mono text-sm text-emerald-100">
+                      <p className="font-mono text-sm text-emerald-700">
                         {action.amountUSDC} USDC
                       </p>
-                      <p className="mt-1 text-xs capitalize text-zinc-500">
+                      <p className="mt-1 text-xs capitalize text-ink-soft">
                         {action.status}
                       </p>
                     </div>
                   </div>
-                  <p className="mt-2 text-xs text-zinc-500">
-                    {formatDateTime(action.createdAt)}
-                  </p>
+                  <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-xs text-ink-soft">
+                      {formatDateTime(action.createdAt)}
+                    </p>
+                    {getReceiptTxHash(action.receipt) && (
+                      <ArcscanLink hash={getReceiptTxHash(action.receipt)} />
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -343,20 +509,16 @@ export function AgentVerificationPanel({
   );
 }
 
-function VerificationResultBlock({
-  result,
-}: {
-  result: Extract<VerificationResponse, { success: true }>;
-}) {
+function VerificationResultBlock({ result }: { result: VerificationView }) {
   return (
-    <div className="space-y-3 rounded-xl border border-emerald-200/20 bg-emerald-200/10 p-3">
+    <div className="space-y-3 rounded-xl border border-emerald-600/25 bg-emerald-500/[0.06] p-3">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h3 className="flex items-center gap-2 text-sm font-medium text-emerald-50">
+          <h3 className="flex items-center gap-2 text-sm font-medium text-emerald-700">
             <CheckCircle2 className="size-4" />
             Verification receipt
           </h3>
-          <p className="mt-1 break-all font-mono text-xs text-emerald-100/80">
+          <p className="mt-1 break-all font-mono text-xs text-emerald-700">
             {result.verificationId}
           </p>
         </div>
@@ -366,7 +528,7 @@ function VerificationResultBlock({
       </div>
 
       <div className="grid gap-2 sm:grid-cols-3">
-        <SignalMetric label="Mode" value={result.mode} />
+        <SignalMetric label="Mode" value={`${result.provider} · ${result.mode}`} />
         <SignalMetric label="Cost" value={`${result.verificationCostUSDC} USDC`} />
         <SignalMetric
           label="Impact"
@@ -380,7 +542,7 @@ function VerificationResultBlock({
         <ResultList items={result.riskFlags} label="Risk flags" />
       )}
 
-      <p className="rounded-lg border border-amber-200/20 bg-amber-200/10 p-2 text-xs leading-5 text-amber-100">
+      <p className="rounded-lg border border-accent-orange/30 bg-accent-orange/[0.06] p-2 text-xs leading-5 text-accent-orange">
         {result.safetyNotice}
       </p>
     </div>
@@ -389,9 +551,9 @@ function VerificationResultBlock({
 
 function SignalMetric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-white/10 bg-black/25 p-3">
-      <p className="text-xs text-zinc-500">{label}</p>
-      <p className="mt-1 break-words text-sm font-medium text-white">{value}</p>
+    <div className="rounded-lg border border-line bg-paper p-3">
+      <p className="text-xs text-ink-soft">{label}</p>
+      <p className="mt-1 break-words text-sm font-medium text-ink">{value}</p>
     </div>
   );
 }
@@ -399,10 +561,10 @@ function SignalMetric({ label, value }: { label: string; value: string }) {
 function ResultList({ items, label }: { items: string[]; label: string }) {
   return (
     <div>
-      <p className="mb-1 text-xs font-medium uppercase tracking-[0.14em] text-zinc-500">
+      <p className="mb-1 text-xs font-medium uppercase tracking-[0.14em] text-ink-soft">
         {label}
       </p>
-      <ul className="list-disc space-y-1 pl-4 text-sm leading-5 text-zinc-200">
+      <ul className="list-disc space-y-1 pl-4 text-sm leading-5 text-ink">
         {items.map((item) => (
           <li key={item}>{item}</li>
         ))}
@@ -413,7 +575,7 @@ function ResultList({ items, label }: { items: string[]; label: string }) {
 
 function saveVerificationLedgerEntry(
   jobId: string,
-  result: Extract<VerificationResponse, { success: true }>
+  result: VerificationView
 ) {
   saveAgentEconomicAction({
     id: `agent-action-${result.verificationId}`,
@@ -512,14 +674,14 @@ function jobStatusLabel(status: number | undefined) {
 function statusBadgeClass(status: VerificationStatus) {
   switch (status) {
     case "passed":
-      return "border-emerald-200/20 bg-emerald-200/10 text-emerald-100";
+      return "border-emerald-600/25 bg-emerald-500/[0.06] text-emerald-700";
     case "warning":
-      return "border-amber-200/20 bg-amber-200/10 text-amber-100";
+      return "border-accent-orange/30 bg-accent-orange/[0.06] text-accent-orange";
     case "failed":
-      return "border-rose-300/20 bg-rose-300/10 text-rose-100";
+      return "border-rose-300/40 bg-rose-500/[0.06] text-rose-700";
     case "needs_review":
     default:
-      return "border-cyan-200/20 bg-cyan-200/10 text-cyan-100";
+      return "border-accent-purple/25 bg-accent-purple/[0.06] text-accent-purple";
   }
 }
 
@@ -533,6 +695,14 @@ function formatSettlementImpact(impact: SettlementImpact) {
 
 function formatActionType(type: AgentEconomicAction["type"]) {
   return type.replaceAll("_", " ");
+}
+
+function getReceiptTxHash(receipt: object): `0x${string}` | undefined {
+  const value = (receipt as { txHash?: unknown }).txHash;
+
+  return typeof value === "string" && /^0x[a-fA-F0-9]{64}$/.test(value)
+    ? (value as `0x${string}`)
+    : undefined;
 }
 
 function formatDateTime(timestamp: string) {

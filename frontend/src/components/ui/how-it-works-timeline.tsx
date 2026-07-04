@@ -13,7 +13,7 @@ const toneClasses: Record<Tone, string> = {
   emerald: "border-status-open/30 bg-status-open/10 text-status-open",
   sky: "border-status-assigned/30 bg-status-assigned/10 text-status-assigned",
   amber: "border-status-disputed/30 bg-status-disputed/10 text-status-disputed",
-  rose: "border-rose-400/30 bg-rose-500/10 text-rose-200",
+  rose: "border-rose-300/40 bg-rose-500/[0.06] text-rose-700",
 };
 
 export type TimelineStep = {

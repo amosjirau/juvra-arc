@@ -17,7 +17,7 @@ export function ArcscanLink({
   return (
     <a
       className={cn(
-        "inline-flex items-center gap-1 text-xs font-medium text-emerald-300 hover:text-emerald-200",
+        "inline-flex items-center gap-1 text-xs font-medium text-emerald-700 hover:text-emerald-700",
         className,
       )}
       href={`${arcExplorerUrl}/tx/${hash}`}

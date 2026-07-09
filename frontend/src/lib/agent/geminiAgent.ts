@@ -617,7 +617,7 @@ export async function recommendActionGemini(context: {
   walletRole?: string;
 }): Promise<AgentRecommendation> {
   return callGeminiJson<AgentRecommendation>(
-    "Recommend the safest human action for this escrow case using the job context, previous agent results, evidence, status, submission URI, deadline, and connected wallet role. Return suggestedAction only from the allowed enum. The agent cannot release funds, refund funds, sign transactions, select freelancers, resolve disputes, or make final legal decisions.",
+    "Recommend the safest human action for this escrow case using the job context, previous agent results, evidence, status, submission URI, deadline, and connected wallet role. Return suggestedAction only from the allowed enum. The agent executes escrow settlement only after a party records an approve/reject verdict on-chain, and the contract fixes the settlement direction to that verdict. The agent cannot choose recipients, sign for users, select freelancers, resolve disputes, or make final legal decisions.",
     context,
     recommendationSchema
   );

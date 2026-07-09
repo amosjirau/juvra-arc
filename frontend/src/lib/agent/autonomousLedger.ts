@@ -36,3 +36,27 @@ export function getAutonomousPayments(jobId?: string): AutonomousPayment[] {
 export function getSessionSpentUSDC(): number {
   return sessionSpentUSDC;
 }
+
+// Escrow settlements the agent executed. These move ESCROW funds along the
+// direction the parties recorded on-chain — they are not agent spends, so they
+// never count against the agent's session budget.
+export type AgentSettlement = {
+  id: string;
+  jobId: string;
+  direction: "release" | "refund";
+  amountUSDC: string;
+  recipient: Address;
+  txHash: string;
+  explorerUrl: string;
+  createdAt: string;
+};
+
+const settlements: AgentSettlement[] = [];
+
+export function recordAgentSettlement(settlement: AgentSettlement): void {
+  settlements.unshift(settlement);
+}
+
+export function getAgentSettlements(jobId?: string): AgentSettlement[] {
+  return jobId ? settlements.filter((item) => item.jobId === jobId) : settlements;
+}

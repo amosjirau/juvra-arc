@@ -6,6 +6,8 @@ export const jobStatuses = [
   "Disputed",
   "Refunded",
   "Cancelled",
+  "Client Approved",
+  "Client Rejected",
 ] as const;
 
 export type JobStatus = (typeof jobStatuses)[number];
@@ -17,6 +19,11 @@ export function getStatusLabel(status: number | undefined) {
 
 export function isTerminalJobStatus(status: number | undefined) {
   return status === 3 || status === 5 || status === 6;
+}
+
+/** A client verdict is recorded and the job awaits agent settlement. */
+export function hasRecordedVerdict(status: number | undefined) {
+  return status === 7 || status === 8;
 }
 
 export function getAgentStatusGuidance(status: number | undefined) {
@@ -62,6 +69,20 @@ export function getAgentStatusGuidance(status: number | undefined) {
         defaultMode: "recommendation" as const,
         title: "Cancelled job",
         guidance: "Show the final state and historical analysis only. Avoid action prompts.",
+      };
+    case 7:
+      return {
+        defaultMode: "recommendation" as const,
+        title: "Client approved — awaiting agent settlement",
+        guidance:
+          "The client approved the work. The agent should execute the on-chain release to the freelancer; the direction is fixed by the recorded verdict.",
+      };
+    case 8:
+      return {
+        defaultMode: "recommendation" as const,
+        title: "Client rejected — awaiting agent settlement",
+        guidance:
+          "The client rejected the work. The agent should execute the on-chain refund to the client; the direction is fixed by the recorded verdict.",
       };
     default:
       return {

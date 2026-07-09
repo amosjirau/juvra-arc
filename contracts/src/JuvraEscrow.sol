@@ -12,7 +12,9 @@ contract JuvraEscrow is Ownable, ReentrancyGuard {
         Approved,
         Disputed,
         Refunded,
-        Cancelled
+        Cancelled,
+        ClientApproved,
+        ClientRejected
     }
 
     struct Job {
@@ -31,6 +33,7 @@ contract JuvraEscrow is Ownable, ReentrancyGuard {
 
     uint256 public jobCount;
     address public arbitrator;
+    address public agentSettler;
 
     mapping(uint256 => Job) public jobs;
     mapping(uint256 => address[]) private applicants;
@@ -49,6 +52,14 @@ contract JuvraEscrow is Ownable, ReentrancyGuard {
     event DisputeRaised(uint256 indexed jobId, address indexed raisedBy);
     event DisputeResolved(uint256 indexed jobId, bool clientWins, uint256 amount);
     event JobCancelled(uint256 indexed jobId, uint256 refundAmount);
+    event VerdictRecorded(uint256 indexed jobId, bool approved, address indexed client);
+    event AgentSettled(
+        uint256 indexed jobId,
+        bool approved,
+        address indexed recipient,
+        uint256 amount,
+        address executor
+    );
 
     error InvalidJob();
     error InvalidAddress();
@@ -101,12 +112,13 @@ contract JuvraEscrow is Ownable, ReentrancyGuard {
         _;
     }
 
-    constructor(address initialArbitrator) Ownable(msg.sender) {
-        if (initialArbitrator == address(0)) {
+    constructor(address initialArbitrator, address initialAgentSettler) Ownable(msg.sender) {
+        if (initialArbitrator == address(0) || initialAgentSettler == address(0)) {
             revert InvalidAddress();
         }
 
         arbitrator = initialArbitrator;
+        agentSettler = initialAgentSettler;
     }
 
     function setArbitrator(address newArbitrator) external onlyOwner {
@@ -115,6 +127,14 @@ contract JuvraEscrow is Ownable, ReentrancyGuard {
         }
 
         arbitrator = newArbitrator;
+    }
+
+    function setAgentSettler(address newAgentSettler) external onlyOwner {
+        if (newAgentSettler == address(0)) {
+            revert InvalidAddress();
+        }
+
+        agentSettler = newAgentSettler;
     }
 
     function postJob(
@@ -232,6 +252,55 @@ contract JuvraEscrow is Ownable, ReentrancyGuard {
         _sendValue(freelancer, amount);
 
         emit PaymentReleased(jobId, freelancer, amount);
+    }
+
+    /// @notice The client records an approve/reject verdict on submitted work.
+    /// No funds move; the verdict fixes the only direction settlement may take.
+    function recordVerdict(uint256 jobId, bool approved)
+        external
+        jobExists(jobId)
+        onlyClient(jobId)
+        inStatus(jobId, Status.Submitted)
+    {
+        jobs[jobId].status = approved ? Status.ClientApproved : Status.ClientRejected;
+
+        emit VerdictRecorded(jobId, approved, msg.sender);
+    }
+
+    /// @notice Executes settlement of a recorded verdict: release to the
+    /// freelancer on approve, refund to the client on reject. Callable by the
+    /// agent settler or either party; the recorded verdict — not the caller —
+    /// determines where funds go.
+    function agentSettle(uint256 jobId)
+        external
+        nonReentrant
+        jobExists(jobId)
+    {
+        Job storage job = jobs[jobId];
+
+        if (
+            msg.sender != agentSettler &&
+            msg.sender != job.client &&
+            msg.sender != job.freelancer
+        ) {
+            revert Unauthorized();
+        }
+
+        Status current = job.status;
+        if (current != Status.ClientApproved && current != Status.ClientRejected) {
+            revert InvalidStatus(current, Status.ClientApproved);
+        }
+
+        bool approved = current == Status.ClientApproved;
+        uint256 amount = job.amount;
+        address recipient = approved ? job.freelancer : job.client;
+
+        job.amount = 0;
+        job.status = approved ? Status.Approved : Status.Refunded;
+
+        _sendValue(recipient, amount);
+
+        emit AgentSettled(jobId, approved, recipient, amount, msg.sender);
     }
 
     function raiseDispute(uint256 jobId)

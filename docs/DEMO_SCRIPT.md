@@ -44,14 +44,19 @@ Fill title/budget quickly, submit, confirm the two wallet prompts (approve + fun
 Open job #1. Point at the disclaimer banner, then run the **Scope Builder** live.
 
 > "This is the agentic layer. A live AI agent — no mocks — structures the work:
-> milestones, acceptance criteria, evidence requirements, risk notes. But read
-> the banner: the agent never releases funds, never signs for a user, never
-> picks a freelancer. Every escrow action still requires an explicit human
-> wallet confirmation."
+> milestones, acceptance criteria, evidence requirements, risk notes. And here's
+> the autonomy: the client records an approve or reject verdict — one cheap
+> wallet confirmation that moves no funds — and the agent settles the escrow
+> itself. The contract pins the direction to the verdict: release on approve,
+> refund on reject. The agent decides when, never where."
 
-Then click **Approve work** on the submitted job and confirm in wallet — USDC releases to the freelancer.
+Then click **Approve — agent releases payment** on the submitted job, confirm the
+verdict in the wallet, and watch the agent execute the release autonomously —
+its settlement tx appears with an Arcscan link. (For a rejected job, the same
+flow refunds the client instantly.)
 
-**Judging hook:** real live agent + hard safety boundary between agent and money.
+**Judging hook:** real live agent that moves escrow autonomously + a provable
+on-chain guardrail (verdict-gated direction) between agent and money.
 
 ### 1:30 – 2:20 — Agent treasury (`/agent-treasury`) — the centerpiece
 Show the agent's own Circle Programmable Wallet balance, then run one live action

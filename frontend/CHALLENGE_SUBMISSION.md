@@ -91,12 +91,12 @@ Note: the nanopayment verification fee, autonomous agent payments, agent-to-agen
 
 ## Safety Model
 
-- AI never releases escrow funds automatically.
-- AI never refunds escrow funds automatically.
+- Escrow settlement is verdict-gated: the client records an approve/reject verdict on-chain (a human wallet confirmation that moves no funds), then the agent executes the settlement autonomously. The contract fixes the direction — release to the freelancer on approve, refund to the client on reject — so the agent can never choose where escrow funds go.
 - AI never signs user wallet transactions.
 - AI never selects freelancers automatically.
-- AI never resolves disputes automatically.
-- Every escrow write action requires explicit human click and wallet confirmation.
+- AI never resolves disputes automatically (dispute resolution stays with the human arbitrator).
+- If the agent is offline, either party can execute a recorded verdict themselves (`agentSettle` is also callable by the job's client and freelancer).
+- Every verdict, dispute, and manual escrow action requires an explicit human click and wallet confirmation.
 - Agent verification is advisory only.
 - Agent economic action logs are local demo/testnet records and are not fake escrow data.
 

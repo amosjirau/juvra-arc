@@ -257,6 +257,26 @@ function buildTimelineItems({
     });
   });
 
+  if (job.status === 7) {
+    items.push({
+      detail: "The client approved the work on-chain. The agent settles the release.",
+      icon: CheckCircle2,
+      order: 95,
+      title: "Client verdict: approve — awaiting agent settlement",
+      tone: "emerald",
+    });
+  }
+
+  if (job.status === 8) {
+    items.push({
+      detail: "The client rejected the work on-chain. The agent settles the refund.",
+      icon: Scale,
+      order: 96,
+      title: "Client verdict: reject — awaiting agent settlement",
+      tone: "rose",
+    });
+  }
+
   if (job.status === 3) {
     items.push({
       detail: "Contract status indicates work has been approved.",

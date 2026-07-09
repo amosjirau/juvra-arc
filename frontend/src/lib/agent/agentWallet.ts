@@ -2,8 +2,8 @@
 //
 // This is the agent's OWN wallet, funded with a small USDC budget. The agent
 // signs and sends nanopayments from it autonomously — it is NOT the user's
-// wallet and it NEVER touches escrow. The user's escrow release/refund/dispute
-// actions remain human-clicked and wallet-confirmed.
+// wallet. Escrow settlement is executed separately via escrowSettler.ts, where
+// the contract enforces that funds only move along a party-recorded verdict.
 //
 // The implementation is behind an interface so a Circle Programmable Wallet can
 // be swapped in later without changing the routes that consume it.

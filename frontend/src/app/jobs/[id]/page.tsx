@@ -343,7 +343,12 @@ export default function JobDetailPage() {
                 job={job}
                 onSettled={refresh}
               />
-              <SettlementActions isClient={isClient} job={job} onSettled={refresh} />
+              <SettlementActions
+                isClient={isClient}
+                isParty={isClient || isSelectedFreelancer}
+                job={job}
+                onSettled={refresh}
+              />
               <Button
                 className="w-full border-rose-300/40 bg-rose-500/[0.06] text-rose-700 hover:bg-rose-500/[0.06]"
                 disabled={!isClient || job.status !== 0 || actionTx.isPending}

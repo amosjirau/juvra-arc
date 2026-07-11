@@ -1,6 +1,6 @@
 "use client";
 
-import { Bot, CheckCircle2, CircleX, RotateCw } from "lucide-react";
+import { Bot, CheckCircle2, CircleX, RotateCw, Wallet } from "lucide-react";
 import { useCallback, useState } from "react";
 
 import { ArcscanLink } from "@/components/arcscan-link";
@@ -33,13 +33,17 @@ type SettlementResult = {
 export function SettlementActions({
   job,
   isClient,
+  isParty,
   onSettled,
 }: {
   job: JuvraJob;
   isClient: boolean;
+  /** Connected wallet is the job's client or selected freelancer. */
+  isParty: boolean;
   onSettled: () => void;
 }) {
   const verdictTx = useEscrowWrite();
+  const walletSettleTx = useEscrowWrite();
   const [settlePhase, setSettlePhase] = useState<SettlePhase>("idle");
   const [settleError, setSettleError] = useState<string | undefined>();
   const [settlement, setSettlement] = useState<SettlementResult>({});
@@ -89,6 +93,11 @@ export function SettlementActions({
     verdictTx.transactionHash,
     verdictTx.isSuccess,
     handleVerdictConfirmed
+  );
+  useTransactionSuccess(
+    walletSettleTx.transactionHash,
+    walletSettleTx.isSuccess,
+    onSettled
   );
 
   const recordVerdict = (approved: boolean) => {
@@ -181,6 +190,50 @@ export function SettlementActions({
             ? "Trigger agent settlement (release)"
             : "Trigger agent settlement (refund)"}
         </Button>
+      ) : null}
+
+      {hasRecordedVerdict(job.status) && isParty ? (
+        <>
+          <Button
+            className="w-full"
+            disabled={walletSettleTx.isPending}
+            onClick={() =>
+              walletSettleTx.writeContract({
+                address: juvraEscrowAddress,
+                abi: juvraEscrowAbi,
+                functionName: "agentSettle",
+                args: [job.id],
+              })
+            }
+            variant="outline"
+          >
+            <Wallet className="size-4" />
+            {walletSettleTx.isPending
+              ? "Confirming..."
+              : "Settle from your wallet (agent offline fallback)"}
+          </Button>
+          <TxStatus
+            status={
+              walletSettleTx.error
+                ? "error"
+                : walletSettleTx.isPending
+                  ? "pending"
+                  : walletSettleTx.isSuccess
+                    ? "success"
+                    : "idle"
+            }
+            message={
+              walletSettleTx.error
+                ? errorMessage(walletSettleTx.error)
+                : undefined
+            }
+            hash={walletSettleTx.transactionHash}
+          />
+          <p className="text-xs text-ink-soft">
+            The recorded verdict fixes the settlement direction on-chain, so
+            either party can execute it directly if the agent is unavailable.
+          </p>
+        </>
       ) : null}
     </div>
   );

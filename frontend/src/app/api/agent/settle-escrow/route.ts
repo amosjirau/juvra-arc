@@ -23,6 +23,16 @@ const STATUS_REFUNDED = 5;
 const STATUS_CLIENT_APPROVED = 7;
 const STATUS_CLIENT_REJECTED = 8;
 
+type SettleOutcome = {
+  httpStatus: number;
+  payload: Record<string, unknown>;
+};
+
+// Per-job single-flight: concurrent requests for the same job share one
+// settlement attempt instead of broadcasting duplicate transactions that
+// revert on-chain and waste the agent's gas.
+const inFlightSettlements = new Map<string, Promise<SettleOutcome>>();
+
 // The agent executes the settlement of a party-recorded verdict. The contract
 // enforces the direction (release on approve, refund on reject), so this route
 // only decides WHEN to act — it re-reads on-chain state and is idempotent.
@@ -35,17 +45,43 @@ export async function POST(req: Request) {
       throw new Error("jobId is required.");
     }
 
+    let pending = inFlightSettlements.get(jobIdRaw);
+
+    if (!pending) {
+      pending = settleJob(jobIdRaw).finally(() => {
+        inFlightSettlements.delete(jobIdRaw);
+      });
+      inFlightSettlements.set(jobIdRaw, pending);
+    }
+
+    const outcome = await pending;
+
+    return NextResponse.json(outcome.payload, { status: outcome.httpStatus });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Agent settlement failed.",
+      },
+      { status: 500 }
+    );
+  }
+}
+
+async function settleJob(jobIdRaw: string): Promise<SettleOutcome> {
+  try {
     const jobId = BigInt(jobIdRaw);
 
     if (!isSettlerConfigured()) {
-      return NextResponse.json(
-        {
+      return {
+        httpStatus: 503,
+        payload: {
           success: false,
           error:
             "Agent wallet is not configured. Set AGENT_WALLET_PRIVATE_KEY, or settle directly from your wallet — the contract lets either party execute a recorded verdict.",
         },
-        { status: 503 }
-      );
+      };
     }
 
     const [job, onChainSettler] = await Promise.all([
@@ -54,34 +90,33 @@ export async function POST(req: Request) {
     ]);
 
     if (!job) {
-      return NextResponse.json(
-        { success: false, error: `Job ${jobIdRaw} not found on-chain.` },
-        { status: 404 }
-      );
+      return {
+        httpStatus: 404,
+        payload: { success: false, error: `Job ${jobIdRaw} not found on-chain.` },
+      };
     }
 
     // Idempotent: a settled job is a success, not an error — retries converge.
     if (job.status === STATUS_APPROVED || job.status === STATUS_REFUNDED) {
-      return NextResponse.json({
-        success: true,
-        alreadySettled: true,
-        status: job.status,
-      });
+      return {
+        httpStatus: 200,
+        payload: { success: true, alreadySettled: true, status: job.status },
+      };
     }
 
     if (
       job.status !== STATUS_CLIENT_APPROVED &&
       job.status !== STATUS_CLIENT_REJECTED
     ) {
-      return NextResponse.json(
-        {
+      return {
+        httpStatus: 409,
+        payload: {
           success: false,
           error:
             "No verdict recorded for this job yet. The client must approve or reject the submitted work first.",
           status: job.status,
         },
-        { status: 409 }
-      );
+      };
     }
 
     const settlerAddress = getSettlerAddress();
@@ -90,27 +125,27 @@ export async function POST(req: Request) {
       !settlerAddress ||
       settlerAddress.toLowerCase() !== onChainSettler.toLowerCase()
     ) {
-      return NextResponse.json(
-        {
+      return {
+        httpStatus: 409,
+        payload: {
           success: false,
           error: `Configured agent wallet ${settlerAddress} is not the contract's agentSettler (${onChainSettler}). Redeploy with AGENT_SETTLER_ADDRESS or call setAgentSettler as owner.`,
         },
-        { status: 409 }
-      );
+      };
     }
 
     const gasBalance = await getSettlerGasBalance();
 
     if (gasBalance < GAS_BUFFER) {
-      return NextResponse.json(
-        {
+      return {
+        httpStatus: 402,
+        payload: {
           success: false,
           error: `Agent wallet has insufficient USDC for gas. Fund ${settlerAddress} on Arc Testnet.`,
           address: settlerAddress,
           balanceUSDC: Number(formatEther(gasBalance)).toFixed(4),
         },
-        { status: 402 }
-      );
+      };
     }
 
     const approved = job.status === STATUS_CLIENT_APPROVED;
@@ -130,11 +165,10 @@ export async function POST(req: Request) {
         latest &&
         (latest.status === STATUS_APPROVED || latest.status === STATUS_REFUNDED)
       ) {
-        return NextResponse.json({
-          success: true,
-          alreadySettled: true,
-          status: latest.status,
-        });
+        return {
+          httpStatus: 200,
+          payload: { success: true, alreadySettled: true, status: latest.status },
+        };
       }
 
       throw error;
@@ -153,22 +187,25 @@ export async function POST(req: Request) {
 
     recordAgentSettlement(settlement);
 
-    return NextResponse.json({
-      success: true,
-      autonomous: true,
-      settlement,
-      safetyNotice:
-        "The agent executed a settlement whose direction was fixed on-chain by the client's verdict. The agent cannot choose where escrow funds go.",
-    });
+    return {
+      httpStatus: 200,
+      payload: {
+        success: true,
+        autonomous: true,
+        settlement,
+        safetyNotice:
+          "The agent executed a settlement whose direction was fixed on-chain by the client's verdict. The agent cannot choose where escrow funds go.",
+      },
+    };
   } catch (error) {
-    return NextResponse.json(
-      {
+    return {
+      httpStatus: 500,
+      payload: {
         success: false,
         error:
           error instanceof Error ? error.message : "Agent settlement failed.",
       },
-      { status: 500 }
-    );
+    };
   }
 }
 

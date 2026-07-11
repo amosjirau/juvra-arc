@@ -42,7 +42,8 @@ export function DisputePanel({
       <CardContent className="space-y-4">
         <p className="text-sm text-ink-soft">
           Clients or selected freelancers can raise a dispute after assignment. The configured
-          arbitrator can resolve funds to either side.
+          arbitrator can resolve funds to either side. Raise it before a verdict is recorded —
+          once the client approves or rejects, the dispute window closes and the agent settles.
         </p>
         <Button
           className="w-full border-accent-orange/30 bg-accent-orange/[0.06] text-accent-orange hover:bg-accent-orange/[0.06]"

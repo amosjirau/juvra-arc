@@ -314,7 +314,7 @@ export function recommendActionMock(context: {
       requiredHumanAction:
         "No escrow action is suggested. Humans may review the record for audit purposes.",
       safetyNotice:
-        "Juvra Agent is advisory only and cannot release, refund, sign, or resolve escrow.",
+        "Juvra Agent settles escrow only along a party-recorded on-chain verdict; it cannot choose recipients, sign for users, or resolve disputes.",
     };
   }
 
@@ -340,7 +340,7 @@ export function recommendActionMock(context: {
       requiredHumanAction:
         "The authorized client must inspect the delivery and confirm release with a wallet signature.",
       safetyNotice:
-        "The agent never releases escrow funds. It only suggests what a human may choose to confirm.",
+        "The agent executes settlement only after the client records an on-chain verdict fixing the direction; it never chooses where funds go.",
     };
   }
 
@@ -378,7 +378,7 @@ export function recommendActionMock(context: {
     requiredHumanAction:
       "A human should gather more evidence or run the relevant risk, delivery, and dispute analyses.",
     safetyNotice:
-      "Juvra Agent is advisory only. Every escrow write still requires explicit wallet confirmation.",
+      "Juvra Agent settles escrow only along a party-recorded on-chain verdict. Verdicts, disputes, and manual actions require explicit wallet confirmation.",
   };
 }
 

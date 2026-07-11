@@ -214,7 +214,7 @@ export function normalizeRecommendationResult(
     safetyNotice:
       typeof result.safetyNotice === "string"
         ? result.safetyNotice
-        : "Juvra Agent is advisory only and cannot release, refund, sign, or resolve escrow.",
+        : "Juvra Agent settles escrow only along a party-recorded on-chain verdict; it cannot choose recipients, sign for users, or resolve disputes.",
   };
 }
 

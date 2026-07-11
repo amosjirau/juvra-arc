@@ -500,7 +500,7 @@ export default function AgentPanel({
         )}
 
         <p className="rounded-md border border-accent-orange/30 bg-accent-orange/[0.06] p-2 text-[0.66rem] leading-4 text-accent-orange">
-          Decision support only. The agent cannot release or refund funds.
+          Decision support. Settlement runs only along a party-recorded on-chain verdict.
         </p>
 
         <Button

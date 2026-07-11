@@ -41,6 +41,8 @@ export function AgentGatewayPanel() {
   }, []);
 
   useEffect(() => {
+    // Async status fetch: setState runs after the network await, not sync.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     refresh();
   }, [refresh]);
 

@@ -1,6 +1,6 @@
 # Juvra Architecture
 
-Juvra separates agentic decision support from escrow authority. Agents can analyze scope, evidence, disputes, and verification signals. Escrow funds move only through explicit human wallet confirmation.
+Juvra separates human intent from agent execution. Agents analyze scope, evidence, disputes, and verification signals, and autonomously execute escrow settlement — but only along a verdict the client recorded on-chain. Recording a verdict (approve/reject) is a human wallet confirmation that moves no funds; the contract then only lets the agent settle in that direction: release to the freelancer on approve, refund to the client on reject.
 
 ## System Diagram
 
@@ -43,7 +43,7 @@ flowchart TD
 3. `/api/agent/verify-evidence` returns a verification receipt.
 4. The receipt is stored in the local agent economic action ledger.
 5. The recommendation engine may use the verification result as context.
-6. A human still chooses and confirms any escrow write action.
+6. A human records the approve/reject verdict; the agent executes the resulting settlement on-chain.
 
 ## Circle Product Positioning
 
@@ -52,7 +52,7 @@ Live / implemented:
 - Arc smart contract escrow
 - USDC-denominated escrow logic
 - Agentic risk/recommendation backend
-- Manual wallet-confirmed settlement actions
+- Verdict-gated autonomous agent settlement (recordVerdict -> agentSettle), with manual wallet-confirmed fallbacks
 
 Future-ready / planned:
 
@@ -64,4 +64,4 @@ Future-ready / planned:
 
 ## Safety Boundary
 
-The agent is allowed to analyze, verify, record receipts, and recommend. The agent is not allowed to release escrow, refund escrow, sign wallet transactions, select freelancers, or resolve disputes.
+The agent is allowed to analyze, verify, record receipts, recommend, and execute verdict-gated settlement. The contract's agentSettle() only moves escrow along the direction of the client's recorded verdict, so the agent decides when settlement happens, never where funds go. The agent is not allowed to sign user wallet transactions, select freelancers, or resolve disputes.

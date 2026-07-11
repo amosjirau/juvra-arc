@@ -10,11 +10,15 @@ const statusClasses: Record<JobStatus, string> = {
   Disputed: "border-status-disputed/40 bg-status-disputed/10 text-status-disputed",
   Refunded: "border-status-refunded/30 bg-status-refunded/10 text-status-refunded",
   Cancelled: "border-status-cancelled/40 bg-status-cancelled/10 text-status-cancelled",
+  "Client Approved":
+    "border-status-approved/30 bg-status-approved/10 text-status-approved",
+  "Client Rejected":
+    "border-status-disputed/30 bg-status-disputed/10 text-status-disputed",
 };
 
 /**
  * Status pill backed by the shared semantic status tokens. `status` is the
- * on-chain numeric job status (0-6); the label comes from `getStatusLabel`.
+ * on-chain numeric job status (0-8); the label comes from `getStatusLabel`.
  */
 export function StatusBadge({
   status,

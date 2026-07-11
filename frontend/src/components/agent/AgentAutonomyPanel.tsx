@@ -87,6 +87,16 @@ type AutonomyJob = {
   status?: number;
 };
 
+type AgentSettlementEntry = {
+  id: string;
+  jobId: string;
+  direction: "release" | "refund";
+  amountUSDC: string;
+  recipient: string;
+  txHash: string;
+  createdAt: string;
+};
+
 export function AgentAutonomyPanel({
   evidence = [],
   job,
@@ -102,6 +112,7 @@ export function AgentAutonomyPanel({
   const [lastPaid, setLastPaid] = useState<AutoPayment | null>(null);
   const [a2aLoading, setA2aLoading] = useState(false);
   const [a2a, setA2a] = useState<AgentToAgentResult | null>(null);
+  const [settlements, setSettlements] = useState<AgentSettlementEntry[]>([]);
 
   const refreshWallet = useCallback(async () => {
     try {
@@ -113,6 +124,20 @@ export function AgentAutonomyPanel({
       }
     } catch {
       // Status is best-effort; ignore transient fetch errors.
+    }
+
+    try {
+      const res = await fetch("/api/agent/settle-escrow");
+      const data = (await res.json()) as {
+        success: boolean;
+        settlements?: AgentSettlementEntry[];
+      };
+
+      if (data.success && Array.isArray(data.settlements)) {
+        setSettlements(data.settlements);
+      }
+    } catch {
+      // Ledger view is best-effort; ignore transient fetch errors.
     }
   }, []);
 
@@ -234,8 +259,9 @@ export function AgentAutonomyPanel({
             </CardTitle>
             <p className="mt-2 text-sm leading-5 text-ink-soft">
               The agent holds its own budgeted USDC wallet on Arc and pays
-              nanopayments autonomously — no human signature. It never touches
-              escrow, which stays human-confirmed.
+              nanopayments autonomously — no human signature. It also executes
+              escrow settlement, but only along the verdict the client recorded
+              on-chain.
             </p>
           </div>
           <Badge className="border-emerald-600/25 bg-emerald-500/[0.06] text-emerald-700">
@@ -457,10 +483,46 @@ export function AgentAutonomyPanel({
               )}
             </div>
 
+            <div className="rounded-xl border border-line bg-paper p-3">
+              <h3 className="mb-2 text-sm font-medium text-ink">
+                Agent escrow settlements
+              </h3>
+              {settlements.length === 0 ? (
+                <p className="text-sm text-ink-soft">
+                  No agent-executed settlements yet this session.
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {settlements.map((settlement) => (
+                    <div
+                      className="rounded-lg border border-line bg-paper p-3"
+                      key={settlement.id}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-sm font-medium capitalize text-ink">
+                          Job #{settlement.jobId} · {settlement.direction}
+                        </span>
+                        <span className="font-mono text-sm text-emerald-700">
+                          {settlement.amountUSDC} USDC
+                        </span>
+                      </div>
+                      <p className="mt-1 text-xs text-ink-soft">
+                        To {shortAddress(settlement.recipient as `0x${string}`)}
+                      </p>
+                      <div className="mt-1">
+                        <ArcscanLink hash={settlement.txHash as `0x${string}`} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <p className="text-xs leading-5 text-ink-soft">
               Guardrails: per-transaction cap, session budget, recipient
-              allowlist, and the wallet&apos;s on-chain balance. The agent cannot
-              release, refund, or sign escrow — those remain human-confirmed.
+              allowlist, and the wallet&apos;s on-chain balance. Escrow settlement
+              is verdict-gated on-chain — the agent executes it but can never
+              pick where the funds go.
             </p>
           </>
         )}

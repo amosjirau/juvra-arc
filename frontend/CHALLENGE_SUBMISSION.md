@@ -58,7 +58,7 @@ Live / implemented:
 - Agentic risk/recommendation backend
 - Manual wallet-confirmed settlement actions
 - **Nanopayments: a real on-chain native-USDC verification fee on Arc Testnet.** The agent prepares a USDC-denominated verification payment; the human confirms it in their wallet; the real transaction hash and Arcscan link are recorded in the agent economic action ledger. This is separate from escrow and the agent never signs.
-- **Autonomous agent payments: the agent has its OWN budgeted USDC wallet on Arc and pays nanopayments autonomously — no human signature.** It decides from real signals (delivery evidence, submission status, dispute state), signs and sends the USDC itself, and is bounded by a per-transaction cap, a session budget, a recipient allowlist, and its on-chain balance. Supports verification fees and agent-to-agent/service payments. The agent's wallet is not the user's wallet and never touches escrow, which stays human-confirmed.
+- **Autonomous agent payments: the agent has its OWN budgeted USDC wallet on Arc and pays nanopayments autonomously — no human signature.** It decides from real signals (delivery evidence, submission status, dispute state), signs and sends the USDC itself, and is bounded by a per-transaction cap, a session budget, a recipient allowlist, and its on-chain balance. Supports verification fees and agent-to-agent/service payments. The agent's wallet is not the user's wallet. Escrow settlement is verdict-gated: the agent executes it, but only along the approve/reject verdict a party recorded on-chain.
 - **CCTP cross-chain USDC: live and bidirectional (Arc ⇄ Ethereum Sepolia).** The agent autonomously burns USDC on the source chain, retrieves Circle's attestation, and mints on the destination chain — all agent-signed. Verified live end-to-end: burned 1 USDC on Arc (tx `0xccafe0…`) and minted it on Sepolia (tx `0xcac4c8…`).
 - **Circle Programmable Wallets (developer-controlled) on Arc.** The agent's wallet can run as a Circle Wallet (entity-secret signed, custodied by Circle) via a swappable `AgentWallet` provider — set `AGENT_WALLET_PROVIDER=circle`. Verified live: an autonomous nanopayment signed by the Circle wallet on `ARC-TESTNET` (tx `0x2e0e7a…`, from the Circle wallet `0x4d92…fce8`).
 - **Circle Gateway: a unified USDC balance with instant crosschain spend.** The agent autonomously deposits USDC into the Gateway Wallet on Arc (unified balance), then signs an EIP-712 burn intent, gets Circle's attestation, and mints on another chain. Verified live end-to-end: deposited 5 USDC on Arc, then transferred 4 USDC Arc → Sepolia (mint tx `0x1f77c5…`, Sepolia USDC 1.00 → 5.00). This is Circle's "nanopayments powered by Gateway" agentic rail.
@@ -91,12 +91,12 @@ Note: the nanopayment verification fee, autonomous agent payments, agent-to-agen
 
 ## Safety Model
 
-- AI never releases escrow funds automatically.
-- AI never refunds escrow funds automatically.
+- Escrow settlement is verdict-gated: the client records an approve/reject verdict on-chain (a human wallet confirmation that moves no funds), then the agent executes the settlement autonomously. The contract fixes the direction — release to the freelancer on approve, refund to the client on reject — so the agent can never choose where escrow funds go.
 - AI never signs user wallet transactions.
 - AI never selects freelancers automatically.
-- AI never resolves disputes automatically.
-- Every escrow write action requires explicit human click and wallet confirmation.
+- AI never resolves disputes automatically (dispute resolution stays with the human arbitrator).
+- If the agent is offline, either party can execute a recorded verdict themselves (`agentSettle` is also callable by the job's client and freelancer).
+- Every verdict, dispute, and manual escrow action requires an explicit human click and wallet confirmation.
 - Agent verification is advisory only.
 - Agent economic action logs are local demo/testnet records and are not fake escrow data.
 

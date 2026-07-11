@@ -208,7 +208,7 @@ function renderGuidedAction({
         ) : (
           <CheckCircle2 className="size-4" />
         )}
-        {job.status === 2 ? "Approve work" : "Approve work unavailable"}
+        {job.status === 2 ? "Approve work (manual fallback)" : "Approve work unavailable"}
       </Button>
     );
   }

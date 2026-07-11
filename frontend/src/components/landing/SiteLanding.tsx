@@ -216,7 +216,7 @@ function HeroReceipt() {
       </div>
 
       <p className="mt-6 text-xs" style={{ color: INK_SOFT }}>
-        Released only on human-confirmed approval — never by the agent.
+        Direction fixed by the client&apos;s on-chain verdict — settled autonomously by the agent.
       </p>
     </div>
   );

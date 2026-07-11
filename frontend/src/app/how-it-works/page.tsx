@@ -36,7 +36,7 @@ const faqs = [
   { q: "What network and token does it use?", a: "Juvra runs on Arc Testnet and settles work in USDC." },
   { q: "Who holds my money?", a: "No one. Funds sit in the escrow smart contract until the work is approved or a dispute is resolved." },
   { q: "What if the work is never delivered?", a: "You can raise a dispute. A neutral arbitrator reviews the evidence and can refund the client." },
-  { q: "Does the AI move my funds?", a: "Never. The Juvra agent is advisory only. Every action is confirmed by a human in their own wallet." },
+  { q: "Does the AI move my funds?", a: "Only where you tell it to. You record an approve or reject verdict in your own wallet; the agent then executes the settlement, and the contract only lets it move funds in the direction of your verdict." },
 ];
 
 function JourneyCard({

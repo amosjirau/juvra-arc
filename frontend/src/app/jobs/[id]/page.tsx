@@ -3,7 +3,6 @@
 import {
   AlertTriangle,
   ArrowLeft,
-  CheckCircle2,
   CircleX,
   FileText,
   LinkIcon,
@@ -21,6 +20,7 @@ import { AgentFlagsPanel } from "@/components/agent/AgentFlagsPanel";
 import { ApplyButton } from "@/components/apply-button";
 import { DisputePanel } from "@/components/DisputePanel";
 import { JobStatusBadge } from "@/components/JobStatusBadge";
+import { SettlementActions } from "@/components/SettlementActions";
 import { SubmitWorkDialog } from "@/components/SubmitWorkDialog";
 import { EditorialShell } from "@/components/shell/EditorialShell";
 import { Button } from "@/components/ui/button";
@@ -328,9 +328,9 @@ export default function JobDetailPage() {
             <p className="text-sm font-medium text-emerald-700">Escrow Intelligence</p>
             <h2 className="font-serif mt-1 text-2xl font-semibold text-ink">Agent workspace</h2>
             <p className="mt-3 rounded-xl border border-accent-orange/30 bg-accent-orange/[0.06] p-3 text-sm leading-6 text-accent-orange">
-              The Juvra agent provides decision support and runs its own budgeted payments.
-              Every escrow release, refund, or dispute action still requires an explicit
-              human wallet confirmation.
+              The parties decide, the agent executes. A wallet-confirmed approve/reject
+              verdict fixes the settlement direction on-chain; the agent then releases or
+              refunds the escrow autonomously and can never move funds anywhere else.
             </p>
           </div>
 
@@ -343,21 +343,12 @@ export default function JobDetailPage() {
                 job={job}
                 onSettled={refresh}
               />
-              <Button
-                className="w-full"
-                disabled={!isClient || job.status !== 2 || actionTx.isPending}
-                onClick={() =>
-                  actionTx.writeContract({
-                    address: juvraEscrowAddress,
-                    abi: juvraEscrowAbi,
-                    functionName: "approveWork",
-                    args: [job.id],
-                  })
-                }
-              >
-                <CheckCircle2 className="size-4" />
-                {actionTx.isPending ? "Confirming..." : "Approve work"}
-              </Button>
+              <SettlementActions
+                isClient={isClient}
+                isParty={isClient || isSelectedFreelancer}
+                job={job}
+                onSettled={refresh}
+              />
               <Button
                 className="w-full border-rose-300/40 bg-rose-500/[0.06] text-rose-700 hover:bg-rose-500/[0.06]"
                 disabled={!isClient || job.status !== 0 || actionTx.isPending}
@@ -376,8 +367,8 @@ export default function JobDetailPage() {
               </Button>
               <TxStatus status={actionTxState} message={actionTx.error ? errorMessage(actionTx.error) : undefined} hash={actionTx.transactionHash} />
               <p className="text-xs text-ink-soft">
-                Buttons unlock based on wallet role and contract status. Agent guidance cannot
-                release or refund funds.
+                Buttons unlock based on wallet role and contract status. Your verdict fixes
+                the settlement direction on-chain; the agent only executes it.
               </p>
             </div>
           </GlassCard>

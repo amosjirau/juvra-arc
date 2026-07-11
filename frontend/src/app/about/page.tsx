@@ -20,7 +20,7 @@ export default function AboutPage() {
         },
         {
           title: "Agent role",
-          body: "The Juvra Agent provides decision support only. It can summarize risks and evidence, but it cannot move funds, sign transactions, select freelancers, or resolve disputes automatically.",
+          body: "The Juvra Agent provides decision support and executes escrow settlement autonomously once a party records an approve/reject verdict on-chain. The contract fixes the settlement direction to that verdict, and the agent cannot sign for users, select freelancers, or resolve disputes.",
         },
         {
           title: "Product focus",

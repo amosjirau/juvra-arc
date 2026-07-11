@@ -2,7 +2,7 @@
 
 Juvra is an Agentic Freelance Commerce Network on Arc. AI agents help clients and freelancers structure scope, evaluate risk, review delivery evidence, run advisory verification workflows, and recommend settlement actions while Arc smart contracts hold escrow and USDC provides stable settlement.
 
-Final escrow actions are human-confirmed. The agent never releases funds, refunds funds, signs transactions, selects freelancers, or resolves disputes.
+Escrow settlement is verdict-gated: humans record an approve/reject verdict on-chain, then the agent autonomously executes the settlement — and the contract only lets it settle in the direction of that verdict. The agent never signs for a user, never selects freelancers, and never resolves disputes.
 
 ## Challenge Track
 
@@ -74,8 +74,10 @@ NEXT_PUBLIC_AGENT_MODE=live
 NEXT_PUBLIC_VERIFICATION_FEE_RECIPIENT=
 
 # Autonomous agent wallet (server-only, NEVER commit). The agent signs and
-# sends USDC nanopayments from this wallet. Generate a fresh key, fund the
-# address with a little Arc testnet USDC, and keep it in .env.local only.
+# sends USDC nanopayments from this wallet, and executes verdict-gated escrow
+# settlements (its address must be the contract's agentSettler — deploy with
+# AGENT_SETTLER_ADDRESS set to this wallet's address). Generate a fresh key,
+# fund the address with a little Arc testnet USDC, and keep it in .env.local only.
 AGENT_WALLET_PRIVATE_KEY=
 # Autonomy guardrails (optional; sensible defaults if unset).
 AGENT_MAX_PAYMENT_USDC=0.10
@@ -216,12 +218,12 @@ npm run build
 
 ## Safety Model
 
-- AI never releases escrow funds automatically.
-- AI never refunds escrow funds automatically.
+- Escrow settlement is verdict-gated: the client records an approve/reject verdict on-chain (a human wallet confirmation that moves no funds), then the agent executes the settlement autonomously. The contract fixes the direction — release to the freelancer on approve, refund to the client on reject — so the agent can never choose where escrow funds go.
 - AI never signs user wallet transactions.
 - AI never selects freelancers automatically.
-- AI never resolves disputes automatically.
-- Every escrow write action requires a human click and wallet confirmation.
+- AI never resolves disputes automatically (dispute resolution stays with the human arbitrator).
+- If the agent is offline, either party can execute a recorded verdict themselves (`agentSettle` is also callable by the job's client and freelancer).
+- Every verdict, dispute, and manual escrow action requires a human click and wallet confirmation.
 - The verification panel records a local agent economic action log only; it does not control escrow funds.
 - `.env.local` must stay local and must not be committed.
 

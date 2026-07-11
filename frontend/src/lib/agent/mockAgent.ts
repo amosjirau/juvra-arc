@@ -378,7 +378,7 @@ export function recommendActionMock(context: {
     requiredHumanAction:
       "A human should gather more evidence or run the relevant risk, delivery, and dispute analyses.",
     safetyNotice:
-      "Juvra Agent is advisory only. Every escrow write still requires explicit wallet confirmation.",
+      "Juvra Agent settles escrow only along a party-recorded on-chain verdict. Verdicts, disputes, and manual actions require explicit wallet confirmation.",
   };
 }
 

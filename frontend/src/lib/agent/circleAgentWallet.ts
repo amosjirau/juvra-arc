@@ -3,7 +3,8 @@
 // Implements the same AgentWallet interface as the local-key wallet, so the
 // agent's autonomous payments can run through Circle Wallets instead of a raw
 // private key. Circle custodies the key and signs via the entity secret; the
-// agent still spends only from its own budgeted wallet and never touches escrow.
+// agent still spends only from its own budgeted wallet; escrow settlement runs
+// separately via escrowSettler.ts and is verdict-gated on-chain.
 
 import "server-only";
 
